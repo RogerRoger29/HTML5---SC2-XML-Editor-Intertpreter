@@ -1,0 +1,16 @@
+# Build outputs
+dist/
+build/
+*.spec
+__pycache__/
+*.pyc
+
+# Per-user runtime config (created by the running app)
+sc2-ui-editor-config.json
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/

@@ -1,0 +1,756 @@
+// Editable inspector panel.
+//
+// The panel renders form inputs bound directly to the selected frame's
+// underlying mod XML element (_modSource). Each input writes through to
+// XML via setAttr / createOrUpdateChild and fires `onChange(node)` so the
+// host re-runs layout + paints + serializes the doc.
+//
+// Read-only sections (resolved box, template-inherited values) stay text
+// only - those don't make sense to edit at the instance level.
+
+import { setAttr } from '../xml/serializer.js';
+import { attachAutocomplete } from './autocomplete.js';
+import { stateGroupsFor } from '../state-groups.js';
+
+export class Inspector {
+    constructor(rootEl, opts = {}) {
+        this.rootEl = rootEl;
+        this.frame = null;
+        // onChange(frame, live) - live=true while user is mid-spin / mid-type
+        // (host should do a cheap positions-only rerender); live=false on
+        // commit (blur/Enter), host should do the full rerender + pane refresh.
+        this.onChange = opts.onChange || (() => {});
+        this.onBeforeChange = opts.onBeforeChange || (() => {});
+        // Suggesters are functions that take a query string and return an
+        // array of { value, label?, hint? } objects. Used to power
+        // autocomplete on Texture / Style / template fields.
+        //   suggesters.texture(query)  - alias keys + literal paths
+        //   suggesters.style(query)    - FontStyles entries
+        //   suggesters.template(query) - registered templates
+        this.suggesters = opts.suggesters || {};
+        // Map<framePath#groupName, stateName> tracking which visual state the
+        // user has selected for preview, per frame + StateGroup. Survives
+        // selection changes via main.js holding the reference.
+        this.activeStates = opts.activeStates || new Map();
+        // Callback fired when the user picks a different state from the
+        // dropdown so the host can rerender.
+        this.onStateChange = opts.onStateChange || (() => {});
+    }
+
+    show(frame) {
+        this.frame = frame;
+        this.rootEl.replaceChildren();
+        if (!frame) {
+            const p = document.createElement('p');
+            p.className = 'hint';
+            p.textContent = 'Select a frame in the hierarchy.';
+            this.rootEl.appendChild(p);
+            return;
+        }
+
+        const source = frame._modSource;
+        const editable = !!source && frame.origin === 'mod';
+        if (!editable) {
+            const note = document.createElement('div');
+            note.className = 'inspector-readonly-note';
+            note.textContent = frame.synthetic
+                ? 'Synthetic chain wrapper (read-only).'
+                : 'Stock-origin frame (read-only; copy to your mod to edit).';
+            this.rootEl.appendChild(note);
+        }
+
+        this._identitySection(frame);
+        this._boxSection(frame);
+        if (editable) {
+            this._declaredSizeSection(frame, source);
+            this._anchorsSection(frame, source);
+            this._textPropsSection(frame, source);
+        } else {
+            // Show inherited values as text only.
+            if (frame.width != null || frame.height != null) {
+                this._sectionTitle('Declared size (inherited)');
+                this._textRow('Width', frame.width ?? '—');
+                this._textRow('Height', frame.height ?? '—');
+            }
+            if (frame.anchors.length) {
+                this._sectionTitle('Anchors (inherited)');
+                for (const a of frame.anchors) {
+                    this._textRow(`${a.side || 'all'} → ${a.relative} ${a.pos || ''}`, a.offset);
+                }
+            }
+        }
+
+        // Frame XML attributes - displayed read-only since most of them are
+        // identity fields (type, name, template) we don't want users editing
+        // via the inspector. The XML pane covers that workflow.
+        if (source && source.attrs && source.attrs.length) {
+            this._sectionTitle('Frame attributes');
+            for (const a of source.attrs) {
+                this._textRow(a.name, a.value);
+            }
+        }
+
+        // Visual state preview: works for read-only frames too since picking
+        // a state doesn't mutate XML, only the editor's preview override.
+        this._statesSection(frame);
+
+        if (editable) this._actionsSection(frame, source);
+    }
+
+    /** "Visual state" section. Shows one dropdown per StateGroup defined on
+     *  the selected frame (typically Normal / Hover / Pressed). Picking a
+     *  state writes to the shared activeStates Map and calls onStateChange. */
+    _statesSection(frame) {
+        const groups = stateGroupsFor(frame);
+        if (!groups.length) return;
+        this._sectionTitle('Visual state preview');
+        for (const g of groups) {
+            const key = `${frame.path}#${g.name}`;
+            const current = this.activeStates.get(key) || g.defaultState;
+            const div = document.createElement('div');
+            div.className = 'inspector-row';
+            const l = document.createElement('label');
+            l.textContent = g.name;
+            l.title = `StateGroup "${g.name}"`;
+            const sel = document.createElement('select');
+            for (const s of g.states) {
+                const opt = document.createElement('option');
+                opt.value = s.name;
+                opt.textContent = s.name + (s.name === g.defaultState ? ' (default)' : '');
+                if (s.name === current) opt.selected = true;
+                sel.appendChild(opt);
+            }
+            sel.addEventListener('change', () => {
+                if (sel.value === g.defaultState) this.activeStates.delete(key);
+                else this.activeStates.set(key, sel.value);
+                this.onStateChange();
+            });
+            div.appendChild(l);
+            div.appendChild(sel);
+            this.rootEl.appendChild(div);
+        }
+        // Show the most recent action summary for the active state so the
+        // user can tell at a glance what the state is doing.
+        for (const g of groups) {
+            const key = `${frame.path}#${g.name}`;
+            const stateName = this.activeStates.get(key) || g.defaultState;
+            const state = g.states.find(s => s.name === stateName);
+            if (!state || !state.actions.length) continue;
+            const note = document.createElement('div');
+            note.className = 'inspector-state-actions';
+            const lines = state.actions.map(a => {
+                const props = Object.entries(a.props || {})
+                    .filter(([k, v]) => v !== undefined && k !== 'requiredtoload')
+                    .map(([k, v]) => `${k}=${v}`).join(' ');
+                return `→ ${a.frame} { ${props} }`;
+            });
+            note.textContent = `${g.name}/${stateName}: ${lines.join('  ')}`;
+            this.rootEl.appendChild(note);
+        }
+    }
+
+    // ------- sections -------
+
+    _identitySection(frame) {
+        this._sectionTitle('Identity');
+        this._textRow('Type', frame.type);
+        this._textRow('Name', frame.name);
+        this._textRow('Path', frame.path || frame.name);
+    }
+
+    _boxSection(frame) {
+        this._sectionTitle('Box (resolved)');
+        this._textRow('x', round(frame.x));
+        this._textRow('y', round(frame.y));
+        this._textRow('w', round(frame.w));
+        this._textRow('h', round(frame.h));
+    }
+
+    _declaredSizeSection(frame, source) {
+        this._sectionTitle('Declared size');
+        const widthEl = findChild(source, 'Width');
+        const heightEl = findChild(source, 'Height');
+        // If the frame is anchored on BOTH sides of an axis, the size on
+        // that axis is determined by anchor positions and the Width/Height
+        // attribute is silently ignored by SC2's layout engine. Surface that
+        // to the user instead of letting their edits seem to do nothing.
+        const hasLeft = !!findAnchorChild(source, 'Left');
+        const hasRight = !!findAnchorChild(source, 'Right');
+        const hasTop = !!findAnchorChild(source, 'Top');
+        const hasBottom = !!findAnchorChild(source, 'Bottom');
+        const widthOverridden = hasLeft && hasRight;
+        const heightOverridden = hasTop && hasBottom;
+        this._numberRow('Width', widthEl ? attrVal(widthEl, 'val') : '',
+            (v, live) => this._writeSizedChild(source, 'Width', v, 'val', { live, liveSession: true }),
+            'auto',
+            widthOverridden ? {
+                disabled: true,
+                note: 'Anchored on Left + Right - Width is ignored. Remove one anchor (× next to Left or Right above) to use this value.',
+            } : {});
+        this._numberRow('Height', heightEl ? attrVal(heightEl, 'val') : '',
+            (v, live) => this._writeSizedChild(source, 'Height', v, 'val', { live, liveSession: true }),
+            'auto',
+            heightOverridden ? {
+                disabled: true,
+                note: 'Anchored on Top + Bottom - Height is ignored. Remove one anchor (× next to Top or Bottom above) to use this value.',
+            } : {});
+    }
+
+    _anchorsSection(frame, source) {
+        this._sectionTitle('Anchors');
+        const anchorsBySide = {
+            Top: null, Bottom: null, Left: null, Right: null,
+        };
+        for (const c of source.children) {
+            if (c.type !== 'element' || c.tag !== 'Anchor') continue;
+            const side = attrVal(c, 'side');
+            if (side && side in anchorsBySide) anchorsBySide[side] = c;
+        }
+        for (const side of ['Top', 'Bottom', 'Left', 'Right']) {
+            this._anchorRow(side, anchorsBySide[side], source);
+        }
+    }
+
+    _anchorRow(side, anchorEl, source) {
+        const row = document.createElement('div');
+        row.className = 'inspector-row inspector-anchor-row';
+        row.style.gridTemplateColumns = '54px 60px 1fr 60px 24px';
+
+        const label = document.createElement('label');
+        label.textContent = side;
+        row.appendChild(label);
+
+        if (!anchorEl) {
+            // Compact "add" affordance for missing sides.
+            const placeholder = document.createElement('span');
+            placeholder.className = 'inspector-anchor-placeholder';
+            placeholder.textContent = '—';
+            placeholder.style.gridColumn = '2 / span 3';
+            row.appendChild(placeholder);
+            const add = document.createElement('button');
+            add.type = 'button';
+            add.textContent = '+';
+            add.title = `Add ${side} anchor to $parent`;
+            add.addEventListener('click', () => {
+                this.onBeforeChange(this.frame);
+                const created = makeElement('Anchor', [
+                    ['side', side],
+                    ['relative', '$parent'],
+                    ['pos', (side === 'Top' || side === 'Left') ? 'Min' : 'Max'],
+                    ['offset', '0'],
+                ], true);
+                appendNewChild(source, created);
+                this.onChange(this.frame);
+                this.show(this.frame);
+            });
+            row.appendChild(add);
+            this.rootEl.appendChild(row);
+            return;
+        }
+
+        const posSelect = document.createElement('select');
+        for (const p of ['Min', 'Mid', 'Max']) {
+            const opt = document.createElement('option');
+            opt.value = p;
+            opt.textContent = p;
+            if (attrVal(anchorEl, 'pos') === p) opt.selected = true;
+            posSelect.appendChild(opt);
+        }
+        posSelect.addEventListener('change', () => {
+            this.onBeforeChange(this.frame);
+            setAttr(anchorEl, 'pos', posSelect.value);
+            this.onChange(this.frame);
+        });
+        row.appendChild(posSelect);
+
+        const rel = document.createElement('input');
+        rel.type = 'text';
+        rel.value = attrVal(anchorEl, 'relative') || '$parent';
+        rel.addEventListener('change', () => {
+            this.onBeforeChange(this.frame);
+            setAttr(anchorEl, 'relative', rel.value);
+            this.onChange(this.frame);
+        });
+        row.appendChild(rel);
+
+        const off = document.createElement('input');
+        off.type = 'number';
+        off.step = '1';
+        off.value = attrVal(anchorEl, 'offset') || '0';
+        // Live update: hold the spinner or type a value and the canvas
+        // tracks it in real time. Undo snapshot fires once per focus session.
+        this._wireLiveNumber(off, (val, live) => {
+            const v = parseFloat(val);
+            if (!Number.isFinite(v)) return;
+            setAttr(anchorEl, 'offset', String(v));
+            this.onChange(this.frame, !!live);
+        });
+        row.appendChild(off);
+
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = '×';
+        remove.title = `Remove ${side} anchor`;
+        remove.addEventListener('click', () => {
+            this.onBeforeChange(this.frame);
+            removeChild(source, anchorEl);
+            this.onChange(this.frame);
+            this.show(this.frame);
+        });
+        row.appendChild(remove);
+
+        this.rootEl.appendChild(row);
+    }
+
+    _textPropsSection(frame, source) {
+        // Type-specific common props: Image has Texture, Label has Text + Style.
+        // Render only when the corresponding tag is currently present OR the
+        // frame's type suggests it would commonly have one.
+        const wants = {
+            Texture:    frame.type === 'Image' || frame.type === 'Button' || hasChild(source, 'Texture'),
+            Text:       frame.type === 'Label' || frame.type === 'Button' || hasChild(source, 'Text'),
+            Style:      frame.type === 'Label' || frame.type === 'Button' || hasChild(source, 'Style'),
+            Tooltip:    frame.type === 'Button' || hasChild(source, 'Tooltip'),
+            LayerColor: frame.type === 'Image' || hasChild(source, 'LayerColor'),
+        };
+        // Tags that render with a color swatch + native color picker.
+        const colorFields = new Set(['LayerColor']);
+        // Per-instance text alignment overrides on Label / Button frames.
+        // SC2 stores these as <HAlign val="..."/> / <VAlign val="..."/> children;
+        // blank means "fall back to whatever the Style attribute defines".
+        const wantsAlignment = frame.type === 'Label' || frame.type === 'Button'
+            || hasChild(source, 'HAlign') || hasChild(source, 'VAlign');
+        const fields = Object.entries(wants).filter(([_, v]) => v).map(([k]) => k);
+        if (!fields.length && !wantsAlignment) return;
+        this._sectionTitle('Content');
+        // Map tag -> suggester key. Tags not listed here get no autocomplete.
+        const suggesterByTag = {
+            Texture: this.suggesters.texture,
+            Style:   this.suggesters.style,
+        };
+        for (const tag of fields) {
+            const el = findChild(source, tag);
+            const value = el ? attrVal(el, 'val') : '';
+            if (colorFields.has(tag)) {
+                this._colorRow(tag, value,
+                    (v) => this._writeSizedChild(source, tag, v, 'val'));
+            } else {
+                this._textPropRow(tag, value,
+                    (v) => this._writeSizedChild(source, tag, v, 'val'),
+                    suggesterByTag[tag]);
+            }
+        }
+        if (wantsAlignment) {
+            this._alignRow(source, 'HAlign', ['Left', 'Center', 'Right']);
+            this._alignRow(source, 'VAlign', ['Top', 'Middle', 'Bottom']);
+        }
+    }
+
+    /** Dropdown for <HAlign val="..."/> or <VAlign val="..."/>. Blank
+     *  value means "remove the override and inherit from Style." */
+    _alignRow(source, tag, options) {
+        const div = document.createElement('div');
+        div.className = 'inspector-row';
+        const l = document.createElement('label');
+        l.textContent = tag;
+        const sel = document.createElement('select');
+        const blank = document.createElement('option');
+        blank.value = '';
+        blank.textContent = '(from style)';
+        sel.appendChild(blank);
+        for (const o of options) {
+            const opt = document.createElement('option');
+            opt.value = o;
+            opt.textContent = o;
+            sel.appendChild(opt);
+        }
+        const el = findChild(source, tag);
+        if (el) sel.value = attrVal(el, 'val') || '';
+        sel.addEventListener('change', () => {
+            this._writeSizedChild(source, tag, sel.value, 'val');
+        });
+        div.appendChild(l);
+        div.appendChild(sel);
+        this.rootEl.appendChild(div);
+    }
+
+    _actionsSection(frame, source) {
+        this._sectionTitle('Actions');
+        const row = document.createElement('div');
+        row.className = 'inspector-actions';
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.textContent = 'Delete frame';
+        del.className = 'danger';
+        del.addEventListener('click', () => {
+            if (!confirm(`Delete frame "${frame.name}" and all its children?`)) return;
+            this.onBeforeChange(frame);
+            removeFromParent(source);
+            this.onChange(null);
+        });
+        row.appendChild(del);
+
+        const dup = document.createElement('button');
+        dup.type = 'button';
+        dup.textContent = 'Duplicate';
+        dup.addEventListener('click', () => {
+            this.onBeforeChange(frame);
+            duplicateSibling(source);
+            this.onChange(frame);
+        });
+        row.appendChild(dup);
+        this.rootEl.appendChild(row);
+    }
+
+    // ------- writers -------
+
+    /** Write <Width val="N"/>, <Height val="N"/>, <Text val="..."/> etc.
+     *  Creates the child element on first edit; empty string removes it.
+     *  Skips the undo snapshot when `liveSession` is set (caller already
+     *  snapshotted at the start of the editing session). */
+    _writeSizedChild(source, tag, newValue, attrName = 'val', opts = {}) {
+        if (!opts.liveSession) this.onBeforeChange(this.frame);
+        const existing = findChild(source, tag);
+        const trimmed = newValue == null ? '' : String(newValue).trim();
+        if (trimmed === '' && existing) {
+            removeChild(source, existing);
+        } else if (existing) {
+            setAttr(existing, attrName, trimmed);
+        } else if (trimmed !== '') {
+            const created = makeElement(tag, [[attrName, trimmed]], true);
+            appendNewChild(source, created);
+        }
+        this.onChange(this.frame, !!opts.live);
+    }
+
+    /** Wire input/change/focus/blur on a number input so the canvas
+     *  updates LIVE while the user holds the spinner or types, while
+     *  snapshots happen exactly once per focus-session. */
+    _wireLiveNumber(inp, applyFn) {
+        let sessionStarted = false;
+        const startSession = () => {
+            if (!sessionStarted) {
+                this.onBeforeChange(this.frame);
+                sessionStarted = true;
+            }
+        };
+        const endSession = () => { sessionStarted = false; };
+        inp.addEventListener('focus', endSession);   // reset; next input starts the new session
+        inp.addEventListener('input', () => {
+            startSession();
+            applyFn(inp.value, /*live=*/true);
+        });
+        inp.addEventListener('change', () => {
+            startSession();
+            applyFn(inp.value, /*live=*/false);
+            endSession();
+        });
+        inp.addEventListener('blur', () => {
+            if (sessionStarted) {
+                applyFn(inp.value, /*live=*/false);
+                endSession();
+            }
+        });
+    }
+
+    // ------- ui primitives -------
+
+    _sectionTitle(title) {
+        const h = document.createElement('div');
+        h.className = 'inspector-section-title';
+        h.textContent = title;
+        this.rootEl.appendChild(h);
+    }
+
+    _textRow(label, value) {
+        const div = document.createElement('div');
+        div.className = 'inspector-row';
+        const l = document.createElement('label');
+        l.textContent = label;
+        const v = document.createElement('span');
+        v.textContent = value;
+        v.style.fontFamily = 'Consolas, monospace';
+        v.style.fontSize = '12px';
+        div.appendChild(l);
+        div.appendChild(v);
+        this.rootEl.appendChild(div);
+    }
+
+    _numberRow(label, value, onCommit, placeholder = '', opts = {}) {
+        const div = document.createElement('div');
+        div.className = 'inspector-row';
+        if (opts.disabled) div.classList.add('inspector-row-disabled');
+        const l = document.createElement('label');
+        l.textContent = label;
+        const inp = document.createElement('input');
+        inp.type = 'number';
+        inp.step = '1';
+        inp.value = value;
+        inp.placeholder = placeholder;
+        if (opts.disabled) {
+            inp.disabled = true;
+            inp.title = opts.note || 'Overridden.';
+        }
+        // Live update on every spinner click / keystroke; commit on blur/Enter.
+        this._wireLiveNumber(inp, (val, live) => {
+            const v = val === '' ? '' : parseFloat(val);
+            if (val !== '' && !Number.isFinite(v)) return;
+            onCommit(v === '' ? '' : v, live);
+        });
+        div.appendChild(l);
+        div.appendChild(inp);
+        this.rootEl.appendChild(div);
+        // Inline explanatory note below the row when the input is overridden.
+        if (opts.disabled && opts.note) {
+            const note = document.createElement('div');
+            note.className = 'inspector-row-note';
+            note.textContent = opts.note;
+            this.rootEl.appendChild(note);
+        }
+    }
+
+    /** Color row: text input + swatch that opens the native color picker.
+     *  Parses SC2 color formats (RRGGBB / AARRGGBB / r,g,b / r,g,b,a /
+     *  #NamedConstant). Writes back as uppercase RRGGBB hex by default
+     *  unless the user types a different form into the text input. */
+    _colorRow(label, value, onCommit) {
+        const div = document.createElement('div');
+        div.className = 'inspector-row inspector-color-row';
+        const l = document.createElement('label');
+        l.textContent = label;
+        const wrap = document.createElement('div');
+        wrap.className = 'inspector-color-wrap';
+
+        const swatch = document.createElement('input');
+        swatch.type = 'color';
+        swatch.className = 'inspector-color-swatch';
+        swatch.title = 'Pick color (writes as RRGGBB hex)';
+
+        const text = document.createElement('input');
+        text.type = 'text';
+        text.value = value || '';
+        text.className = 'inspector-color-text';
+        text.spellcheck = false;
+        text.placeholder = 'RRGGBB or r,g,b or #Constant';
+
+        const syncSwatchFromText = () => {
+            const parsed = parseSc2ColorToHex(text.value);
+            if (parsed) {
+                swatch.value = parsed;
+                swatch.disabled = false;
+                swatch.title = 'Pick color (writes as RRGGBB hex)';
+            } else {
+                // Value is a constant reference or unparseable; disable the
+                // swatch since we can't preview an unknown value.
+                swatch.value = '#888888';
+                swatch.disabled = true;
+                swatch.title = 'Value is a constant or non-literal color; cannot preview.';
+            }
+        };
+        syncSwatchFromText();
+
+        text.addEventListener('change', () => {
+            syncSwatchFromText();
+            onCommit(text.value);
+        });
+        swatch.addEventListener('input', () => {
+            // SC2's convention for hex is RRGGBB without a leading #, so write
+            // back without the # but preserve user's casing preference (upper).
+            const hex = swatch.value.slice(1).toUpperCase();
+            text.value = hex;
+            onCommit(hex);
+        });
+
+        wrap.appendChild(swatch);
+        wrap.appendChild(text);
+        div.appendChild(l);
+        div.appendChild(wrap);
+        this.rootEl.appendChild(div);
+    }
+
+    _textPropRow(label, value, onCommit, suggester) {
+        const div = document.createElement('div');
+        div.className = 'inspector-row';
+        const l = document.createElement('label');
+        l.textContent = label;
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.value = value || '';
+        inp.spellcheck = false;
+        inp.addEventListener('change', () => onCommit(inp.value));
+        if (suggester) attachAutocomplete(inp, suggester);
+        div.appendChild(l);
+        div.appendChild(inp);
+        this.rootEl.appendChild(div);
+    }
+}
+
+// ------- XML helpers (small enough to inline here rather than expand
+// serializer.js's API surface) -------
+
+function attrMap(el) {
+    const out = {};
+    if (!el || !el.attrs) return out;
+    for (const a of el.attrs) out[a.name] = a.value;
+    return out;
+}
+
+function attrVal(el, name) {
+    if (!el || !el.attrs) return undefined;
+    const a = el.attrs.find(x => x.name === name);
+    return a ? a.value : undefined;
+}
+
+function findChild(el, tag) {
+    if (!el || !el.children) return null;
+    for (const c of el.children) if (c.type === 'element' && c.tag === tag) return c;
+    return null;
+}
+
+function hasChild(el, tag) { return !!findChild(el, tag); }
+
+// Parse an SC2-style color string into a CSS-friendly #RRGGBB hex, or null
+// if the value is a constant reference / gradient / unparseable. Supports:
+//   RRGGBB        - 6 hex digits
+//   AARRGGBB      - 8 hex digits (ARGB order; alpha dropped for the swatch)
+//   r,g,b         - decimal triple 0..255
+//   r,g,b,a       - decimal quad
+//   "stop1|stop2" - takes the first stop
+//   "#Foo"        - constant ref (returns null so caller disables swatch)
+function parseSc2ColorToHex(v) {
+    if (!v || typeof v !== 'string') return null;
+    v = v.trim();
+    if (v.startsWith('#')) return null;       // named constant, can't preview
+    if (v.includes('|')) v = v.split('|')[0].trim();
+    const h2 = (n) => Math.max(0, Math.min(255, n)).toString(16).padStart(2, '0');
+    if (v.includes(',')) {
+        const parts = v.split(',').map(s => parseInt(s.trim(), 10));
+        if (parts.length >= 3 && parts.slice(0, 3).every(Number.isFinite)) {
+            return '#' + h2(parts[0]) + h2(parts[1]) + h2(parts[2]);
+        }
+        return null;
+    }
+    if (/^[0-9a-fA-F]{6}$/.test(v)) return '#' + v.toLowerCase();
+    if (/^[0-9a-fA-F]{8}$/.test(v)) return '#' + v.slice(2).toLowerCase();
+    return null;
+}
+
+function findAnchorChild(el, side) {
+    if (!el || !el.children) return null;
+    for (const c of el.children) {
+        if (c.type !== 'element' || c.tag !== 'Anchor') continue;
+        if (attrVal(c, 'side') === side) return c;
+    }
+    return null;
+}
+
+function makeElement(tag, attrs, selfClosing) {
+    return {
+        type: 'element',
+        tag,
+        attrs: attrs.map(([name, value]) => ({
+            name, value: String(value), quote: '"',
+            rawBetween: ' ', rawEq: '=', rawAfter: '',
+        })),
+        selfClosing: !!selfClosing,
+        children: [],
+        opening: null, closing: null,
+        source: null,
+        start: 0, end: 0,
+        dirty: true,
+    };
+}
+
+function appendNewChild(parent, child) {
+    const kids = parent.children;
+    // Pick up the indentation pattern from the parent's existing text nodes
+    // so newly-inserted elements line up with siblings.
+    let indent = '\n    ';
+    for (let i = kids.length - 1; i >= 0; i--) {
+        const k = kids[i];
+        if (k.type === 'text' && /\n[ \t]*$/.test(k.raw)) {
+            const m = k.raw.match(/\n([ \t]*)$/);
+            if (m) indent = '\n' + m[1];
+            break;
+        }
+    }
+    const last = kids[kids.length - 1];
+    if (!last || last.type !== 'text' || !/\s$/.test(last.raw)) {
+        kids.push({ type: 'text', raw: indent, start: 0, end: 0, dirty: true });
+    }
+    kids.push(child);
+    parent.dirty = true;
+}
+
+function removeChild(parent, child) {
+    const idx = parent.children.indexOf(child);
+    if (idx === -1) return false;
+    // Also remove the preceding whitespace text node so we don't leave
+    // double blank lines behind.
+    if (idx > 0 && parent.children[idx - 1].type === 'text' && /^\s+$/.test(parent.children[idx - 1].raw)) {
+        parent.children.splice(idx - 1, 2);
+    } else {
+        parent.children.splice(idx, 1);
+    }
+    parent.dirty = true;
+    return true;
+}
+
+// Remove a node from wherever it lives in the document. The parent isn't
+// stored on the node itself, so we ask the caller to provide the source
+// element which holds a parent reference via _parent (set by the merger
+// when it constructs the tree). If unavailable we fall back to a doc walk.
+function removeFromParent(el) {
+    if (!el || !el._parent) {
+        console.warn('[inspector] cannot remove: no parent reference on', el);
+        return false;
+    }
+    return removeChild(el._parent, el);
+}
+
+function duplicateSibling(el) {
+    if (!el || !el._parent) return false;
+    const copy = deepCloneElement(el);
+    // Insert immediately after the original.
+    const kids = el._parent.children;
+    const idx = kids.indexOf(el);
+    if (idx === -1) return false;
+    const indent = (() => {
+        for (let i = idx; i >= 0; i--) {
+            const k = kids[i];
+            if (k.type === 'text' && /\n[ \t]*$/.test(k.raw)) {
+                const m = k.raw.match(/\n([ \t]*)$/);
+                if (m) return '\n' + m[1];
+            }
+        }
+        return '\n    ';
+    })();
+    kids.splice(idx + 1, 0,
+        { type: 'text', raw: indent, start: 0, end: 0, dirty: true },
+        copy);
+    el._parent.dirty = true;
+    return true;
+}
+
+function deepCloneElement(el) {
+    if (el.type !== 'element') {
+        return { ...el, dirty: true };
+    }
+    return {
+        type: 'element',
+        tag: el.tag,
+        attrs: (el.attrs || []).map(a => ({ ...a })),
+        selfClosing: el.selfClosing,
+        children: (el.children || []).map(c => c.type === 'element' ? deepCloneElement(c)
+            : { ...c, dirty: true }),
+        opening: null, closing: null,
+        source: null,
+        start: 0, end: 0,
+        dirty: true,
+    };
+}
+
+function round(n) {
+    if (typeof n !== 'number') return n;
+    return Math.round(n * 100) / 100;
+}

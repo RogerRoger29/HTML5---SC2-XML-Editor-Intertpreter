@@ -1,0 +1,42 @@
+{
+    "_comment": [
+        "Curated list of essential SC2 stock files for layout editing.",
+        "Downloaded on demand from the SC2Mapster/SC2GameData public mirror.",
+        "Covers templates + constants + Assets.txt + fontstyle definitions used by",
+        "the vast majority of mods. Does NOT include binary .dds textures - those",
+        "need a real SC2 install + an extraction tool like CASCExplorer.",
+        "Total payload at v0.3.0: roughly ~500 KB compressed, ~2 MB uncompressed."
+    ],
+    "baseUrl": "https://raw.githubusercontent.com/SC2Mapster/SC2GameData/master/mods/",
+    "files": [
+        "core.sc2mod/base.sc2data/UI/Layout/DescIndex.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/FontStyles.SC2Style",
+        "core.sc2mod/base.sc2data/GameData/Assets.txt",
+        "liberty.sc2mod/base.sc2data/GameData/Assets.txt",
+        "swarm.sc2mod/base.sc2data/GameData/Assets.txt",
+        "core.sc2mod/base.sc2data/UI/Layout/Common/StandardConstants.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/Common/StandardConsoleSkinConstants.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/Common/StandardTemplates.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/Common/StandardGreyboxTemplates.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/Common/StandardSmallButtonTemplates.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/Common/StandardElementsTemplates.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/Common/StandardTooltip.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/Common/StandardDialog.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/Common/StandardNavigationTemplates.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/HeroPanel.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/CommandPanel.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/MinimapPanel.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/ResourcePanel.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/UnitButton.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/IdleButton.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/GameButton.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/CommandButton.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/ConsolePanel.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/InfoPanel.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/GameUI.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/MenuBar.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/ObjectivePanel.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/AlertPanel.SC2Layout",
+        "core.sc2mod/base.sc2data/UI/Layout/UI/ChatBar.SC2Layout"
+    ]
+}
