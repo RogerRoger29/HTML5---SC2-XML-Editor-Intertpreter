@@ -218,22 +218,41 @@ class Router(http.server.SimpleHTTPRequestHandler):
             return str(base)
         return str(candidate)
 
-    def do_GET(self):  # noqa: N802 (http.server naming)
+    # Route tables. Adding a new endpoint = one entry per method, no
+    # if/elif chain growth. Keys ending in "/" match by prefix (used for
+    # /__ls which carries a query string + path). Everything else matches
+    # exactly. The handler is a Router-method NAME (string) so subclasses
+    # can override individual endpoints without re-touching the table.
+    _GET_ROUTES = {
+        "/__config":  "_send_config",
+        "/__ls/":     "_send_ls",   # prefix match (handler reads ?path=)
+    }
+    _POST_ROUTES = {
+        "/__config":      "_receive_config",
+        "/__download":    "_download_stock",
+        "/__cascextract": "_casc_extract",
+    }
+
+    def _dispatch(self, table):
+        """Look up self.path against `table`; return the bound handler or None."""
         path = self.path.split("?", 1)[0]
-        if path == "/__config":
-            return self._send_config()
-        if path.startswith("/__ls"):
-            return self._send_ls()
+        if path in table:
+            return getattr(self, table[path])
+        for key, handler_name in table.items():
+            if key.endswith("/") and path.startswith(key.rstrip("/")):
+                return getattr(self, handler_name)
+        return None
+
+    def do_GET(self):  # noqa: N802 (http.server naming)
+        handler = self._dispatch(self._GET_ROUTES)
+        if handler:
+            return handler()
         super().do_GET()
 
     def do_POST(self):  # noqa: N802
-        path = self.path.split("?", 1)[0]
-        if path == "/__config":
-            return self._receive_config()
-        if path == "/__download":
-            return self._download_stock()
-        if path == "/__cascextract":
-            return self._casc_extract()
+        handler = self._dispatch(self._POST_ROUTES)
+        if handler:
+            return handler()
         self.send_error(404, "Not Found")
 
     # -- CASC extraction ---------------------------------------------------
@@ -330,10 +349,8 @@ class Router(http.server.SimpleHTTPRequestHandler):
         # When the open file uses <Style val="..."/>, pull FontStyles +
         # the BlizzardGlobal/Eurostile fonts so labels render in real type.
         if body.get("include_fontstyles"):
-            for leaf in ("FontStyles.SC2Style", "DescIndex.SC2Layout",
-                         "bl.ttf", "Eurostile-Reg.otf", "Eurostile-Bol.otf",
-                         "Eurostile-Med.otf", "EurostileExt-Reg.otf",
-                         "EurostileExt-Med.otf"):
+            from casc import UI_FONT_FILES
+            for leaf in ("FontStyles.SC2Style", "DescIndex.SC2Layout", *UI_FONT_FILES):
                 files.extend(self._resolve_to_casc_paths(leaf, aliases))
         if body.get("all_textures"):
             # Prefer the bundled CASC index: it maps each filename to its EXACT
@@ -349,14 +366,13 @@ class Router(http.server.SimpleHTTPRequestHandler):
         if body.get("include_fonts"):
             # Look up font filenames in the index when available; otherwise use
             # the hard-coded list.
+            from casc import UI_FONT_FILES, UI_FONT_CASC_PATHS
             if Router.casc_index and Router.casc_index.files:
-                for leaf in ("bl.ttf", "Eurostile-Reg.otf", "Eurostile-Bol.otf",
-                             "Eurostile-Med.otf", "EurostileExt-Reg.otf",
-                             "EurostileExt-Med.otf", "FontStyles.SC2Style"):
+                for leaf in (*UI_FONT_FILES, "FontStyles.SC2Style"):
                     matches = Router.casc_index.lookup(leaf)
                     files.extend(matches)
             else:
-                files.extend(self._known_font_paths())
+                files.extend(UI_FONT_CASC_PATHS)
         # Dedupe while preserving order.
         seen = set()
         files = [f for f in files if not (f in seen or seen.add(f))]
@@ -407,11 +423,12 @@ class Router(http.server.SimpleHTTPRequestHandler):
 
     # Load Assets.txt aliases from the active assets_root (if any).
     def _load_alias_map(self) -> dict:
+        from casc import STOCK_MOD_DIRS
         out = {}
         root = Router.assets_root
         if not root:
             return out
-        for mod in ("core.sc2mod", "liberty.sc2mod", "swarm.sc2mod", "void.sc2mod"):
+        for mod in STOCK_MOD_DIRS:
             for variant in (root / mod / "base.sc2data" / "GameData" / "Assets.txt",
                             root / mod / "Base.SC2Data" / "GameData" / "Assets.txt"):
                 if variant.exists():
@@ -426,21 +443,8 @@ class Router(http.server.SimpleHTTPRequestHandler):
                     break
         return out
 
-    def _known_font_paths(self) -> list:
-        # Both BlizzardGlobal (bl.ttf) and Eurostile variants ship with Core.
-        # FontStyles.SC2Style references them by these names, and Windows is
-        # case-insensitive so the exact casing here doesn't matter for serving.
-        return [
-            r"Mods\Core.SC2Mod\Base.SC2Data\UI\Fonts\bl.ttf",
-            r"Mods\Core.SC2Mod\Base.SC2Data\UI\Fonts\Eurostile-Reg.otf",
-            r"Mods\Core.SC2Mod\Base.SC2Data\UI\Fonts\Eurostile-Bol.otf",
-            r"Mods\Core.SC2Mod\Base.SC2Data\UI\Fonts\Eurostile-Med.otf",
-            r"Mods\Core.SC2Mod\Base.SC2Data\UI\Fonts\EurostileExt-Reg.otf",
-            r"Mods\Core.SC2Mod\Base.SC2Data\UI\Fonts\EurostileExt-Med.otf",
-            # FontStyles also references these (per the file's CodepointRange entries).
-            r"Mods\Core.SC2Mod\Base.SC2Data\UI\FontStyles.SC2Style",
-            r"Mods\Core.SC2Mod\Base.SC2Data\UI\Layout\DescIndex.SC2Layout",
-        ]
+    # (The previous _known_font_paths method moved to casc.UI_FONT_CASC_PATHS
+    # in R4.6 so it can be reused by tooling outside the Router.)
 
     # -- stock-data downloader ---------------------------------------------
     # Reads editor/data/stock-manifest.json, fetches each file from its baseUrl,

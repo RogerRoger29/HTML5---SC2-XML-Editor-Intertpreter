@@ -12,6 +12,8 @@
 //
 // Pure function, no DOM. Run on every rerender; cheap for typical layouts.
 
+import { attrMap, attrVal, findChild as findElementChild } from './xml/helpers.js';
+
 const FRAME_TAGS = /^(Frame|Panel|Image|Label|Button|Bar|Box|Tooltip|HeroPanel|HeroFrame|CommandPanel|MinimapPanel|ResourcePanel|CheckBox|EditBox|ListBox|ProgressBar|StatusBar|ScrollBar|Slider|TextureSelectFrame|InfoPanel)$/;
 const HALIGN_VALUES = new Set(['Left', 'Center', 'Right']);
 const VALIGN_VALUES = new Set(['Top', 'Middle', 'Bottom']);
@@ -136,23 +138,11 @@ function checkFrame(el, ancestors, out, registry) {
 }
 
 // ---- helpers --------------------------------------------------------------
+//
+// attrMap / attrVal / findElementChild moved to xml/helpers.js in R4.1.
+// findFrameChildByName stays local — it knows about FRAME_TAGS, which is
+// validate.js's own concern.
 
-function attrMap(el) {
-    const out = {};
-    if (!el || !el.attrs) return out;
-    for (const a of el.attrs) out[a.name] = a.value;
-    return out;
-}
-function attrVal(el, name) {
-    if (!el || !el.attrs) return undefined;
-    const a = el.attrs.find(x => x.name === name);
-    return a ? a.value : undefined;
-}
-function findElementChild(el, tag) {
-    if (!el || !el.children) return null;
-    for (const c of el.children) if (c.type === 'element' && c.tag === tag) return c;
-    return null;
-}
 function findFrameChildByName(el, childName) {
     if (!el || !el.children) return null;
     for (const c of el.children) {

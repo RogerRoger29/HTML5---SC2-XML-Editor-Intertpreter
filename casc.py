@@ -282,6 +282,35 @@ def _extract_one(dll, storage, casc_name: str, out_path: Path) -> None:
 # just returns FILE_NOT_FOUND immediately).
 # Once data/casc-index.json is generated (via casc_index.py), the server
 # prefers exact-match lookup and this list becomes a fallback only.
+# The four "stock" mod directories the SC2 base game ships. Lowercased
+# because CASCExplorer extracts to lowercase names and we look them up
+# off the file system. Used by serve.py for Assets.txt alias loading
+# and stock-layout discovery.
+STOCK_MOD_DIRS = ("core.sc2mod", "liberty.sc2mod", "swarm.sc2mod", "void.sc2mod")
+
+# Fonts + style files the editor pulls when rendering labels. The
+# Eurostile family is what FontStyles.SC2Style refers to via its
+# CodepointRange entries; bl.ttf is BlizzardGlobal (the fallback typeface).
+UI_FONT_FILES = (
+    "bl.ttf",
+    "Eurostile-Reg.otf",
+    "Eurostile-Bol.otf",
+    "Eurostile-Med.otf",
+    "EurostileExt-Reg.otf",
+    "EurostileExt-Med.otf",
+)
+
+# Canonical CASC paths for the above (used as a fallback when the
+# filename->path index isn't loaded). Also includes FontStyles.SC2Style
+# and DescIndex.SC2Layout which are pulled alongside the fonts.
+UI_FONT_CASC_PATHS = tuple(
+    rf"Mods\Core.SC2Mod\Base.SC2Data\UI\Fonts\{name}" for name in UI_FONT_FILES
+) + (
+    r"Mods\Core.SC2Mod\Base.SC2Data\UI\FontStyles.SC2Style",
+    r"Mods\Core.SC2Mod\Base.SC2Data\UI\Layout\DescIndex.SC2Layout",
+)
+
+
 CASC_MOD_PREFIXES = [
     # Sc2mod (.SC2Mod extension on disk)
     ("Core", "SC2Mod"),

@@ -10,6 +10,7 @@
 // frame's already-moved current state.
 
 import { setAttr } from '../xml/serializer.js';
+import { attrVal, findChild } from '../xml/helpers.js';
 
 const HANDLE_DIRS = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
 
@@ -195,20 +196,11 @@ function readAnchors(el) {
     return out;
 }
 
-function attrVal(el, name) {
-    const a = el.attrs && el.attrs.find(x => x.name === name);
-    return a ? a.value : undefined;
-}
+// attrVal / findChild moved to xml/helpers.js in R4.1.
 
 function num(v) {
     const n = parseFloat(v);
     return Number.isFinite(n) ? n : 0;
-}
-
-function findChild(el, tag) {
-    if (!el || !el.children) return null;
-    for (const c of el.children) if (c.type === 'element' && c.tag === tag) return c;
-    return null;
 }
 
 function writeAnchor(el, side, newOffset) {

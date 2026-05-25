@@ -9,6 +9,12 @@
 // only - those don't make sense to edit at the instance level.
 
 import { setAttr } from '../xml/serializer.js';
+import { attrMap, attrVal, findChild, hasChild, findAnchorChild } from '../xml/helpers.js';
+import {
+    makeElement, textNode,
+    appendChildPreservingIndent, removeChildAndWhitespace,
+    deepCloneElement, inferIndentBefore,
+} from '../xml/mutate.js';
 import { attachAutocomplete } from './autocomplete.js';
 import { stateGroupsFor } from '../state-groups.js';
 
@@ -249,7 +255,7 @@ export class Inspector {
                     ['pos', (side === 'Top' || side === 'Left') ? 'Min' : 'Max'],
                     ['offset', '0'],
                 ], true);
-                appendNewChild(source, created);
+                appendChildPreservingIndent(source, created);
                 this.onChange(this.frame);
                 this.show(this.frame);
             });
@@ -303,7 +309,7 @@ export class Inspector {
         remove.title = `Remove ${side} anchor`;
         remove.addEventListener('click', () => {
             this.onBeforeChange(this.frame);
-            removeChild(source, anchorEl);
+            removeChildAndWhitespace(source, anchorEl);
             this.onChange(this.frame);
             this.show(this.frame);
         });
@@ -423,12 +429,12 @@ export class Inspector {
         const existing = findChild(source, tag);
         const trimmed = newValue == null ? '' : String(newValue).trim();
         if (trimmed === '' && existing) {
-            removeChild(source, existing);
+            removeChildAndWhitespace(source, existing);
         } else if (existing) {
             setAttr(existing, attrName, trimmed);
         } else if (trimmed !== '') {
             const created = makeElement(tag, [[attrName, trimmed]], true);
-            appendNewChild(source, created);
+            appendChildPreservingIndent(source, created);
         }
         this.onChange(this.frame, !!opts.live);
     }
@@ -595,29 +601,8 @@ export class Inspector {
     }
 }
 
-// ------- XML helpers (small enough to inline here rather than expand
-// serializer.js's API surface) -------
-
-function attrMap(el) {
-    const out = {};
-    if (!el || !el.attrs) return out;
-    for (const a of el.attrs) out[a.name] = a.value;
-    return out;
-}
-
-function attrVal(el, name) {
-    if (!el || !el.attrs) return undefined;
-    const a = el.attrs.find(x => x.name === name);
-    return a ? a.value : undefined;
-}
-
-function findChild(el, tag) {
-    if (!el || !el.children) return null;
-    for (const c of el.children) if (c.type === 'element' && c.tag === tag) return c;
-    return null;
-}
-
-function hasChild(el, tag) { return !!findChild(el, tag); }
+// ------- XML helpers ------- (attrMap/attrVal/findChild/hasChild/
+// findAnchorChild live in xml/helpers.js since R4.1)
 
 // Parse an SC2-style color string into a CSS-friendly #RRGGBB hex, or null
 // if the value is a constant reference / gradient / unparseable. Supports:
@@ -645,66 +630,8 @@ function parseSc2ColorToHex(v) {
     return null;
 }
 
-function findAnchorChild(el, side) {
-    if (!el || !el.children) return null;
-    for (const c of el.children) {
-        if (c.type !== 'element' || c.tag !== 'Anchor') continue;
-        if (attrVal(c, 'side') === side) return c;
-    }
-    return null;
-}
-
-function makeElement(tag, attrs, selfClosing) {
-    return {
-        type: 'element',
-        tag,
-        attrs: attrs.map(([name, value]) => ({
-            name, value: String(value), quote: '"',
-            rawBetween: ' ', rawEq: '=', rawAfter: '',
-        })),
-        selfClosing: !!selfClosing,
-        children: [],
-        opening: null, closing: null,
-        source: null,
-        start: 0, end: 0,
-        dirty: true,
-    };
-}
-
-function appendNewChild(parent, child) {
-    const kids = parent.children;
-    // Pick up the indentation pattern from the parent's existing text nodes
-    // so newly-inserted elements line up with siblings.
-    let indent = '\n    ';
-    for (let i = kids.length - 1; i >= 0; i--) {
-        const k = kids[i];
-        if (k.type === 'text' && /\n[ \t]*$/.test(k.raw)) {
-            const m = k.raw.match(/\n([ \t]*)$/);
-            if (m) indent = '\n' + m[1];
-            break;
-        }
-    }
-    const last = kids[kids.length - 1];
-    if (!last || last.type !== 'text' || !/\s$/.test(last.raw)) {
-        kids.push({ type: 'text', raw: indent, start: 0, end: 0, dirty: true });
-    }
-    kids.push(child);
-    parent.dirty = true;
-}
-
-function removeChild(parent, child) {
-    const idx = parent.children.indexOf(child);
-    if (idx === -1) return false;
-    // Also remove the preceding whitespace text node so we don't leave
-    // double blank lines behind.
-    if (idx > 0 && parent.children[idx - 1].type === 'text' && /^\s+$/.test(parent.children[idx - 1].raw)) {
-        parent.children.splice(idx - 1, 2);
-    } else {
-        parent.children.splice(idx, 1);
-    }
-    parent.dirty = true;
-    return true;
-}
+// makeElement / appendNewChild / removeChild / deepCloneElement /
+// indent-inferring helpers all moved to xml/mutate.js in R4.2.
 
 // Remove a node from wherever it lives in the document. The parent isn't
 // stored on the node itself, so we ask the caller to provide the source
@@ -715,7 +642,7 @@ function removeFromParent(el) {
         console.warn('[inspector] cannot remove: no parent reference on', el);
         return false;
     }
-    return removeChild(el._parent, el);
+    return removeChildAndWhitespace(el._parent, el);
 }
 
 function duplicateSibling(el) {
@@ -725,39 +652,10 @@ function duplicateSibling(el) {
     const kids = el._parent.children;
     const idx = kids.indexOf(el);
     if (idx === -1) return false;
-    const indent = (() => {
-        for (let i = idx; i >= 0; i--) {
-            const k = kids[i];
-            if (k.type === 'text' && /\n[ \t]*$/.test(k.raw)) {
-                const m = k.raw.match(/\n([ \t]*)$/);
-                if (m) return '\n' + m[1];
-            }
-        }
-        return '\n    ';
-    })();
-    kids.splice(idx + 1, 0,
-        { type: 'text', raw: indent, start: 0, end: 0, dirty: true },
-        copy);
+    const indent = inferIndentBefore(el._parent, idx);
+    kids.splice(idx + 1, 0, textNode(indent), copy);
     el._parent.dirty = true;
     return true;
-}
-
-function deepCloneElement(el) {
-    if (el.type !== 'element') {
-        return { ...el, dirty: true };
-    }
-    return {
-        type: 'element',
-        tag: el.tag,
-        attrs: (el.attrs || []).map(a => ({ ...a })),
-        selfClosing: el.selfClosing,
-        children: (el.children || []).map(c => c.type === 'element' ? deepCloneElement(c)
-            : { ...c, dirty: true }),
-        opening: null, closing: null,
-        source: null,
-        start: 0, end: 0,
-        dirty: true,
-    };
 }
 
 function round(n) {

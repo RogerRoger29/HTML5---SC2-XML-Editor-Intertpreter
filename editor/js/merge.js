@@ -12,9 +12,8 @@
 // into a single virtual frame tree that the anchor resolver + renderer walk.
 
 import { parseXml } from './xml/parser.js';
-
-// Tags we treat as frame containers (same heuristic as anchor.js).
-const FRAME_TAG = /(Frame|Panel|Image|Label|Button|Bar|Box|Tooltip)$/;
+import { attrMap } from './xml/helpers.js';
+import { FRAME_TAG_SUFFIX_REGEX as FRAME_TAG } from './constants.js';
 
 export class MergedTree {
     constructor(registry) {
@@ -212,13 +211,6 @@ function collectTemplateRefs(el, into) {
         }
         collectTemplateRefs(c, into);
     }
-}
-
-function attrMap(el) {
-    const out = {};
-    if (!el.attrs) return out;
-    for (const a of el.attrs) out[a.name] = a.value;
-    return out;
 }
 
 // Convert a MergedNode into the shape the existing anchor.js / frames.js code

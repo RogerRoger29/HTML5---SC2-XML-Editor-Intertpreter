@@ -5,6 +5,7 @@
 // nested elements.
 
 import { styleToCss } from './fontstyle.js';
+import { findChildVal, findChildAttrs } from '../xml/helpers.js';
 
 export class FrameRenderer {
     constructor({ stage, textures, fontstyles, onSelect, onBodyPointerDown }) {
@@ -279,25 +280,4 @@ function drawSlice(ctx, src, sx, sy, sw, sh, dx, dy, dw, dh) {
     ctx.drawImage(src, sx, sy, sw, sh, dx, dy, dw, dh);
 }
 
-function findChildVal(el, tag) {
-    if (!el || !el.children) return undefined;
-    for (const c of el.children) {
-        if (c.type === 'element' && c.tag === tag) {
-            const a = c.attrs.find(x => x.name === 'val');
-            if (a) return a.value;
-        }
-    }
-    return undefined;
-}
-
-function findChildAttrs(el, tag) {
-    if (!el || !el.children) return undefined;
-    for (const c of el.children) {
-        if (c.type === 'element' && c.tag === tag) {
-            const out = {};
-            for (const a of c.attrs) out[a.name] = a.value;
-            return out;
-        }
-    }
-    return undefined;
-}
+// findChildVal / findChildAttrs moved to xml/helpers.js in R4.1.

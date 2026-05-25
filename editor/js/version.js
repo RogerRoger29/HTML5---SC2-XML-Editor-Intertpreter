@@ -1,6 +1,23 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.5.1 - Audit rounds 1-4 (zero new features; correctness + structure):
+//   * R1: 7 critical bug fixes (CASC encoding, path traversal, handle
+//          leaks, state-group reset, texture race, file-handle leak,
+//          escapeHtml duplicate)
+//   * R2: 11 correctness/perf fixes (server locking, per-file lock
+//          granularity, autocomplete leak, tree collapse persistence,
+//          select-by-path, fontstyle cycle guard, pointercancel cleanup,
+//          merge mod-source warning, findFrameByName fix, mod type
+//          override, download/cascextract path traversal)
+//   * R3: 7 polish items (body-size cap, casc_index collision case,
+//          webbrowser fallback, version single source of truth,
+//          parser _trailer clear on setAttr, inspector blur-on-show)
+//          + 5 Python smoke tests
+//   * R4: 8 refactors (xml/helpers.js, constants.js, xml/mutate.js,
+//          resetAssetDependentCaches, deleted dead anchor.js, render/
+//          layout.js, ui/assets-dialog.js, serve.py route table,
+//          doc-controller.js for UndoStack + round-trip)
 // 0.5.0 - Polish + accuracy milestone:
 //   * Topbar reorganised into File/Edit/Insert/View menus
 //   * Save to disk via File System Access API (Chromium)
@@ -21,4 +38,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.5.0';
+export const VERSION = '0.5.1';

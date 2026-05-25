@@ -16,7 +16,9 @@
 //   00000136 = SetVariable            (params: 00000219 var, 00000220 val)
 //   7DE42B33 = UI Add Layout File     (param: 2A7DE667 layout filepath)
 //   2147B27F = ParamDef for layoutframerel value type
-//
+
+import { attrVal } from '../xml/helpers.js';
+
 // Inputs:
 //   modLibId       - 8-char hex library id of the user's mod (e.g. "555B09F0")
 //   idPrefix       - 4-char hex prefix the user wants minted IDs to share
@@ -299,11 +301,7 @@ function isFrameTag(tag) {
         || /(Frame|Panel|Image|Label|Button|Bar|Box|Tooltip)$/.test(tag);
 }
 
-function attrVal(el, name) {
-    if (!el || !el.attrs) return undefined;
-    const a = el.attrs.find(x => x.name === name);
-    return a ? a.value : undefined;
-}
+// attrVal moved to xml/helpers.js in R4.1.
 
 /** Default opt-in heuristic: include interactive controls + named top-level
  *  frames; skip purely visual children (Images, Labels, Tooltips unless they

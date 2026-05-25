@@ -21,6 +21,8 @@
 // Only Action type="SetProperty" is honoured today; other action types
 // (animations, sounds) are ignored.
 
+import { attrMap, attrVal } from './xml/helpers.js';
+
 export function parseStateGroupsOnFrame(modSource) {
     if (!modSource || !modSource.children) return [];
     const groups = [];
@@ -207,15 +209,4 @@ function resolveFrameRef(node, ref) {
     return cur;
 }
 
-function attrMap(el) {
-    const out = {};
-    if (!el || !el.attrs) return out;
-    for (const a of el.attrs) out[a.name] = a.value;
-    return out;
-}
-
-function attrVal(el, name) {
-    if (!el || !el.attrs) return undefined;
-    const a = el.attrs.find(x => x.name === name);
-    return a ? a.value : undefined;
-}
+// attrMap / attrVal moved to xml/helpers.js in R4.1.

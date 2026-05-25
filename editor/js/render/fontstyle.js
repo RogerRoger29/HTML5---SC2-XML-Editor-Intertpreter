@@ -22,6 +22,7 @@
 //   }
 
 import { parseXml } from '../xml/parser.js';
+import { attrMap } from '../xml/helpers.js';
 
 const COLOR_NAMED = {
     // SC2 lists a number of named gradient colors as constants in the file
@@ -179,11 +180,7 @@ export class FontStyleSheet {
     }
 }
 
-function attrMap(el) {
-    const out = {};
-    for (const a of el.attrs) out[a.name] = a.value;
-    return out;
-}
+// attrMap moved to xml/helpers.js in R4.1.
 
 // SC2 colors come in a bunch of forms:
 //   "RRGGBB"           - hex

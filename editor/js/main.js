@@ -6,6 +6,7 @@ import { serializeXml } from './xml/serializer.js';
 import { FrameRenderer } from './render/frames.js';
 import { TextureLoader } from './render/textures.js';
 import { FontStyleSheet } from './render/fontstyle.js';
+import { layoutFrames } from './render/layout.js';
 import { TreeView } from './ui/tree.js';
 import { Inspector } from './ui/inspector.js';
 import { StockRegistry } from './stock.js';
@@ -16,10 +17,17 @@ import { computeGuides, renderGuides, clearGuides } from './ui/guides.js';
 import { MenuBar } from './ui/menubar.js';
 import { FindPalette } from './ui/findpalette.js';
 import { WelcomeTour } from './ui/welcome.js';
+import { AssetsUi } from './ui/assets-dialog.js';
+import { UndoStack, checkRoundTrip } from './doc-controller.js';
 import { generateTriggersXml, listNamedFrames, defaultOptIn } from './export/triggers.js';
 import { validate } from './validate.js';
 import { applyStateActions } from './state-groups.js';
 import { VERSION } from './version.js';
+import { STOCK_ASSETS_BASE } from './constants.js';
+import {
+    inferChildIndent, textNode, makeElement as elementNode,
+    appendChildPreservingIndent, removeChildAndWhitespace,
+} from './xml/mutate.js';
 
 const els = {
     menuBar: document.getElementById('menu-bar'),
@@ -117,17 +125,10 @@ function moveFrame(source, target, mode) {
     }
     snapshotForUndo();
 
-    // Remove from old position, stripping leading whitespace text node.
+    // Remove from old position (also strips the preceding whitespace text
+    // node so we don't leave double blank lines behind).
     const sParent = sEl._parent;
-    const sIdx = sParent.children.indexOf(sEl);
-    if (sIdx < 0) return;
-    const removed = [sEl];
-    sParent.children.splice(sIdx, 1);
-    if (sIdx > 0 && sParent.children[sIdx - 1] && sParent.children[sIdx - 1].type === 'text'
-        && /^\s+$/.test(sParent.children[sIdx - 1].raw)) {
-        sParent.children.splice(sIdx - 1, 1);
-    }
-    sParent.dirty = true;
+    if (!removeChildAndWhitespace(sParent, sEl)) return;
 
     // Compute insert index in the new parent.
     let insertIdx;
@@ -148,11 +149,8 @@ function moveFrame(source, target, mode) {
 
     // Indentation: copy whatever pattern the nearest sibling uses, or
     // derive from target's parent depth.
-    const indent = inferIndent(targetParent);
-    targetParent.children.splice(insertIdx, 0,
-        { type: 'text', raw: indent, start: 0, end: 0, dirty: true },
-        sEl,
-    );
+    const indent = inferChildIndent(targetParent);
+    targetParent.children.splice(insertIdx, 0, textNode(indent), sEl);
     targetParent.dirty = true;
 
     // Re-link _parent refs since we just rearranged the tree.
@@ -169,17 +167,8 @@ function isAncestor(maybeAncestor, node) {
     return false;
 }
 
-function inferIndent(parent) {
-    if (!parent || !parent.children) return '\n    ';
-    for (let i = parent.children.length - 1; i >= 0; i--) {
-        const k = parent.children[i];
-        if (k.type === 'text' && /\n[ \t]*$/.test(k.raw)) {
-            const m = k.raw.match(/\n([ \t]*)$/);
-            if (m) return '\n' + m[1];
-        }
-    }
-    return '\n    ';
-}
+// inferIndent moved to xml/mutate.js as inferChildIndent in R4.2.
+
 const inspector = new Inspector(els.inspector, {
     activeStates: state.activeStates,
     onStateChange: () => {
@@ -292,11 +281,10 @@ const selection = new SelectionOverlay(els.stage, {
     onEdit: handleEdit,
 });
 
-// Undo stack: each entry is the raw XML string from before an edit.
+// Undo stack: snapshots of the raw XML string from before each edit.
 // Bounded to 100 entries to keep memory under control on long sessions.
-const UNDO_LIMIT = 100;
-state.undoStack = [];
-state.redoStack = [];
+// R4.8: hoisted into UndoStack (doc-controller.js).
+const undoStack = new UndoStack();
 
 // Track the last canvas click point so successive clicks at (approximately)
 // the same spot cycle through frames stacked at that point.
@@ -350,6 +338,10 @@ const panes = new PaneController({
 
 init();
 
+// AssetsUi handles startup banner + persistent dialog. Constructed lazily
+// in init() since it needs the els.* DOM nodes to exist.
+let assetsUi = null;
+
 async function init() {
     const verEl = document.getElementById('app-version');
     if (verEl) verEl.textContent = 'v' + VERSION;
@@ -363,8 +355,15 @@ async function init() {
         setStatus('Could not contact serve.py. Did you start it?');
         return;
     }
+    assetsUi = new AssetsUi({
+        dialog: els.assetsDialog,
+        dialogBody: els.assetsDialogBody,
+        setStatus,
+        refresh: () => resetAssetDependentCaches(),
+        onConfigChanged: (cfg) => { state.config = cfg; },
+    });
     if (!state.config.assets_present) {
-        showAssetsPrompt(state.config);
+        assetsUi.renderBanner(state.config);
     } else {
         setStatus(`Ready. Assets: ${state.config.assets_root}  [${state.config.assets_source || 'auto'}]`);
     }
@@ -387,7 +386,7 @@ async function init() {
 
 async function loadFontStyles() {
     try {
-        const text = await fetch('/assets/core.sc2mod/Base.SC2Data/UI/fontstyles.sc2style')
+        const text = await fetch(STOCK_ASSETS_BASE + 'UI/fontstyles.sc2style')
             .then(r => r.ok ? r.text() : null);
         if (!text) return;
         fontstyles.ingest(text);
@@ -396,7 +395,7 @@ async function loadFontStyles() {
         }
         const sheet = newDynamicStylesheet();
         fontstyles.injectFontFaces(sheet, (path) =>
-            '/assets/core.sc2mod/Base.SC2Data/' + path.replace(/\\/g, '/'));
+            STOCK_ASSETS_BASE + path.replace(/\\/g, '/'));
     } catch (err) {
         console.warn('[fontstyles] could not load:', err);
     }
@@ -612,7 +611,7 @@ function wireEvents() {
     });
     // "Assets..." button - always-available access to SC2 install, stock data,
     // and texture extraction. Replaces the assets banner once it's dismissed.
-    els.btnAssets.addEventListener('click', () => openAssetsDialog());
+    els.btnAssets.addEventListener('click', () => assetsUi && assetsUi.openDialog());
 
     // "Warnings" button opens the validator output dialog.
     if (els.btnWarnings) els.btnWarnings.addEventListener('click', openWarningsDialog);
@@ -741,7 +740,7 @@ async function loadStockLayouts() {
     if (state.stockLoaded || state.stockLoading) return;
     state.stockLoading = true;
     setStatus('Loading stock templates…');
-    console.info('[stock] starting background load from /assets/core.sc2mod/Base.SC2Data/UI/Layout/descindex.sc2layout');
+    console.info(`[stock] starting background load from ${STOCK_ASSETS_BASE}UI/Layout/descindex.sc2layout`);
     try {
         const result = await registry.loadCore(({ done, total }) => {
             setStatus(`Loading stock templates: ${done}/${total}`);
@@ -858,25 +857,9 @@ async function maybeAutoExtractTextures() {
             console.info(`[cascextract auto] pulled ${r.extracted} files (${(r.bytes / 1024).toFixed(0)} KB); ${r.failed.length} not in CASC`);
             if (r.failed.length) console.debug('[cascextract auto] not found:', r.failed.slice(0, 10), '...');
             // Drop caches and reload templates so newly-extracted layouts
-            // contribute their templates to the registry.
-            textures.cache.clear();
-            textures.aliasesLoaded = false;
-            await textures.loadAssetsTxt().catch(() => {});
-            // Reset stock registry so the new layouts get re-ingested.
-            registry.constants.clear();
-            registry.templatesByPath.clear();
-            registry.templatesByName.clear();
-            registry.framesByPath.clear();
-            registry.loadedFiles.clear();
-            state.stockLoaded = false;
-            state.stockLoading = false;
-            await loadStockLayouts().catch(() => {});
-            await loadFontStyles().catch(() => {});
-            if (state.modDoc && state.currentFileName) {
-                const fileBase = state.currentFileName.replace(/\.[^.]+$/, '').split(/[\\\/]/).pop();
-                registry.addModTemplates(state.modDoc.root, fileBase);
-            }
-            rerender({ keepSelection: true });
+            // contribute their templates to the registry. (R4.4 unified
+            // this block with refreshAfterAssetChange.)
+            await resetAssetDependentCaches();
             setStatus(`Auto-fetched ${r.extracted} new files, ${r.skipped} already on disk.`);
         } else if (r.skipped > 0) {
             setStatus(`All ${r.skipped} referenced files already on disk.`);
@@ -1170,86 +1153,7 @@ function findFrameByPath(frames, path) {
     return null;
 }
 
-// Run the existing anchor.js resolution on the materialized merged frames.
-// The merged nodes already have anchors/width/height parsed by merge.js, but
-// the layout walk lives in anchor.js. Inline it here against the merged shape:
-function layoutFrames(nodes, stageW, stageH) {
-    const stage = { x: 0, y: 0, w: stageW, h: stageH, parent: null, children: nodes };
-    for (const n of nodes) n.parent = stage;
-    walk(nodes);
-}
-function walk(nodes) {
-    for (const node of nodes) {
-        resolveBox(node);
-        if (node.children.length) walk(node.children);
-    }
-}
-function resolveBox(node) {
-    const parentBox = node.parent;
-    const hor = { min: null, max: null };
-    const ver = { min: null, max: null };
-    let fillOff = null;
-    for (const a of node.anchors) {
-        if (!a.side) { fillOff = a.offset || 0; continue; }
-        const ref = resolveRelative(node, a.relative) || parentBox;
-        if (a.side === 'Top' || a.side === 'Bottom') {
-            const y = refPos(ref, a.pos, 'v') + a.offset;
-            if (a.side === 'Top') ver.min = y; else ver.max = y;
-        } else {
-            const x = refPos(ref, a.pos, 'h') + a.offset;
-            if (a.side === 'Left') hor.min = x; else hor.max = x;
-        }
-    }
-    if (fillOff != null) {
-        if (hor.min == null) hor.min = parentBox.x + fillOff;
-        if (hor.max == null) hor.max = parentBox.x + parentBox.w - fillOff;
-        if (ver.min == null) ver.min = parentBox.y + fillOff;
-        if (ver.max == null) ver.max = parentBox.y + parentBox.h - fillOff;
-    }
-    if (!node.anchors.length) {
-        hor.min = parentBox.x;
-        ver.min = parentBox.y;
-    }
-    let x, w;
-    if (hor.min != null && hor.max != null) { x = hor.min; w = hor.max - hor.min; }
-    else if (hor.min != null) { x = hor.min; w = node.width != null ? node.width : 0; }
-    else if (hor.max != null) { w = node.width != null ? node.width : 0; x = hor.max - w; }
-    else { x = parentBox.x; w = node.width != null ? node.width : parentBox.w; }
-    let y, h;
-    if (ver.min != null && ver.max != null) { y = ver.min; h = ver.max - ver.min; }
-    else if (ver.min != null) { y = ver.min; h = node.height != null ? node.height : 0; }
-    else if (ver.max != null) { h = node.height != null ? node.height : 0; y = ver.max - h; }
-    else { y = parentBox.y; h = node.height != null ? node.height : parentBox.h; }
-    node.x = x; node.y = y; node.w = w; node.h = h;
-}
-function refPos(ref, pos, axis) {
-    if (axis === 'h') {
-        if (pos === 'Min') return ref.x;
-        if (pos === 'Max') return ref.x + ref.w;
-        return ref.x + ref.w / 2;
-    }
-    if (pos === 'Min') return ref.y;
-    if (pos === 'Max') return ref.y + ref.h;
-    return ref.y + ref.h / 2;
-}
-function resolveRelative(node, ref) {
-    if (!ref || ref === '$parent') return node.parent;
-    if (ref === '$this') return node;
-    if (ref === '$root' || ref.startsWith('$ancestor')) {
-        let n = node;
-        while (n.parent && n.parent.children) n = n.parent;
-        return n;
-    }
-    let cur = ref.startsWith('$parent/') ? node.parent : node.parent;
-    const path = ref.replace(/^\$parent\//, '').split('/');
-    for (const seg of path) {
-        if (!cur || !cur.children) return null;
-        const next = cur.children.find(c => c.name === seg);
-        if (!next) return null;
-        cur = next;
-    }
-    return cur;
-}
+// Layout walker moved to render/layout.js in R4.7.
 
 // Apply origin/outline classes and add a name label to each frame for clarity.
 function decorate(nodes) {
@@ -1280,38 +1184,29 @@ function findFrameByName(frames, name) {
 }
 
 function snapshotForUndo() {
-    if (!state.modDoc) return;
-    const snap = serializeXml(state.modDoc);
-    state.undoStack.push(snap);
-    if (state.undoStack.length > UNDO_LIMIT) state.undoStack.shift();
-    // A fresh edit invalidates any pending redo.
-    state.redoStack.length = 0;
+    undoStack.snapshot(state.modDoc);
 }
 
 function doUndo() {
-    if (!state.undoStack.length) { setStatus('Nothing to undo.'); return; }
-    const cur = serializeXml(state.modDoc);
-    const prev = state.undoStack.pop();
-    state.redoStack.push(cur);
+    const prev = undoStack.popForUndo(state.modDoc);
+    if (prev == null) { setStatus('Nothing to undo.'); return; }
     // Re-parse the snapshot rather than mutating in place so all references
     // (sources, props arrays) are rebuilt cleanly.
     state.modDoc = parseXml(prev);
     state.pristineSource = prev;
     els.xmlText.value = prev;
     rerender({ keepSelection: true });
-    setStatus(`Undo. ${state.undoStack.length} more available.`);
+    setStatus(`Undo. ${undoStack.undo.length} more available.`);
 }
 
 function doRedo() {
-    if (!state.redoStack.length) { setStatus('Nothing to redo.'); return; }
-    const cur = serializeXml(state.modDoc);
-    const next = state.redoStack.pop();
-    state.undoStack.push(cur);
+    const next = undoStack.popForRedo(state.modDoc);
+    if (next == null) { setStatus('Nothing to redo.'); return; }
     state.modDoc = parseXml(next);
     state.pristineSource = next;
     els.xmlText.value = next;
     rerender({ keepSelection: true });
-    setStatus(`Redo. ${state.redoStack.length} more available.`);
+    setStatus(`Redo. ${undoStack.redo.length} more available.`);
 }
 
 // Click on a canvas frame. If repeated at ~same point, cycle through frames
@@ -1522,7 +1417,7 @@ function addNewFrame(type) {
     const name = uniqueChildName(parent, type);
     const newFrame = buildFrameElement(type, name);
     snapshotForUndo();
-    appendChildElement(parent, newFrame);
+    appendChildPreservingIndent(parent, newFrame);
     setParentRefs(state.modDoc);   // re-link _parent refs for the new subtree
     rerender();
     // Try to select the new frame in the rerendered tree. Path is parent path
@@ -1600,46 +1495,8 @@ function buildFrameElement(type, name) {
     return elementNode('Frame', [['type', type], ['name', name]], false, children);
 }
 
-function elementNode(tag, attrs, selfClosing, children = []) {
-    return {
-        type: 'element',
-        tag,
-        attrs: attrs.map(([n, v]) => ({
-            name: n, value: String(v), quote: '"',
-            rawBetween: ' ', rawEq: '=', rawAfter: '',
-        })),
-        selfClosing: !!selfClosing,
-        children,
-        opening: null, closing: null,
-        source: null,
-        start: 0, end: 0,
-        dirty: true,
-    };
-}
-
-function textNode(raw) {
-    return { type: 'text', raw, start: 0, end: 0, dirty: true };
-}
-
-function appendChildElement(parent, child) {
-    const kids = parent.children;
-    let indent = '\n    ';
-    for (let i = kids.length - 1; i >= 0; i--) {
-        const k = kids[i];
-        if (k.type === 'text' && /\n[ \t]*$/.test(k.raw)) {
-            const m = k.raw.match(/\n([ \t]*)$/);
-            if (m) indent = '\n' + m[1];
-            break;
-        }
-    }
-    const last = kids[kids.length - 1];
-    if (!last || last.type !== 'text' || !/\s$/.test(last.raw)) {
-        kids.push(textNode(indent));
-    }
-    kids.push(child);
-    // Ensure there's a trailing newline before the close tag.
-    parent.dirty = true;
-}
+// elementNode / textNode / appendChildElement all moved to xml/mutate.js
+// in R4.2 (renamed makeElement / textNode / appendChildPreservingIndent).
 
 // --- File System Access API: in-place save when supported ----------------
 //
@@ -1752,342 +1609,38 @@ function saveAsDownload(filename, body) {
 }
 
 function runRoundTripCheck() {
-    try {
-        const out = serializeXml(state.modDoc);
-        if (out === state.pristineSource) {
-            setXmlStatus('round-trip: byte-exact ✓');
-        } else {
-            const diff = firstDiff(state.pristineSource, out);
-            setXmlStatus(`round-trip: differs at offset ${diff}`);
-        }
-    } catch (err) {
-        setXmlStatus('round-trip: ' + err.message);
-    }
+    const r = checkRoundTrip(state.modDoc, state.pristineSource);
+    if (r.ok) setXmlStatus('round-trip: byte-exact ✓');
+    else if (r.error) setXmlStatus('round-trip: ' + r.error.message);
+    else setXmlStatus(`round-trip: differs at offset ${r.diffAt}`);
 }
 
-function firstDiff(a, b) {
-    const n = Math.min(a.length, b.length);
-    for (let i = 0; i < n; i++) if (a.charCodeAt(i) !== b.charCodeAt(i)) return i;
-    return n;
-}
+// firstDiff + the round-trip implementation moved to doc-controller.js in R4.8.
 
-// Show a persistent banner when the server didn't auto-find an assets folder.
-// The user types a path; we POST it to /__config so the server saves it to
-// config.json and starts serving from there. Then we reload.
-function showAssetsPrompt(cfg) {
-    const banner = document.createElement('div');
-    banner.id = 'assets-banner';
-    const sc2Detected = cfg.sc2_install
-        ? `<div class="assets-banner-sc2">SC2 install: <code>${cfg.sc2_install}</code> <span class="src">(${cfg.sc2_install_source})</span></div>`
-        : `<div class="assets-banner-sc2 not-found">SC2 install: <em>not auto-detected</em> <span class="src">(${cfg.sc2_install_source})</span></div>`;
-    banner.innerHTML = `
-        <div class="assets-banner-text">
-            <strong>No SC2 assets folder found.</strong>
-            Templates / fontstyles / textures won't load until you set one.
-        </div>
-        ${sc2Detected}
-        <button id="cascextract-btn" type="button" title="Extracts textures + fonts from your local StarCraft II install using CascLib. Requires SC2 to be installed.">Extract from SC2&nbsp;install</button>
-        <button id="set-sc2-path-btn" type="button" title="Tell the editor where SC2 is installed if auto-detect couldn't find it.">Set SC2 path&hellip;</button>
-        <button id="download-stock-btn" type="button" title="Fetches ~30 essential layout + asset files from github.com/SC2Mapster/SC2GameData (about 500 KB - 2 MB). XML / Assets.txt only - no textures.">Download essentials</button>
-        <button id="set-assets-btn" type="button">Use existing folder&hellip;</button>
-        <button id="dismiss-banner-btn" type="button" title="Dismiss">&times;</button>
-        <div id="download-progress" hidden></div>
-    `;
-    document.body.appendChild(banner);
-
-    // Manual SC2 install path override - for installs Battle.net put in a
-    // location my auto-detect doesn't cover.
-    document.getElementById('set-sc2-path-btn').addEventListener('click', async () => {
-        const path = prompt(
-            "Enter the path to your StarCraft II install folder.\n\n" +
-            "This is the folder that contains 'StarCraft II.exe' and 'Data\\'.\n" +
-            "Examples:\n" +
-            "  C:\\Program Files (x86)\\StarCraft II\n" +
-            "  C:\\Games\\StarCraft II\n" +
-            "  D:\\Battle.net\\Games\\StarCraft II",
-            cfg.sc2_install || '');
-        if (!path) return;
-        try {
-            const resp = await fetch('/__config', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sc2_install: path }),
-            });
-            const r = await resp.json();
-            if (r.error) {
-                alert(`Could not set SC2 install path: ${r.error}\n${r.path || ''}\n\nMake sure the folder contains 'StarCraft II.exe'.`);
-                return;
-            }
-            state.config = r;
-            setStatus(`SC2 install set: ${r.sc2_install}`);
-            banner.remove();
-        } catch (err) {
-            alert('Failed to update config: ' + err.message);
-        }
-    });
-
-    // CASC extraction: when SC2 is detected (or user-set), pull textures + fonts
-    // directly from their own install without any manual extraction tool.
-    const cascBtn = document.getElementById('cascextract-btn');
-    if (cascBtn) {
-        if (!cfg.sc2_install) {
-            cascBtn.disabled = true;
-            cascBtn.title = 'No SC2 install detected. Click "Set SC2 path…" first.';
-        }
-        cascBtn.addEventListener('click', async () => {
-            const ok = confirm(
-                "Extract textures and fonts from your SC2 install?\n\n" +
-                `SC2 install: ${cfg.sc2_install}\n\n` +
-                "This uses the open-source CascLib to read the game's CASC archive\n" +
-                "and copies only the files referenced by your loaded layouts.\n" +
-                "Typical: ~5-50 MB of textures + 2-5 MB of fonts.\n\n" +
-                "First extraction can take 30 seconds while CascLib scans the archive.\n" +
-                "Subsequent extractions are much faster (cached).");
-            if (!ok) return;
-            const progress = document.getElementById('download-progress');
-            cascBtn.disabled = true;
-            cascBtn.textContent = 'Extracting…';
-            progress.hidden = false;
-            progress.textContent = 'Opening CASC archive (this can take ~30s)…';
-            try {
-                const resp = await fetch('/__cascextract', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ all_textures: true, include_fonts: true }),
-                });
-                const r = await resp.json();
-                if (r.error) {
-                    progress.textContent = `Failed: ${r.error}${r.detail ? ' - ' + r.detail : ''}`;
-                    cascBtn.disabled = false;
-                    cascBtn.textContent = 'Extract from SC2 install';
-                    return;
-                }
-                progress.textContent =
-                    `Extracted ${r.extracted}, skipped ${r.skipped} existing, ${r.failed.length} failed `
-                    + `(${(r.bytes / 1024 / 1024).toFixed(1)} MB).`;
-                if (r.failed.length) console.warn('[cascextract] failures:', r.failed);
-                banner.remove();
-                await refreshAfterAssetChange();
-            } catch (err) {
-                progress.textContent = `Failed: ${err.message}`;
-                cascBtn.disabled = false;
-                cascBtn.textContent = 'Extract from SC2 install';
-            }
-        });
-    }
-
-    document.getElementById('set-assets-btn').addEventListener('click', async () => {
-        const path = prompt(
-            'Enter the path to your extracted SC2 mods folder ' +
-            '(the one containing core.sc2mod, liberty.sc2mod, etc.):',
-            cfg.assets_root || '');
-        if (!path) return;
-        try {
-            const resp = await fetch('/__config', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ assets_root: path }),
-            });
-            const updated = await resp.json();
-            if (updated.error) {
-                alert(`Could not set assets folder: ${updated.error}\n${updated.path || updated.detail || ''}`);
-                return;
-            }
-            state.config = updated;
-            banner.remove();
-            await refreshAfterAssetChange();
-        } catch (err) {
-            alert('Failed to update server config: ' + err.message);
-        }
-    });
-
-    document.getElementById('download-stock-btn').addEventListener('click', async () => {
-        const ok = confirm(
-            "Download SC2 stock data?\n\n" +
-            "This fetches about 30 essential files (~500 KB - 2 MB) from\n" +
-            "github.com/SC2Mapster/SC2GameData and saves them to a 'stock-data'\n" +
-            "folder next to this app.\n\n" +
-            "Note: this does NOT include binary texture files (.dds). Those\n" +
-            "require a real SC2 install + an extraction tool. The editor will\n" +
-            "still work for layout editing without textures - frames just render\n" +
-            "as colored boxes instead of images.\n\n" +
-            "Continue?");
-        if (!ok) return;
-        const btn = document.getElementById('download-stock-btn');
-        const progress = document.getElementById('download-progress');
-        btn.disabled = true;
-        btn.textContent = 'Downloading…';
-        progress.hidden = false;
-        progress.textContent = 'Contacting github.com…';
-        try {
-            const resp = await fetch('/__download', { method: 'POST' });
-            const result = await resp.json();
-            if (result.error) {
-                progress.textContent = `Failed: ${result.error}`;
-                btn.disabled = false;
-                btn.textContent = 'Download essentials';
-                return;
-            }
-            const msg = `Downloaded ${result.downloaded} new, skipped ${result.skipped} existing, ${result.failed.length} failed (${(result.bytes / 1024).toFixed(0)} KB).`;
-            progress.textContent = msg;
-            if (result.failed.length) {
-                console.warn('[download] failures:', result.failed);
-            }
-            banner.remove();
-            await refreshAfterAssetChange();
-        } catch (err) {
-            progress.textContent = `Failed: ${err.message}`;
-            btn.disabled = false;
-            btn.textContent = 'Download essentials';
-        }
-    });
-
-    document.getElementById('dismiss-banner-btn').addEventListener('click', () => banner.remove());
-    setStatus('No assets folder. Click "Download essentials" or "Use existing folder…".');
-}
-
-// Persistent assets/settings dialog. Mirrors the assets-banner buttons but
-// stays accessible after the banner is dismissed.
-async function openAssetsDialog() {
-    const dlg = els.assetsDialog;
-    const body = els.assetsDialogBody;
-    body.innerHTML = '<p class="hint">Loading current config…</p>';
-    dlg.showModal();
-    let cfg;
-    try {
-        cfg = await fetch('/__config').then(r => r.json());
-    } catch (err) {
-        body.innerHTML = `<p>Could not contact server: ${err.message}</p>`;
-        return;
-    }
-    body.innerHTML = `
-        <table class="assets-table">
-            <tr><th>Editor version</th><td>${cfg.version || '?'}</td></tr>
-            <tr><th>Assets folder</th>
-                <td>
-                    ${cfg.assets_present ? `<code>${cfg.assets_root}</code> <span class="src">(${cfg.assets_source})</span>` : '<em>none set</em>'}
-                </td></tr>
-            <tr><th>SC2 install</th>
-                <td>
-                    ${cfg.sc2_install ? `<code>${cfg.sc2_install}</code> <span class="src">(${cfg.sc2_install_source})</span>` : `<em>not detected</em> <span class="src">(${cfg.sc2_install_source})</span>`}
-                </td></tr>
-        </table>
-        <div class="assets-actions">
-            <button type="button" id="dlg-cascextract" ${cfg.sc2_install ? '' : 'disabled'}
-                    title="${cfg.sc2_install ? 'Extract textures + fonts from the SC2 install via CascLib.' : 'No SC2 install detected. Click "Set SC2 path…" first.'}">
-                Extract textures + fonts from SC2
-            </button>
-            <button type="button" id="dlg-set-sc2">Set SC2 install path&hellip;</button>
-            <button type="button" id="dlg-download">Download stock essentials</button>
-            <button type="button" id="dlg-set-assets">Set assets folder&hellip;</button>
-        </div>
-        <div id="dlg-progress" class="dlg-progress" hidden></div>
-    `;
-    const progress = body.querySelector('#dlg-progress');
-    const showStatus = (msg) => { progress.hidden = false; progress.textContent = msg; };
-    body.querySelector('#dlg-cascextract').addEventListener('click', () => runCascExtract(cfg, showStatus));
-    body.querySelector('#dlg-set-sc2').addEventListener('click', () => promptSetSc2(cfg));
-    body.querySelector('#dlg-download').addEventListener('click', () => runStockDownload(showStatus));
-    body.querySelector('#dlg-set-assets').addEventListener('click', () => promptSetAssets(cfg));
-}
-
-async function runCascExtract(cfg, showStatus) {
-    const ok = confirm(
-        `Extract textures and fonts from your SC2 install?\n\n` +
-        `SC2 install: ${cfg.sc2_install}\n\n` +
-        `Reads the game's CASC archive via CascLib and writes the referenced files\n` +
-        `into the active assets folder. ~5-50 MB textures, ~2-5 MB fonts.\n\n` +
-        `First extraction can take ~30 seconds while CascLib scans the archive.`);
-    if (!ok) return;
-    showStatus('Opening CASC archive (this can take ~30s)…');
-    try {
-        const r = await fetch('/__cascextract', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ all_textures: true, include_fonts: true }),
-        }).then(r => r.json());
-        if (r.error) {
-            showStatus(`Failed: ${r.error}${r.detail ? ' - ' + r.detail : ''}`);
-            console.warn('[cascextract] failed:', r);
-            return;
-        }
-        showStatus(
-            `Extracted ${r.extracted}, skipped ${r.skipped} existing, ${r.failed.length} failed `
-            + `(${(r.bytes / 1024 / 1024).toFixed(1)} MB).`);
-        if (r.failed.length) console.warn('[cascextract] failures:', r.failed);
-        // Refresh in place - drop the texture cache so previously-failed
-        // textures get re-fetched against the now-extracted files. Keeps the
-        // currently-loaded layout open.
-        refreshAfterAssetChange();
-    } catch (err) {
-        showStatus('Failed: ' + err.message);
-    }
-}
-
-async function promptSetSc2(cfg) {
-    const path = prompt(
-        "Enter the path to your StarCraft II install folder.\n" +
-        "This is the folder that contains 'StarCraft II.exe' and 'Data\\'.\n\n" +
-        "Examples:\n" +
-        "  C:\\Program Files (x86)\\StarCraft II\n" +
-        "  C:\\Games\\StarCraft II\n" +
-        "  D:\\Battle.net\\Games\\StarCraft II",
-        cfg.sc2_install || '');
-    if (!path) return;
-    const r = await fetch('/__config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sc2_install: path }),
-    }).then(r => r.json());
-    if (r.error) {
-        alert(`Could not set SC2 install path: ${r.error}\n${r.path || ''}\n\nMake sure the folder contains 'StarCraft II.exe'.`);
-        return;
-    }
-    // SC2 path change only affects /__cascextract - no asset reload needed.
-    state.config = await fetch('/__config').then(r => r.json());
-    setStatus(`SC2 install set: ${state.config.sc2_install}`);
-}
-
-async function promptSetAssets(cfg) {
-    const path = prompt(
-        'Enter the path to your extracted SC2 mods folder ' +
-        '(the one containing core.sc2mod, liberty.sc2mod, etc.):',
-        cfg.assets_root || '');
-    if (!path) return;
-    const r = await fetch('/__config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ assets_root: path }),
-    }).then(r => r.json());
-    if (r.error) {
-        alert(`Could not set assets folder: ${r.error}\n${r.path || ''}`);
-        return;
-    }
-    state.config = await fetch('/__config').then(r => r.json());
-    setStatus(`Assets folder: ${state.config.assets_root}`);
-    refreshAfterAssetChange();
-}
-
-async function runStockDownload(showStatus) {
-    showStatus('Downloading stock essentials from github.com/SC2Mapster/SC2GameData…');
-    try {
-        const r = await fetch('/__download', { method: 'POST' }).then(r => r.json());
-        if (r.error) {
-            showStatus(`Failed: ${r.error}`);
-            return;
-        }
-        showStatus(`Downloaded ${r.downloaded} new, skipped ${r.skipped} existing, ${r.failed.length} failed.`);
-        refreshAfterAssetChange();
-    } catch (err) {
-        showStatus('Failed: ' + err.message);
-    }
-}
+// showAssetsPrompt / openAssetsDialog / runCascExtract / promptSetSc2 /
+// promptSetAssets / runStockDownload all moved to ui/assets-dialog.js in R4.3.
+// Host now constructs an AssetsUi in init() and calls renderBanner / openDialog.
 
 // Refresh editor state after new files land on disk without losing the open
 // layout. Clears texture cache (so failed fetches retry against now-cached
 // files), re-loads font styles + stock layouts since both may have changed,
 // then re-renders.
-async function refreshAfterAssetChange() {
+/**
+ * Drop every cache that's keyed off the active assets root and reload the
+ * stock layouts + Assets.txt aliases + font styles from scratch. Used after
+ * the user changes assets folder, after a CASC extraction lands new files,
+ * after a stock download — anything that changes what's on disk under the
+ * assets root. The mod template registration is repeated because the
+ * registry wipe also drops mod-defined templates.
+ *
+ * Before R4.4 the body of this function was inlined in two places that had
+ * drifted apart (one forgot to reset `registry.errors`); centralising means
+ * adding a new cache to the editor is one edit instead of two-plus-three.
+ *
+ * @param {object} [opts]
+ * @param {boolean} [opts.rerenderAfter=true]  call rerender() at the end
+ */
+async function resetAssetDependentCaches({ rerenderAfter = true } = {}) {
     textures.cache.clear();
     textures.aliasesLoaded = false;
     await textures.loadAssetsTxt().catch(() => {});
@@ -2102,13 +1655,16 @@ async function refreshAfterAssetChange() {
     state.stockLoading = false;
     await loadStockLayouts().catch(() => {});
     await loadFontStyles().catch(() => {});
-    // Also re-register the current mod's templates (they got cleared above).
+    // Re-register the current mod's templates (they got cleared above).
     if (state.modDoc && state.currentFileName) {
         const fileBase = state.currentFileName.replace(/\.[^.]+$/, '').split(/[\\\/]/).pop();
         registry.addModTemplates(state.modDoc.root, fileBase);
     }
-    rerender({ keepSelection: true });
+    if (rerenderAfter) rerender({ keepSelection: true });
 }
+
+// Back-compat alias: the asset-dialog/banner buttons call this name.
+const refreshAfterAssetChange = resetAssetDependentCaches;
 
 // ---- Triggers XML export dialog -----------------------------------------
 //

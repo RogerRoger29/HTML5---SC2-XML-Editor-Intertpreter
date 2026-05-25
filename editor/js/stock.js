@@ -15,9 +15,11 @@
 //                 (used when "show stock UI" is on)
 
 import { parseXml } from './xml/parser.js';
+import { attrMap } from './xml/helpers.js';
+import { STOCK_ASSETS_BASE } from './constants.js';
 
-const DESC_INDEX_URL = '/assets/core.sc2mod/Base.SC2Data/UI/Layout/descindex.sc2layout';
-const LAYOUT_BASE = '/assets/core.sc2mod/Base.SC2Data/';
+const DESC_INDEX_URL = STOCK_ASSETS_BASE + 'UI/Layout/descindex.sc2layout';
+const LAYOUT_BASE = STOCK_ASSETS_BASE;
 
 export class StockRegistry {
     constructor() {
@@ -191,12 +193,7 @@ export class StockRegistry {
     }
 }
 
-function attrMap(el) {
-    const out = {};
-    if (!el.attrs) return out;
-    for (const a of el.attrs) out[a.name] = a.value;
-    return out;
-}
+// attrMap moved to xml/helpers.js in R4.1.
 
 function baseNameNoExt(url) {
     const file = url.split('/').pop();
