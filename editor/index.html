@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>SC2 UI Editor</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header id="topbar">
+        <div class="title">SC2 UI Editor <span class="version" id="app-version"></span></div>
+        <nav class="menu-bar" id="menu-bar">
+            <div class="menu" data-menu="file">
+                <button class="menu-button" type="button">File</button>
+                <div class="menu-dropdown">
+                    <button type="button" data-action="new">New <span class="menu-kbd">Ctrl+N</span></button>
+                    <button type="button" data-action="open">Open&hellip; <span class="menu-kbd">Ctrl+O</span></button>
+                    <button type="button" data-action="open-path">Open by path&hellip;</button>
+                    <hr>
+                    <button type="button" data-action="save" disabled>Save <span class="menu-kbd">Ctrl+S</span></button>
+                    <button type="button" data-action="save-as" disabled>Save As&hellip; <span class="menu-kbd">Ctrl+Shift+S</span></button>
+                    <hr>
+                    <button type="button" data-action="export-html" disabled>Export HTML&hellip; <span class="menu-kbd">Ctrl+Shift+E</span></button>
+                    <button type="button" data-action="export-triggers">Export Triggers XML&hellip;</button>
+                </div>
+            </div>
+            <div class="menu" data-menu="edit">
+                <button class="menu-button" type="button">Edit</button>
+                <div class="menu-dropdown">
+                    <button type="button" data-action="undo">Undo <span class="menu-kbd">Ctrl+Z</span></button>
+                    <button type="button" data-action="redo">Redo <span class="menu-kbd">Ctrl+Y</span></button>
+                    <hr>
+                    <button type="button" data-action="find">Find frame&hellip; <span class="menu-kbd">Ctrl+P</span></button>
+                    <button type="button" data-action="deselect">Deselect <span class="menu-kbd">Esc</span></button>
+                </div>
+            </div>
+            <div class="menu" data-menu="insert">
+                <button class="menu-button" type="button">Insert</button>
+                <div class="menu-dropdown" id="insert-menu">
+                    <button type="button" data-action="add-frame" data-type="Frame">Frame (container)</button>
+                    <button type="button" data-action="add-frame" data-type="Image">Image</button>
+                    <button type="button" data-action="add-frame" data-type="Label">Label</button>
+                    <button type="button" data-action="add-frame" data-type="Button">Button</button>
+                    <button type="button" data-action="add-frame" data-type="Tooltip">Tooltip</button>
+                    <hr>
+                    <button type="button" data-action="add-frame" data-type="CheckBox">CheckBox</button>
+                    <button type="button" data-action="add-frame" data-type="EditBox">EditBox</button>
+                    <button type="button" data-action="add-frame" data-type="ListBox">ListBox</button>
+                    <button type="button" data-action="add-frame" data-type="ProgressBar">ProgressBar</button>
+                    <button type="button" data-action="add-frame" data-type="StatusBar">StatusBar</button>
+                </div>
+            </div>
+            <div class="menu" data-menu="help">
+                <button class="menu-button" type="button">Help</button>
+                <div class="menu-dropdown">
+                    <button type="button" data-action="welcome-tour">Show welcome tour</button>
+                    <button type="button" data-action="about">About</button>
+                </div>
+            </div>
+            <div class="menu" data-menu="view">
+                <button class="menu-button" type="button">View</button>
+                <div class="menu-dropdown">
+                    <label class="menu-row">View mode
+                        <select id="view-mode">
+                            <option value="game" selected>In-game preview</option>
+                            <option value="placed">Placed frames + templates</option>
+                            <option value="all">All frames</option>
+                        </select>
+                    </label>
+                    <hr>
+                    <label class="menu-row">
+                        <input id="toggle-stock-ui" type="checkbox">
+                        Show stock UI
+                    </label>
+                    <label class="menu-row">
+                        <input id="toggle-outlines" type="checkbox" checked>
+                        Outlines <span class="menu-kbd">O</span>
+                    </label>
+                    <label class="menu-row">
+                        <input id="toggle-backdrop" type="checkbox" checked>
+                        Backdrop <span class="menu-kbd">B</span>
+                    </label>
+                    <button type="button" data-action="set-backdrop">Set backdrop image&hellip;</button>
+                    <hr>
+                    <label class="menu-row" title="Snap drags/resizes to grid multiples">
+                        <input id="toggle-snap" type="checkbox">
+                        Grid snap <span class="menu-kbd">G</span>
+                    </label>
+                    <label class="menu-row">Grid size
+                        <input id="snap-size" type="number" min="1" max="200" step="1" value="4" style="width: 50px;">
+                    </label>
+                    <hr>
+                    <button type="button" data-action="fit">Fit canvas <span class="menu-kbd">F</span></button>
+                </div>
+            </div>
+        </nav>
+        <div class="actions">
+            <input id="file-input" type="file" accept=".SC2Layout,.sc2layout,.xml" style="display:none">
+            <input id="backdrop-input" type="file" accept="image/*" style="display:none">
+            <button id="btn-warnings" type="button" title="Layout validator: dangling templates, missing children, malformed values" hidden>
+                Warnings <span id="warnings-count" class="badge">0</span>
+            </button>
+            <button id="btn-assets" type="button" title="Manage SC2 assets (download, extract from SC2 install, set path)">Assets&hellip;</button>
+            <span id="status">Ready.</span>
+        </div>
+    </header>
+
+    <main id="workspace">
+        <section id="pane-tree" class="pane" data-pane="tree">
+            <h2>
+                <button class="pane-collapse" data-target="tree" title="Collapse panel" aria-label="Collapse">◀</button>
+                <span class="pane-title">Hierarchy</span>
+            </h2>
+            <div class="pane-body">
+                <div id="tree" class="tree"></div>
+            </div>
+            <button class="pane-expand" data-target="tree" title="Expand Hierarchy" aria-label="Expand Hierarchy">▶</button>
+        </section>
+
+        <div class="resize-gutter resize-gutter-x" data-target="tree" title="Drag to resize Hierarchy"></div>
+
+        <section id="pane-canvas" class="pane">
+            <div id="canvas-toolbar">
+                <label>Viewport
+                    <select id="viewport-size">
+                        <option value="1920x1080" selected>1920 &times; 1080</option>
+                        <option value="2560x1440">2560 &times; 1440</option>
+                        <option value="1280x720">1280 &times; 720</option>
+                    </select>
+                </label>
+                <label>Zoom
+                    <input type="range" id="zoom" min="0.1" max="2" step="0.05" value="0.5">
+                    <span id="zoom-pct">50%</span>
+                </label>
+                <button id="btn-fit" type="button" title="Fit canvas to the available area">Fit</button>
+            </div>
+            <div id="canvas-scroll">
+                <div id="canvas-root">
+                    <div id="canvas-stage" data-viewport-w="1920" data-viewport-h="1080">
+                    <img id="backdrop-img" alt="" draggable="false">
+                </div>
+                </div>
+                <div id="drop-hint">Drop a .SC2Layout file to open</div>
+                <div id="canvas-empty-hint" hidden>
+                    <div class="hint-card">
+                        <button id="hint-close" class="hint-close" type="button" title="Dismiss" aria-label="Close">&times;</button>
+                        <h3>Tip: load a vanilla SC2 screenshot for context</h3>
+                        <p>Click <strong>View &rarr; Set backdrop image&hellip;</strong> in the top bar and pick a 1920&times;1080 screenshot of a vanilla SC2 game.</p>
+                        <p>Your mod's frames will overlay on top of it, so you can see how they sit in the real HUD.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="resize-gutter resize-gutter-x" data-target="inspector" title="Drag to resize Inspector"></div>
+
+        <section id="pane-inspector" class="pane" data-pane="inspector">
+            <h2>
+                <button class="pane-collapse" data-target="inspector" title="Collapse panel" aria-label="Collapse">▶</button>
+                <span class="pane-title">Inspector</span>
+            </h2>
+            <div class="pane-body">
+                <div id="inspector"><p class="hint">Select a frame in the hierarchy.</p></div>
+            </div>
+            <button class="pane-expand" data-target="inspector" title="Expand Inspector" aria-label="Expand Inspector">◀</button>
+        </section>
+    </main>
+
+    <div class="resize-gutter resize-gutter-y" data-target="xml" title="Drag to resize XML panel"></div>
+
+    <section id="pane-xml" class="pane" data-pane="xml">
+        <div class="pane-header">
+            <button class="pane-collapse" data-target="xml" title="Collapse panel" aria-label="Collapse">▼</button>
+            <h2><span class="pane-title">XML</span></h2>
+            <button id="btn-apply-xml" type="button" disabled>Apply edits</button>
+            <span id="xml-status"></span>
+        </div>
+        <div class="pane-body">
+            <textarea id="xml-text" spellcheck="false" placeholder="Load a .SC2Layout file to begin."></textarea>
+        </div>
+        <button class="pane-expand" data-target="xml" title="Expand XML" aria-label="Expand XML">▲</button>
+    </section>
+
+    <div id="loading-overlay" hidden>
+        <div class="loading-box">
+            <div class="spinner"></div>
+            <div id="loading-msg">Loading stock layouts&hellip;</div>
+        </div>
+    </div>
+
+    <dialog id="warnings-dialog">
+        <form method="dialog">
+            <h3>Layout warnings <span id="warnings-dialog-count"></span></h3>
+            <div id="warnings-dialog-body">
+                <p class="hint">No warnings.</p>
+            </div>
+            <menu>
+                <button value="close" type="submit">Close</button>
+            </menu>
+        </form>
+    </dialog>
+
+    <dialog id="triggers-export-dialog">
+        <form method="dialog">
+            <h3>Export Triggers XML</h3>
+            <p class="hint">Generates a Library-wrapped Triggers fragment that loads this layout at map init and binds each opted-in frame to a Variable. Paste it into your mod's <code>Triggers</code> file or save it as a new one.</p>
+            <div id="triggers-export-body"></div>
+            <menu>
+                <button value="cancel" type="submit">Cancel</button>
+                <button id="triggers-export-go" value="generate" type="submit">Generate</button>
+            </menu>
+        </form>
+    </dialog>
+
+    <dialog id="assets-dialog">
+        <form method="dialog">
+            <h3>Assets &amp; SC2 install</h3>
+            <div id="assets-dialog-body">
+                <p class="hint">Loading current config&hellip;</p>
+            </div>
+            <menu>
+                <button value="close" type="submit">Close</button>
+            </menu>
+        </form>
+    </dialog>
+
+    <dialog id="open-dialog">
+        <form method="dialog">
+            <h3>Open .SC2Layout</h3>
+            <p>Path under <code>/project/</code> or <code>/assets/</code>:</p>
+            <input id="open-path" type="text" size="80"
+                   value="/project/UpgradeSlotSystem/UpgradeSlotSystem.SC2Mod/Base.SC2Data/UI/Layout/UpgradeSlotPanel.SC2Layout">
+            <menu>
+                <button value="cancel">Cancel</button>
+                <button id="open-confirm" value="confirm" type="submit">Open</button>
+            </menu>
+        </form>
+    </dialog>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

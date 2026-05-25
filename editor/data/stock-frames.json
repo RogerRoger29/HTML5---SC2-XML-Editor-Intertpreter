@@ -1,0 +1,89 @@
+{
+    "comment": [
+        "Hand-maintained map of well-known SC2 stock frame paths -> default size/anchors.",
+        "Stock .SC2Layout files declare these as bare names; SC2's runtime hardcodes the path + position.",
+        "Add a new entry by inspecting the Galaxy Editor's Layout module or in-game UI frame debug overlay,",
+        "or by copying paths from existing override-style mods.",
+        "Schema per entry:",
+        "  path     - full GameUI/... path (the override target a modder writes as name=...)",
+        "  type     - SC2 frame type (matches the type= attribute)",
+        "  width    - default width in pixels (1920x1080 design space) or null",
+        "  height   - default height in pixels or null",
+        "  anchors  - array of { side, relative, pos, offset } - same shape as the XML",
+        "Anything you set here will be applied to synthetic chain wrappers if the user's mod targets",
+        "this path and the wrapper has no anchors of its own."
+    ],
+    "frames": [
+        {
+            "path": "GameUI",
+            "type": "GameUI",
+            "width": null,
+            "height": null,
+            "anchors": []
+        },
+        {
+            "path": "GameUI/UIContainer",
+            "type": "Frame",
+            "width": null,
+            "height": null,
+            "anchors": [
+                { "side": "Top",    "relative": "$parent", "pos": "Min", "offset": 0 },
+                { "side": "Bottom", "relative": "$parent", "pos": "Max", "offset": 0 },
+                { "side": "Left",   "relative": "$parent", "pos": "Min", "offset": 0 },
+                { "side": "Right",  "relative": "$parent", "pos": "Max", "offset": 0 }
+            ]
+        },
+        {
+            "path": "GameUI/UIContainer/FullscreenUpperContainer",
+            "type": "Frame",
+            "width": null,
+            "height": null,
+            "anchors": [
+                { "side": "Top",    "relative": "$parent", "pos": "Min", "offset": 0 },
+                { "side": "Bottom", "relative": "$parent", "pos": "Max", "offset": 0 },
+                { "side": "Left",   "relative": "$parent", "pos": "Min", "offset": 0 },
+                { "side": "Right",  "relative": "$parent", "pos": "Max", "offset": 0 }
+            ]
+        },
+        {
+            "path": "GameUI/UIContainer/FullscreenUpperContainer/HeroPanel",
+            "type": "HeroPanel",
+            "width": 400,
+            "height": 84,
+            "anchors": [
+                { "side": "Bottom", "relative": "$parent", "pos": "Max", "offset": -2 },
+                { "side": "Right",  "relative": "$parent", "pos": "Max", "offset": -2 }
+            ],
+            "note": "Approximate; refine from Galaxy Editor's Layout module."
+        },
+        {
+            "path": "GameUI/UIContainer/FullscreenUpperContainer/ResourcePanel",
+            "type": "ResourcePanel",
+            "width": 600,
+            "height": 40,
+            "anchors": [
+                { "side": "Top",   "relative": "$parent", "pos": "Min", "offset": 0 },
+                { "side": "Right", "relative": "$parent", "pos": "Max", "offset": 0 }
+            ],
+            "note": "Approximate; refine from Galaxy Editor's Layout module."
+        },
+        {
+            "path": "GameUI/UIContainer/FullscreenUpperContainer/ResourcePanel/ResourceFrame",
+            "type": "ResourceFrame",
+            "width": null,
+            "height": null,
+            "anchors": []
+        },
+        {
+            "path": "GameUI/UIContainer/ConsoleUIContainer",
+            "type": "InfoPanel",
+            "width": null,
+            "height": 200,
+            "anchors": [
+                { "side": "Bottom", "relative": "$parent", "pos": "Max", "offset": 0 },
+                { "side": "Left",   "relative": "$parent", "pos": "Min", "offset": 0 },
+                { "side": "Right",  "relative": "$parent", "pos": "Max", "offset": 0 }
+            ]
+        }
+    ]
+}

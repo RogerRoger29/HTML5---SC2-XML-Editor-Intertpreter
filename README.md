@@ -1,205 +1,171 @@
 # SC2 UI Editor
 
-A visual editor for StarCraft 2 `.SC2Layout` files. Open existing layouts,
-edit visually, save back to disk, and preview against your real SC2 install.
+Visual editor for StarCraft 2 `.SC2Layout` files. Open existing layouts, edit
+them in a browser, save them back. Windows only; ships as a single 10 MB exe.
 
-**Current version:** 0.5.0
-**Platform:** Windows
-**Distribution:** single-file `.exe` (~10 MB)
+## Get it
 
----
+Grab `SC2UIEditor.exe` from the [latest release](https://github.com/RogerRoger29/HTML5---SC2-XML-Editor-Intertpreter/releases).
+Double-click it. A browser tab opens — that's the editor.
 
-## Quick start (for testers)
+The first time you run it, Windows SmartScreen will warn that the file is
+unsigned. Click **More info → Run anyway** to get past it. One-time prompt per
+machine. (Code signing costs a few hundred a year, so the exe stays unsigned
+until that's worth doing.)
 
-1. **Download** `SC2UIEditor.exe` from the release.
-2. **Double-click** it. Your default web browser opens to the editor automatically.
+The editor walks you through a short tour the first time. You can re-open it
+from the Help menu later.
 
-   ⚠️ **Windows SmartScreen warning** ("Windows protected your PC") will probably
-   appear the first time because the `.exe` is unsigned. Click **More info**
-   → **Run anyway**. This is a one-time hurdle per machine.
-3. The editor walks you through first-launch setup in a brief tour.
-4. Press **Ctrl+S** to save edits back to the original file (on Chromium browsers).
+## Where the assets come from
 
-That's it. No Python, Node, or other install required — everything is bundled.
+The editor wants to see your real SC2 textures and fonts so layouts preview
+correctly. Two ways to get them in:
 
----
+**If you have SC2 installed**, hit Assets… → Extract textures + fonts from
+SC2. It reads straight from the game's CASC archive via CascLib. The first
+extract takes about thirty seconds while CascLib indexes the archive; after
+that everything's instant.
 
-## What it does
+**If you don't have SC2 installed** (or just want something small to test
+with), use Download stock essentials instead. That pulls roughly 2 MB of
+layout XML from the [SC2Mapster game data mirror](https://github.com/SC2Mapster/SC2GameData).
+You get templates and styles but no actual textures — magenta placeholders
+where images would be.
 
-### Authoring
-- Drag-to-move and corner-drag-to-resize on the canvas.
-- Editable property inspector — Width, Height, all four anchor offsets,
-  HAlign / VAlign, Text, Style, Texture, LayerColor.
-- Live updates: hold a spinner arrow and the frame tracks every step in real time.
-- Hierarchy drag-and-drop to reparent / reorder frames.
-- Add new frames (Frame, Image, Label, Button, Tooltip, CheckBox, EditBox,
-  ListBox, ProgressBar, StatusBar) via the **Insert** menu.
-- Visual state preview: switch a button between Normal / Hover / Pressed
-  via the inspector to see how the StateGroup actions will render in-game.
-- Undo/redo (Ctrl+Z / Ctrl+Y) across all edits.
+If you already have a mods folder extracted manually somewhere, point the
+editor at it via Assets… → Set assets folder.
 
-### Asset awareness
-- **Texture autocomplete** — type into the Texture field, see a searchable
-  dropdown of every alias loaded from your SC2 `Assets.txt` files
-  (1,500+ entries on a typical install).
-- **Style autocomplete** — same for FontStyles entries (Eurostile / Blizzard
-  fonts at their real sizes / colors / outlines).
-- **CASC extraction** — reads textures and fonts directly from your local
-  SC2 install via CascLib (no manual extraction tool needed). Auto-fetches
-  any missing assets when you open a file.
+## What you can do
 
-### Editor support
-- **Validator pane** flags dangling template references, missing required
-  children (e.g. Button without NormalImage), invalid anchor combinations,
-  and malformed numeric values. Click any warning to jump to the offending
-  frame.
-- **Find frame** (Ctrl+P) — fuzzy palette searches by name or path.
-- **Smart alignment guides** appear while dragging when a frame's edge
-  aligns with another frame's edge or center.
-- **Grid snap** (G to toggle) with configurable size and a visible grid overlay.
+Open a layout. Click frames on the canvas to select them, drag the body to
+move, drag corner handles to resize. The Inspector on the right edits
+everything — Width, Height, all four anchor offsets, Text, Style, Texture
+references, LayerColor, HAlign / VAlign. Hold a spinner arrow on a number
+field and the canvas tracks it live.
 
-### Workflow
-- **File menu**: New / Open / Save / Save As / Export HTML.
-- **Save to disk** via File System Access API on Chromium browsers — Ctrl+S
-  writes the original file directly with no download dialog.
-- **Export HTML** produces a standalone `.html` preview with textures
-  embedded as base64 data URIs (useful for sharing with people who don't
-  have the editor).
-- **Stage backdrop**: load a vanilla SC2 screenshot to visually verify your
-  mod frames land in the right spots relative to the stock HUD.
-- **Resizable + collapsible panes** (Hierarchy / Inspector / XML) with
-  persistent layout via localStorage.
+Type into the Texture or Style fields and you get autocomplete from your
+real loaded Assets.txt (~1,500 entries on a normal install). Same for
+templates.
 
----
+The hierarchy on the left supports drag-and-drop — pull a frame onto another
+to reparent it, drop above or below for sibling reordering. The Insert menu
+adds new frames (Frame, Image, Label, Button, Tooltip, CheckBox, EditBox,
+ListBox, ProgressBar, StatusBar) with sensible defaults wired up.
 
-## First-launch flow in detail
+Save writes the original file back in place on Chrome and Edge via the File
+System Access API. Firefox and Safari haven't implemented that API yet, so
+they fall back to a download dialog.
 
-When the `.exe` starts it does the following before opening your browser:
+There's a validator that flags dangling template references, missing
+required children for specific frame types, and anchor / size conflicts. The
+Warnings button only appears in the top bar when there's actually something
+to warn about, so it doesn't sit there nagging.
 
-1. **Detects SC2 install location.** Scans every drive letter (A–Z) for
-   a folder containing `StarCraft II.exe`. Also checks the registry.
-2. **Resolves an assets folder** in this order:
-   - `--assets PATH` command-line argument
-   - `SC2_ASSETS` environment variable
-   - `assets_root` from `sc2-ui-editor-config.json` next to the exe
-   - `./mods/` next to the exe (if you've extracted stock data there)
-   - `./extracted/mods/` or `./data/mods/`
-   - Common Windows install paths
-3. **Binds an HTTP port.** Starts at 8765 and walks forward to 8775 if
-   8765 is in use.
-4. **Opens your default browser** to `http://127.0.0.1:<port>/`.
+Buttons that define a `<StateGroup>` get a "Visual state preview" dropdown in
+the Inspector — switch between Normal / Hover / Pressed and see the actual
+child-visibility swaps without launching the game.
 
-If no assets folder is found, the editor shows an in-browser banner with
-two recovery actions:
+You can also export an HTML snapshot of the current canvas with textures
+inlined as base64. Useful for showing layouts to someone who doesn't have
+the editor installed.
 
-- **Extract textures + fonts from SC2** — uses the bundled CascLib to read
-  your local SC2 install. First extraction takes about 30 seconds while
-  CascLib indexes the archive; subsequent operations are instant. Writes
-  extracted files to `./stock-data/` next to the exe and uses that as the
-  new assets folder.
-- **Download stock essentials** — fetches about 30 layout/style files
-  (~2 MB) from
-  [SC2Mapster/SC2GameData](https://github.com/SC2Mapster/SC2GameData) over
-  HTTPS. Includes XML, Assets.txt, and DescIndex — but NOT binary `.dds`
-  textures (those have to come from a local SC2 install).
+## Triggers export
 
-You can run the editor without either; you'll just see magenta placeholders
-where textures should be, and template-based frames may look bare. Editing
-still works.
+If you want the layout wired up in-game, File → Export Triggers XML
+generates a fragment you can paste into your mod's Triggers file. Pick which
+frames you want bound to Galaxy variables, optionally include click-handler
+stubs for buttons, and you get the variable declarations, the init trigger
+that loads the layout and binds them, and (per opted-in button) a
+TriggerAddEventDialogControl event handler with a comment placeholder for
+your logic.
 
----
+You still have to do the SC2 Editor "poke any trigger and save" dance to
+force MapScript to regenerate — that's a quirk of how Galaxy codegen works,
+not something this tool can fix.
 
 ## Keyboard shortcuts
 
-| Key | Action |
+| Keys | Action |
 |---|---|
-| **Ctrl+N** | New blank layout |
-| **Ctrl+O** | Open file |
-| **Ctrl+S** | Save (in-place on Chromium; download elsewhere) |
-| **Ctrl+Shift+S** | Save As |
-| **Ctrl+Shift+E** | Export HTML |
-| **Ctrl+Z** | Undo |
-| **Ctrl+Y** / **Ctrl+Shift+Z** | Redo |
-| **Ctrl+P** | Find frame by name |
-| **G** | Toggle grid snap |
-| **O** | Toggle frame outlines |
-| **B** | Toggle backdrop image |
-| **F** | Fit canvas to window |
-| **Esc** | Deselect / close palette |
-| **Delete** | Delete selected mod-origin frame |
+| Ctrl+N | New blank layout |
+| Ctrl+O | Open file |
+| Ctrl+S | Save (in-place on Chromium, download elsewhere) |
+| Ctrl+Shift+S | Save As |
+| Ctrl+Shift+E | Export HTML preview |
+| Ctrl+Z / Ctrl+Y | Undo / redo |
+| Ctrl+P | Find frame by name |
+| G | Toggle grid snap |
+| O | Toggle frame outlines |
+| B | Toggle backdrop image |
+| F | Fit canvas to window |
+| Esc | Deselect |
+| Delete | Delete selected frame |
 
----
+## Heads up
 
-## Known issues / gotchas
+The exe is unsigned, so SmartScreen and some antivirus tools will flag it
+on first launch. Workaround is the SmartScreen "Run anyway" path described
+above; some AV engines might need a whitelist add.
 
-- **Unsigned executable.** Windows SmartScreen and some antivirus engines will
-  flag the file. There's no fix short of paying a CA for code signing
-  ($200–400/yr). Workaround: **More info** → **Run anyway** on SmartScreen.
-- **Firefox / Safari**: Save-to-disk via File System Access API is unsupported.
-  Save and Save As fall back to download dialogs. Everything else works.
-- **Port 8765–8775 all in use**: rare but the editor won't start. Close
-  whatever else is using those ports.
-- **CascLib first open is slow** (~30 seconds). It's indexing the SC2 archive.
-  Subsequent extracts are sub-second.
-- **No animation playback.** `<Animation>` and `<Controller>` blocks parse
-  and round-trip cleanly but don't preview as animations. `<StateGroup>`
-  states DO preview (you can manually pick Hover / Pressed / etc. in the
-  inspector to see how those states would render).
+If you're on Firefox or Safari, the save-to-disk shortcut falls back to a
+browser download instead of overwriting the file in place. Everything else
+works.
 
----
+`<Animation>` and `<Controller>` blocks parse and round-trip without
+damage but don't preview as animations — that's a separate engine layer
+that hasn't been built yet. `<StateGroup>` previews do work (see above).
 
-## Reporting bugs
+A handful of campaign-specific textures aren't in the mod-prefix list the
+extractor tries. If you hit a magenta placeholder for something that should
+exist in your local SC2 install, file an issue with the texture name and
+I'll widen the search.
 
-If something breaks, please include:
-- What you were trying to do
-- The contents of the browser's **Console** tab (F12 → Console) — many of
-  the editor's diagnostics log there with `[stock]`, `[textures]`,
-  `[paint]`, `[cascextract]` prefixes
-- The version string from **Help → About** (or the badge in the top-left)
-- A copy of the `.SC2Layout` file you were editing if possible
+## Bug reports
 
----
+If something misbehaves, F12 → Console in the editor's browser tab usually
+has the diagnostic. Most subsystems log with a tag (`[stock]`, `[textures]`,
+`[cascextract]`, `[paint]`) so it's easy to grep. Open an issue with the
+relevant lines, what you were doing, and a copy of the layout file if you
+can share it.
 
 ## Building from source
 
-You only need this if you're modifying the editor itself.
-
-Requirements: Python 3.10+, PyInstaller (`pip install pyinstaller`).
-
 ```
-git clone <repo>
-cd sc2-ui-editor
-python serve.py            # runs in dev mode at http://127.0.0.1:8765/
-python build.py            # produces dist/SC2UIEditor.exe
+python serve.py            # dev mode at http://127.0.0.1:8765/
+python build.py            # build dist/SC2UIEditor.exe
 python build.py --clean    # wipe build cache first
 ```
 
-The dev server reads files directly from `editor/` so JS / CSS / HTML
-changes hot-reload on browser refresh — no rebuild needed unless you
-change `serve.py` itself or want to test the bundled `.exe`.
+Dev mode reads files straight from `editor/` on disk, so HTML / CSS / JS
+changes hot-reload on browser refresh. You only need to rebuild the exe if
+you change `serve.py` itself or want to test the bundle.
 
-To rebuild the CascLib filename index against a newer SC2 patch:
+To regenerate the CASC filename index against a newer SC2 patch:
 
 ```
 python casc_index.py "C:\Program Files (x86)\StarCraft II"
 ```
 
 Output lands at `editor/data/casc-index.json` and gets baked into the next
-exe build.
+build.
 
----
+Round-trip tests live alongside the source:
 
-## License & credits
+```
+node test_roundtrip.mjs <file.SC2Layout>...
+node test_drag_math.mjs
+node test_mod_templates.mjs
+```
 
-Editor code: your repo's license.
+## Credits
 
-Bundled third-party:
-- **CascLib** by Ladislav Zezula, MIT licensed.
-- **SC2 layout XML samples** from
-  [SC2Mapster/SC2GameData](https://github.com/SC2Mapster/SC2GameData)
-  (for the optional "Download stock essentials" feature only — files are
-  fetched at runtime, not bundled).
+- [CascLib](https://github.com/ladislav-zezula/CascLib) for SC2 archive
+  reading (MIT-licensed, bundled as `native/CascLib.dll`)
+- [SC2Mapster/SC2GameData](https://github.com/SC2Mapster/SC2GameData) — the
+  optional stock-data download pulls from this mirror
+- [Saira font](https://fonts.google.com/specimen/Saira) — bundled SIL
+  Open Font License fallback for when SC2's real fonts aren't available
 
-No Blizzard binary assets (textures, fonts) are bundled. The editor only
-ever reads them from the user's own SC2 install via CascLib or from the
-user's own extracted asset folder.
+No Blizzard binary assets ship with the editor. Textures and fonts are only
+ever read from your own SC2 install via CascLib, or from a mods folder you
+point the editor at yourself.
