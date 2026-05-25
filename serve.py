@@ -163,8 +163,34 @@ class Router(http.server.SimpleHTTPRequestHandler):
             base = EDITOR_ROOT
             rel = url_path.lstrip("/")
         rel = rel.replace("\\", "/")
-        parts = [p for p in rel.split("/") if p not in ("", ".", "..")]
-        return str(base.joinpath(*parts))
+        # Filter out empty, current-dir, parent-dir, AND any Windows drive
+        # letter (e.g. "C:") - because Path.joinpath('C:', ...) on Windows
+        # silently RESETS the path to that absolute drive, escaping `base`.
+        # Reserved/UNC components are similarly hostile.
+        parts = []
+        for p in rel.split("/"):
+            if p in ("", ".", ".."):
+                continue
+            # Drive letter (C:, D:, etc.) or any segment with a colon or
+            # leading backslash - reject defensively.
+            if len(p) == 2 and p[1] == ":" and p[0].isalpha():
+                continue
+            if ":" in p or p.startswith("\\"):
+                continue
+            parts.append(p)
+        candidate = base.joinpath(*parts)
+        # Final belt-and-braces: resolve and verify the result still lives
+        # under base. This catches symlink shenanigans and any traversal
+        # the per-segment filter missed.
+        try:
+            resolved = candidate.resolve(strict=False)
+            base_resolved = base.resolve(strict=False)
+            # Path.is_relative_to is 3.9+ (project requires 3.10+).
+            if not resolved.is_relative_to(base_resolved):
+                return str(base_resolved)   # safe fallback: serve base itself
+        except (OSError, ValueError):
+            return str(base)
+        return str(candidate)
 
     def do_GET(self):  # noqa: N802 (http.server naming)
         path = self.path.split("?", 1)[0]
@@ -224,7 +250,13 @@ class Router(http.server.SimpleHTTPRequestHandler):
             return self._send_json({"error": "sc2_not_found"}, status=404)
 
         # Lazy-create the long-lived storage handle on the first request.
+        # When the install path CHANGES (user repointed SC2 install path in
+        # config), close the old storage first - otherwise CascLib keeps the
+        # previous archive's mapped memory (~100 MB) until process exit.
         if Router.casc_storage is None or Router.casc_storage.install_path != sc2_install:
+            if Router.casc_storage is not None:
+                try: Router.casc_storage.close()
+                except Exception: pass
             Router.casc_storage = CascStorage(sc2_install)
         if Router.casc_index is None:
             Router.casc_index = CascIndex()

@@ -132,6 +132,13 @@ export class FrameRenderer {
         inner.title = `loading: ${texAttr}`;
 
         this.textures.load(texAttr).then(canvas => {
+            // Async race guard: a rerender after this load was queued may
+            // have removed `inner` from the DOM (or re-created its parent
+            // .sc2-frame with a different size). Bail rather than:
+            //   1) mutating an orphaned div (work the user never sees), or
+            //   2) compositing against a stale node.w/node.h that no longer
+            //      reflects the current layout.
+            if (!inner.isConnected) return;
             if (!canvas) {
                 inner.title = `failed: ${texAttr}`;
                 return;
@@ -149,6 +156,10 @@ export class FrameRenderer {
                     inner.title = `zero-size frame: ${texAttr}`;
                     return;
                 }
+                // Re-check inside the try too - composite is sync but a
+                // microtask between then() and replaceChildren can still
+                // detach `inner` if another rerender lands.
+                if (!inner.isConnected) return;
                 inner.style.background = '';
                 inner.style.opacity = '';
                 inner.title = `${texAttr}  (src ${canvas.width}x${canvas.height})`;
@@ -156,11 +167,11 @@ export class FrameRenderer {
                 console.info(`[paint] ${node.name}: painted ${texAttr} into ${node.w}x${node.h}`);
             } catch (err) {
                 console.warn(`[paint] composite failed for ${node.name}:`, err, texAttr);
-                inner.title = `composite error: ${err.message}`;
+                if (inner.isConnected) inner.title = `composite error: ${err.message}`;
             }
         }).catch(err => {
             console.warn('[texture]', err);
-            inner.title = `error: ${err.message}`;
+            if (inner.isConnected) inner.title = `error: ${err.message}`;
         });
     }
 

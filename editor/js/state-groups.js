@@ -67,11 +67,31 @@ export function parseStateGroupsOnFrame(modSource) {
  *  descendant frames before render.
  *
  *  activeStates: Map(frame.path + '#' + groupName -> stateName)
- *  Resets each visited frame's state-override properties so previously-
- *  applied states from older renders don't leak through.
+ *
+ *  Two passes: a reset pass first so a previous-state's overrides don't
+ *  bleed into the new state (e.g. switching Hover -> Normal where Normal's
+ *  Actions don't touch the children that Hover hid). Then the apply pass.
+ *  This guarantees deterministic output regardless of which state was
+ *  active before.
  */
 export function applyStateActions(frames, activeStates) {
     if (!activeStates) activeStates = new Map();
+    // Pass 1: drop any state-applied overrides from the previous render.
+    // We only clear properties that StateGroup actions can touch, so
+    // mod-XML-derived defaults survive untouched.
+    const reset = (nodes) => {
+        for (const n of nodes) {
+            // .visible was either true by default or set by <Visible val>
+            // in the source props. Restore from the source if present;
+            // otherwise default to visible.
+            n.visible = sourceVisibility(n);
+            n._stateColor = undefined;
+            n._stateAlpha = undefined;
+            if (n.children && n.children.length) reset(n.children);
+        }
+    };
+    reset(frames);
+    // Pass 2: apply active state actions.
     const walk = (nodes) => {
         for (const n of nodes) {
             applyToFrame(n, activeStates);
@@ -79,6 +99,21 @@ export function applyStateActions(frames, activeStates) {
         }
     };
     walk(frames);
+}
+
+// Look at the materialized node's source/synthetic XML for a <Visible val>
+// child to recover the layout-declared visibility. Defaults to true.
+function sourceVisibility(node) {
+    const xml = node.xml;
+    if (!xml || !xml.children) return true;
+    for (const c of xml.children) {
+        if (c.type !== 'element' || c.tag !== 'Visible') continue;
+        const v = (c.attrs.find(a => a.name === 'val') || {}).value;
+        if (v == null) continue;
+        const low = String(v).toLowerCase();
+        return !(low === 'false' || low === '0');
+    }
+    return true;
 }
 
 /** Returns the list of state-group metadata visible for a single frame

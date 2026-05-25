@@ -1491,6 +1491,11 @@ function createNewLayout() {
         '<Desc>\n' +
         '</Desc>\n';
     state.currentPath = null;
+    // Clear the previously-opened file's FileSystemFileHandle - otherwise
+    // Ctrl+S on the new untitled doc would silently overwrite the file the
+    // user just had open. Data-loss bug. Save / SaveAs will prompt for a
+    // new handle when needed.
+    state.fileHandle = null;
     textures.setModRoot(null);     // no mod assets context for a brand-new doc
     openFromText(SKELETON, 'untitled.SC2Layout');
     setStatus('New blank layout. Use "+ Add frame..." to start adding content.');
@@ -2243,11 +2248,8 @@ function openTriggersExportDialog() {
     };
 }
 
-function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-    }[c]));
-}
+// (escapeHtml is defined earlier in this file - this second declaration
+// was a duplicate that some strict-mode browsers refuse to parse.)
 
 function setBackdrop(dataUrl) {
     if (!dataUrl) {

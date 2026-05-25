@@ -236,7 +236,10 @@ def extract_files(sc2_install: Path, file_list: list[str], out_dir: Path) -> dic
 
 def _extract_one(dll, storage, casc_name: str, out_path: Path) -> None:
     file_handle = wintypes.HANDLE()
-    name_bytes = casc_name.encode("utf-8")
+    # CascLib.dll is built ANSI - paths must be mbcs-encoded bytes, not
+    # utf-8. ASCII-only paths work either way; non-ASCII (Cyrillic /
+    # accented locale variants) silently 404 under utf-8.
+    name_bytes = casc_name.encode("mbcs")
     ok = dll.CascOpenFile(storage, name_bytes, CASC_LOCALE_NONE, CASC_OPEN_BY_NAME, ctypes.byref(file_handle))
     if not ok or not file_handle:
         raise CascError(f"open {casc_name}", dll.GetCascError())
