@@ -1451,7 +1451,14 @@ function uniqueChildName(parent, type) {
 
 // Build a <Frame type="..." name="..."> element with default anchors and
 // size, plus any type-specific children that make the frame useful out of
-// the box (e.g. Buttons get a NormalImage/HoverImage placeholder).
+// the box (issue #1: SC2's composite types - Button / CheckBox / EditBox /
+// ListBox - each ship with a fixed set of named sub-frames the game
+// expects; if you don't define them the engine substitutes invisible
+// defaults and the resulting frame looks broken in the canvas).
+//
+// Reference: mapster.talv.space/ui-layout/frame-type — each FrameType page
+// lists its DescInternal children. We seed the minimum that's interactive;
+// the user fills in textures / labels via inspector or XML.
 function buildFrameElement(type, name) {
     const i = '\n        ';
     const i2 = '\n            ';
@@ -1466,6 +1473,25 @@ function buildFrameElement(type, name) {
         textNode(i),
         elementNode('Height', [['val','100']], true),
     ];
+    // Helper for the very common "Image sub-frame anchored to fill parent
+    // with a placeholder texture" pattern used by Button/CheckBox/ListBox.
+    const fillImage = (childName, texture = '') => {
+        const kids = [
+            textNode(i2),
+            elementNode('Anchor', [['relative','$parent'],['offset','0']], true),
+        ];
+        if (texture) kids.push(textNode(i2), elementNode('Texture', [['val', texture]], true));
+        kids.push(textNode(i));
+        return elementNode('Frame', [['type','Image'],['name', childName]], false, kids);
+    };
+    // Same idea but type="Frame" sub-container with no texture.
+    const subFrame = (childName, subType) => elementNode(
+        'Frame', [['type', subType], ['name', childName]], false, [
+            textNode(i2),
+            elementNode('Anchor', [['relative','$parent'],['offset','0']], true),
+            textNode(i),
+        ]);
+
     if (type === 'Label') {
         children.push(textNode(i), elementNode('Text', [['val','New Label']], true));
         children.push(textNode(i), elementNode('Style', [['val','StandardTemplate']], true));
@@ -1473,23 +1499,34 @@ function buildFrameElement(type, name) {
         // Empty Texture - user fills in via inspector or XML.
         children.push(textNode(i), elementNode('Texture', [['val','']], true));
     } else if (type === 'Button') {
-        // Buttons need a NormalImage + HoverImage to be visible.
+        // Buttons need NormalImage + HoverImage to be visible. The Label
+        // child is what shows the button caption (issue #1).
+        children.push(textNode(i), fillImage('NormalImage', '@@@UI/HeroPanelButtonNormal'));
+        children.push(textNode(i), fillImage('HoverImage',  '@@@UI/HeroPanelButtonHover'));
         children.push(textNode(i),
-            elementNode('Frame', [['type','Image'],['name','NormalImage']], false, [
+            elementNode('Frame', [['type','Label'],['name','Label']], false, [
                 textNode(i2),
                 elementNode('Anchor', [['relative','$parent'],['offset','0']], true),
                 textNode(i2),
-                elementNode('Texture', [['val','@@@UI/HeroPanelButtonNormal']], true),
+                elementNode('Style', [['val','StandardTemplate']], true),
                 textNode(i),
             ]));
-        children.push(textNode(i),
-            elementNode('Frame', [['type','Image'],['name','HoverImage']], false, [
-                textNode(i2),
-                elementNode('Anchor', [['relative','$parent'],['offset','0']], true),
-                textNode(i2),
-                elementNode('Texture', [['val','@@@UI/HeroPanelButtonHover']], true),
-                textNode(i),
-            ]));
+    } else if (type === 'CheckBox') {
+        // CheckBox = Button child (the clickable hit area) + CheckImage
+        // (the tick / fill shown when the box is checked) per Talv ref.
+        children.push(textNode(i), subFrame('Button', 'Button'));
+        children.push(textNode(i), fillImage('CheckImage'));
+    } else if (type === 'EditBox') {
+        // EditBox just ships with a backing Image (the text field background).
+        children.push(textNode(i), fillImage('Image'));
+    } else if (type === 'ListBox') {
+        // ListBox: BackgroundImage + HoverImage + SelectedImage cover the
+        // three visual states for an item row. (ScrollBar deferred per
+        // issue note: needs its own Scrollbar frame type which we don't
+        // generate yet.)
+        children.push(textNode(i), fillImage('BackgroundImage'));
+        children.push(textNode(i), fillImage('HoverImage'));
+        children.push(textNode(i), fillImage('SelectedImage'));
     }
     children.push(textNode(close));
     return elementNode('Frame', [['type', type], ['name', name]], false, children);

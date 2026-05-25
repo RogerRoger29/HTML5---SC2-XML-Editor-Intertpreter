@@ -186,29 +186,42 @@ export class Inspector {
         this._sectionTitle('Declared size');
         const widthEl = findChild(source, 'Width');
         const heightEl = findChild(source, 'Height');
-        // If the frame is anchored on BOTH sides of an axis, the size on
-        // that axis is determined by anchor positions and the Width/Height
-        // attribute is silently ignored by SC2's layout engine. Surface that
-        // to the user instead of letting their edits seem to do nothing.
+        // Issue #2: when both opposing anchors are set, SC2 DOES honour an
+        // explicit Width/Height — the frame is centered between the two
+        // anchor extents. (Beware the Mid/Mid case: if both anchors target
+        // pos="Mid" on a parent that doesn't itself define those anchors,
+        // SC2's resolution can render unexpectedly.) We surface the
+        // situation as an informational note but keep the input editable.
         const hasLeft = !!findAnchorChild(source, 'Left');
         const hasRight = !!findAnchorChild(source, 'Right');
         const hasTop = !!findAnchorChild(source, 'Top');
         const hasBottom = !!findAnchorChild(source, 'Bottom');
-        const widthOverridden = hasLeft && hasRight;
-        const heightOverridden = hasTop && hasBottom;
+        const bothHor = hasLeft && hasRight;
+        const bothVer = hasTop && hasBottom;
+        const midWarn = (a, b) => {
+            const apos = a && attrVal(a, 'pos');
+            const bpos = b && attrVal(b, 'pos');
+            return apos === 'Mid' && bpos === 'Mid';
+        };
+        const horMidMid = bothHor && midWarn(findAnchorChild(source, 'Left'),
+                                             findAnchorChild(source, 'Right'));
+        const verMidMid = bothVer && midWarn(findAnchorChild(source, 'Top'),
+                                             findAnchorChild(source, 'Bottom'));
         this._numberRow('Width', widthEl ? attrVal(widthEl, 'val') : '',
             (v, live) => this._writeSizedChild(source, 'Width', v, 'val', { live, liveSession: true }),
             'auto',
-            widthOverridden ? {
-                disabled: true,
-                note: 'Anchored on Left + Right - Width is ignored. Remove one anchor (× next to Left or Right above) to use this value.',
+            bothHor ? {
+                note: horMidMid
+                    ? 'Both Left + Right anchors target Mid — SC2 may render unexpectedly unless the parent itself defines these anchors. With Width set, the frame is centered between the anchor extents.'
+                    : 'Anchored on Left + Right. With Width set, SC2 centers the frame within the anchor extent; leave blank to fill the extent.',
             } : {});
         this._numberRow('Height', heightEl ? attrVal(heightEl, 'val') : '',
             (v, live) => this._writeSizedChild(source, 'Height', v, 'val', { live, liveSession: true }),
             'auto',
-            heightOverridden ? {
-                disabled: true,
-                note: 'Anchored on Top + Bottom - Height is ignored. Remove one anchor (× next to Top or Bottom above) to use this value.',
+            bothVer ? {
+                note: verMidMid
+                    ? 'Both Top + Bottom anchors target Mid — SC2 may render unexpectedly unless the parent itself defines these anchors. With Height set, the frame is centered between the anchor extents.'
+                    : 'Anchored on Top + Bottom. With Height set, SC2 centers the frame within the anchor extent; leave blank to fill the extent.',
             } : {});
     }
 
@@ -331,13 +344,8 @@ export class Inspector {
         };
         // Tags that render with a color swatch + native color picker.
         const colorFields = new Set(['LayerColor']);
-        // Per-instance text alignment overrides on Label / Button frames.
-        // SC2 stores these as <HAlign val="..."/> / <VAlign val="..."/> children;
-        // blank means "fall back to whatever the Style attribute defines".
-        const wantsAlignment = frame.type === 'Label' || frame.type === 'Button'
-            || hasChild(source, 'HAlign') || hasChild(source, 'VAlign');
         const fields = Object.entries(wants).filter(([_, v]) => v).map(([k]) => k);
-        if (!fields.length && !wantsAlignment) return;
+        if (!fields.length) return;
         this._sectionTitle('Content');
         // Map tag -> suggester key. Tags not listed here get no autocomplete.
         const suggesterByTag = {
@@ -356,38 +364,13 @@ export class Inspector {
                     suggesterByTag[tag]);
             }
         }
-        if (wantsAlignment) {
-            this._alignRow(source, 'HAlign', ['Left', 'Center', 'Right']);
-            this._alignRow(source, 'VAlign', ['Top', 'Middle', 'Bottom']);
-        }
-    }
-
-    /** Dropdown for <HAlign val="..."/> or <VAlign val="..."/>. Blank
-     *  value means "remove the override and inherit from Style." */
-    _alignRow(source, tag, options) {
-        const div = document.createElement('div');
-        div.className = 'inspector-row';
-        const l = document.createElement('label');
-        l.textContent = tag;
-        const sel = document.createElement('select');
-        const blank = document.createElement('option');
-        blank.value = '';
-        blank.textContent = '(from style)';
-        sel.appendChild(blank);
-        for (const o of options) {
-            const opt = document.createElement('option');
-            opt.value = o;
-            opt.textContent = o;
-            sel.appendChild(opt);
-        }
-        const el = findChild(source, tag);
-        if (el) sel.value = attrVal(el, 'val') || '';
-        sel.addEventListener('change', () => {
-            this._writeSizedChild(source, tag, sel.value, 'val');
-        });
-        div.appendChild(l);
-        div.appendChild(sel);
-        this.rootEl.appendChild(div);
+        // (Issue #4: removed HAlign/VAlign inputs. SC2 doesn't recognise
+        // those as per-frame XML elements - text alignment is dictated by
+        // the assigned FontStyle (HAlign/VAlign live inside .SC2Style
+        // entries, not inside layout frames). Emitting them was at-best
+        // ignored, at-worst caused the game to abort rendering. To change
+        // alignment, edit/select a FontStyle whose Style entry has the
+        // desired HAlign/VAlign.)
     }
 
     _actionsSection(frame, source) {
@@ -506,6 +489,8 @@ export class Inspector {
         if (opts.disabled) {
             inp.disabled = true;
             inp.title = opts.note || 'Overridden.';
+        } else if (opts.note) {
+            inp.title = opts.note;
         }
         // Live update on every spinner click / keystroke; commit on blur/Enter.
         this._wireLiveNumber(inp, (val, live) => {
@@ -516,8 +501,10 @@ export class Inspector {
         div.appendChild(l);
         div.appendChild(inp);
         this.rootEl.appendChild(div);
-        // Inline explanatory note below the row when the input is overridden.
-        if (opts.disabled && opts.note) {
+        // Inline explanatory note below the row whenever provided - it's
+        // either an "input is disabled because X" message or an
+        // informational warning that doesn't block editing (issue #2).
+        if (opts.note) {
             const note = document.createElement('div');
             note.className = 'inspector-row-note';
             note.textContent = opts.note;

@@ -40,8 +40,10 @@ editor at it via Assets… → Set assets folder.
 Open a layout. Click frames on the canvas to select them, drag the body to
 move, drag corner handles to resize. The Inspector on the right edits
 everything — Width, Height, all four anchor offsets, Text, Style, Texture
-references, LayerColor, HAlign / VAlign. Hold a spinner arrow on a number
-field and the canvas tracks it live.
+references, LayerColor. Hold a spinner arrow on a number field and the
+canvas tracks it live. (Text alignment lives in the FontStyle the frame
+references, not as a per-frame override — pick a Style whose alignment
+you want.)
 
 Type into the Texture or Style fields and you get autocomplete from your
 real loaded Assets.txt (~1,500 entries on a normal install). Same for

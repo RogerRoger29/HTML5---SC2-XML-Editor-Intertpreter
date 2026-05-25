@@ -1,6 +1,23 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.5.2 - Tester feedback round 1 (issues #1-#4):
+//   * #4: Stop emitting <HAlign>/<VAlign> children - not valid SC2
+//          layout XML. Inspector loses those dropdowns; validator
+//          now flags any presence as an error.
+//   * #3: Fix children double-displacing on parent drag. Renderer
+//          was writing stage-absolute coords into CSS `left`, but
+//          the parent .sc2-frame is `position: absolute` so child
+//          left was added on top of parent left. Subtract parent
+//          origin so CSS positioning matches.
+//   * #2: Allow Width/Height edits when both opposing anchors are
+//          set. SC2 centers the frame between anchors when both
+//          are present + Width/Height explicit. Inspector now shows
+//          an informational note instead of soft-disabling.
+//   * #1: Add Frame palette now seeds the SC2-expected default
+//          sub-children for CheckBox / EditBox / ListBox, and adds
+//          a Label child to Buttons. (Reference: Talv's frame-type
+//          page on mapster.talv.space.)
 // 0.5.1 - Audit rounds 1-4 (zero new features; correctness + structure):
 //   * R1: 7 critical bug fixes (CASC encoding, path traversal, handle
 //          leaks, state-group reset, texture race, file-handle leak,
@@ -38,4 +55,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.5.1';
+export const VERSION = '0.5.2';

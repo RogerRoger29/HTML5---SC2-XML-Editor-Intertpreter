@@ -60,7 +60,6 @@ const STEPS = [
                 <li>Width, Height, anchor offsets — type or use the spinners.
                 Live updates as you scrub.</li>
                 <li>Texture / Style fields autocomplete from your loaded assets.</li>
-                <li>HAlign / VAlign for labels and buttons.</li>
                 <li>LayerColor gets a real color picker.</li>
                 <li>Visual state preview lets you flip between Normal / Hover /
                 Pressed if the frame has a <code>StateGroup</code>.</li>

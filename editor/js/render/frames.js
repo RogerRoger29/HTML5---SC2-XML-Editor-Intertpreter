@@ -30,12 +30,23 @@ export class FrameRenderer {
      *  recreating any DOM. Used during a live drag so texture canvases
      *  don't flicker through the magenta loading placeholder on every
      *  pointermove. Each node must already have a ._el reference from
-     *  a prior render(). */
+     *  a prior render().
+     *
+     *  Issue #3: node.x / node.y are STAGE-absolute (resolved by
+     *  layoutFrames). But each .sc2-frame is `position: absolute` and is
+     *  nested inside its parent .sc2-frame in the DOM, so CSS interprets
+     *  `left` relative to the parent's padding box. Writing the stage-
+     *  absolute x as `style.left` made the child double-displace whenever
+     *  the parent moved: child appeared to shift by 2*Δ instead of Δ.
+     *  Subtract parent's stage origin so CSS positioning matches.
+     */
     updatePositions(nodes) {
         for (const n of nodes) {
             if (n._el) {
-                n._el.style.left = n.x + 'px';
-                n._el.style.top = n.y + 'px';
+                const px = n.parent ? n.parent.x : 0;
+                const py = n.parent ? n.parent.y : 0;
+                n._el.style.left = (n.x - px) + 'px';
+                n._el.style.top = (n.y - py) + 'px';
                 n._el.style.width = n.w + 'px';
                 n._el.style.height = n.h + 'px';
             }
@@ -54,8 +65,14 @@ export class FrameRenderer {
         if (node.synthetic) el.classList.add('synthetic');
         el.dataset.name = node.name;
         el.dataset.type = node.type;
-        el.style.left = node.x + 'px';
-        el.style.top = node.y + 'px';
+        // Issue #3: node.x / node.y are stage-absolute; subtract parent's
+        // origin so CSS positioning (which is relative to the nearest
+        // positioned ancestor — here the parent .sc2-frame) doesn't double-
+        // displace. See updatePositions for the full explanation.
+        const px = node.parent ? node.parent.x : 0;
+        const py = node.parent ? node.parent.y : 0;
+        el.style.left = (node.x - px) + 'px';
+        el.style.top = (node.y - py) + 'px';
         el.style.width = node.w + 'px';
         el.style.height = node.h + 'px';
         if (!node.visible) el.style.display = 'none';

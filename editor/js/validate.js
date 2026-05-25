@@ -15,8 +15,6 @@
 import { attrMap, attrVal, findChild as findElementChild } from './xml/helpers.js';
 
 const FRAME_TAGS = /^(Frame|Panel|Image|Label|Button|Bar|Box|Tooltip|HeroPanel|HeroFrame|CommandPanel|MinimapPanel|ResourcePanel|CheckBox|EditBox|ListBox|ProgressBar|StatusBar|ScrollBar|Slider|TextureSelectFrame|InfoPanel)$/;
-const HALIGN_VALUES = new Set(['Left', 'Center', 'Right']);
-const VALIGN_VALUES = new Set(['Top', 'Middle', 'Bottom']);
 
 export function validate(modDoc, registry) {
     const out = [];
@@ -113,14 +111,15 @@ function checkFrame(el, ancestors, out, registry) {
         }
     }
 
-    // 5. HAlign / VAlign typos.
-    const halign = childVal(el, 'HAlign');
-    if (halign && !HALIGN_VALUES.has(halign)) {
-        add('warning', `<HAlign val="${halign}"/>: expected Left, Center, or Right.`);
+    // 5. HAlign / VAlign are NOT real SC2 layout-XML elements (issue #4).
+    // Text alignment is dictated by the assigned FontStyle, not a per-frame
+    // override. SC2 will at best ignore these and at worst abort layout
+    // rendering. Flag any presence (regardless of value).
+    if (findElementChild(el, 'HAlign')) {
+        add('error', `<HAlign> is not a valid SC2 layout element. Move the alignment into the FontStyle this frame uses (Style="..."), or pick a different FontStyle.`);
     }
-    const valign = childVal(el, 'VAlign');
-    if (valign && !VALIGN_VALUES.has(valign)) {
-        add('warning', `<VAlign val="${valign}"/>: expected Top, Middle, or Bottom.`);
+    if (findElementChild(el, 'VAlign')) {
+        add('error', `<VAlign> is not a valid SC2 layout element. Move the alignment into the FontStyle this frame uses (Style="..."), or pick a different FontStyle.`);
     }
 
     // 6. Duplicate sibling frame names (within this frame).
@@ -152,7 +151,5 @@ function findFrameChildByName(el, childName) {
     }
     return null;
 }
-function childVal(el, tag) {
-    const c = findElementChild(el, tag);
-    return c ? attrVal(c, 'val') : undefined;
-}
+// childVal removed in issue #4 cleanup (was only used by the now-deleted
+// HAlign/VAlign value check).
