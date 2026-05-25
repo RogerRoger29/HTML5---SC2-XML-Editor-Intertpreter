@@ -79,20 +79,36 @@ WINDOWS_COMMON_PATHS = [
 DEV_ASSETS_PATH = Path(r"F:\Users\Nicholas\Downloads\Work\mods")
 
 
+# Module-level lock guarding ALL shared state mutated by request threads:
+#   - load_config / save_config (concurrent /__config POSTs could lose writes)
+#   - Router.casc_storage lazy init (two POSTs could both create one, leak the loser)
+#   - Router.casc_index lazy init (same)
+#   - Router.assets_root / assets_source updates from /__cascextract /__config
+# The HTTP server is ThreadingTCPServer, so any of these can race in practice.
+_STATE_LOCK = threading.RLock()
+
+
 def load_config() -> dict:
-    if CONFIG_PATH.exists():
-        try:
-            return json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
-        except Exception as err:
-            print(f"[serve] warning: could not read {CONFIG_PATH}: {err}", file=sys.stderr)
-    return {}
+    with _STATE_LOCK:
+        if CONFIG_PATH.exists():
+            try:
+                return json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+            except Exception as err:
+                print(f"[serve] warning: could not read {CONFIG_PATH}: {err}", file=sys.stderr)
+        return {}
 
 
 def save_config(cfg: dict) -> None:
-    try:
-        CONFIG_PATH.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
-    except Exception as err:
-        print(f"[serve] warning: could not write {CONFIG_PATH}: {err}", file=sys.stderr)
+    # Atomic write: serialize to a temp sibling, then rename. Rename is atomic
+    # on the same filesystem, so a concurrent read either sees the old file
+    # or the complete new one - never a half-written JSON.
+    with _STATE_LOCK:
+        try:
+            tmp = CONFIG_PATH.with_suffix(CONFIG_PATH.suffix + ".tmp")
+            tmp.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
+            os.replace(tmp, CONFIG_PATH)
+        except Exception as err:
+            print(f"[serve] warning: could not write {CONFIG_PATH}: {err}", file=sys.stderr)
 
 
 def autodetect_assets() -> tuple[Path | None, str]:
@@ -253,17 +269,20 @@ class Router(http.server.SimpleHTTPRequestHandler):
         # When the install path CHANGES (user repointed SC2 install path in
         # config), close the old storage first - otherwise CascLib keeps the
         # previous archive's mapped memory (~100 MB) until process exit.
-        if Router.casc_storage is None or Router.casc_storage.install_path != sc2_install:
-            if Router.casc_storage is not None:
-                try: Router.casc_storage.close()
-                except Exception: pass
-            Router.casc_storage = CascStorage(sc2_install)
-        if Router.casc_index is None:
-            Router.casc_index = CascIndex()
-            idx_path = EDITOR_ROOT / "data" / "casc-index.json"
-            n = Router.casc_index.load(idx_path)
-            if n:
-                print(f"[serve] loaded CASC index: {n} files from {idx_path}", file=sys.stderr)
+        # Lock so two concurrent /__cascextract POSTs don't both create a
+        # CascStorage and leak one.
+        with _STATE_LOCK:
+            if Router.casc_storage is None or Router.casc_storage.install_path != sc2_install:
+                if Router.casc_storage is not None:
+                    try: Router.casc_storage.close()
+                    except Exception: pass
+                Router.casc_storage = CascStorage(sc2_install)
+            if Router.casc_index is None:
+                Router.casc_index = CascIndex()
+                idx_path = EDITOR_ROOT / "data" / "casc-index.json"
+                n = Router.casc_index.load(idx_path)
+                if n:
+                    print(f"[serve] loaded CASC index: {n} files from {idx_path}", file=sys.stderr)
 
         # Build the final list of CASC paths to try.
         files: list[str] = list(body.get("files") or [])
@@ -341,11 +360,12 @@ class Router(http.server.SimpleHTTPRequestHandler):
         result["index_loaded"] = len(Router.casc_index.files) if Router.casc_index else 0
         # If we just downloaded our first content here, promote stock-data as
         # the active assets root (only when no assets folder is already set).
-        if not Router.assets_root and result["extracted"]:
-            Router.assets_root = out_dir
-            Router.assets_source = "casc-extracted"
-            cfg["assets_root"] = str(out_dir)
-            save_config(cfg)
+        with _STATE_LOCK:
+            if not Router.assets_root and result["extracted"]:
+                Router.assets_root = out_dir
+                Router.assets_source = "casc-extracted"
+                cfg["assets_root"] = str(out_dir)
+                save_config(cfg)
         self._send_json(result)
 
     def _resolve_to_casc_paths(self, ref: str, aliases: dict) -> list[str]:
@@ -421,19 +441,31 @@ class Router(http.server.SimpleHTTPRequestHandler):
         files = manifest.get("files", [])
         if not base_url or not files:
             return self._send_json({"error": "manifest_invalid"}, status=500)
-        out_dir = EXE_DIR / "stock-data"
+        out_dir = (EXE_DIR / "stock-data").resolve()
         out_dir.mkdir(parents=True, exist_ok=True)
         downloaded, skipped, failed = [], [], []
         total_bytes = 0
+        # Defense in depth: the manifest is bundled with the editor so it's
+        # trusted in practice, but a stray `../../etc` in a `rel` field would
+        # let it write outside out_dir. Resolve the target and verify it
+        # stays under our extraction root before writing.
         for rel in files:
-            target = out_dir / rel.replace("/", os.sep)
+            target = (out_dir / rel.replace("/", os.sep))
+            try:
+                target_resolved = target.resolve(strict=False)
+                if not target_resolved.is_relative_to(out_dir):
+                    failed.append({"file": rel, "error": "path_escape"})
+                    continue
+            except (OSError, ValueError):
+                failed.append({"file": rel, "error": "path_invalid"})
+                continue
             if target.exists() and target.stat().st_size > 0:
                 skipped.append(rel)
                 continue
             target.parent.mkdir(parents=True, exist_ok=True)
             url = base_url + rel
             try:
-                req = urllib.request.Request(url, headers={"User-Agent": "sc2-ui-editor/0.3"})
+                req = urllib.request.Request(url, headers={"User-Agent": f"sc2-ui-editor/0.5"})
                 with urllib.request.urlopen(req, timeout=30) as resp:
                     data = resp.read()
                 target.write_bytes(data)
@@ -442,11 +474,12 @@ class Router(http.server.SimpleHTTPRequestHandler):
             except Exception as err:
                 failed.append({"file": rel, "error": str(err)})
         # Promote stock-data to the active assets root.
-        Router.assets_root = out_dir
-        Router.assets_source = "downloaded"
-        cfg = load_config()
-        cfg["assets_root"] = str(out_dir)
-        save_config(cfg)
+        with _STATE_LOCK:
+            Router.assets_root = out_dir
+            Router.assets_source = "downloaded"
+            cfg = load_config()
+            cfg["assets_root"] = str(out_dir)
+            save_config(cfg)
         self._send_json({
             "downloaded": len(downloaded),
             "skipped": len(skipped),
@@ -493,30 +526,37 @@ class Router(http.server.SimpleHTTPRequestHandler):
 
     def _receive_config(self) -> None:
         try:
+            # Cap body at 64 KB - config payloads are tiny; an unbounded
+            # Content-Length here would OOM the server.
             length = int(self.headers.get("Content-Length") or 0)
+            if length > 65536:
+                return self._send_json({"error": "body_too_large", "limit": 65536}, status=413)
             body = self.rfile.read(length).decode("utf-8") if length else "{}"
             data = json.loads(body)
         except Exception as err:
             return self._send_json({"error": "bad_json", "detail": str(err)}, status=400)
-        cfg = load_config()
-        # Assets path override.
-        new_path = data.get("assets_root")
-        if new_path:
-            p = Path(new_path)
-            if not p.exists():
-                return self._send_json({"error": "not_found", "path": str(p)}, status=400)
-            Router.assets_root = p
-            Router.assets_source = "user-set"
-            cfg["assets_root"] = str(p)
-        # SC2 install path override - used by /__cascextract when auto-detect
-        # misses the user's install (non-standard location / Battle.net layout).
-        new_sc2 = data.get("sc2_install")
-        if new_sc2:
-            p = Path(new_sc2)
-            if not (p.exists() and (p / "StarCraft II.exe").exists()):
-                return self._send_json({"error": "sc2_not_found_at_path", "path": str(p)}, status=400)
-            cfg["sc2_install"] = str(p)
-        save_config(cfg)
+        # All config read/mutate/write happens under the global state lock so
+        # two concurrent POSTs can't lose each other's updates.
+        with _STATE_LOCK:
+            cfg = load_config()
+            # Assets path override.
+            new_path = data.get("assets_root")
+            if new_path:
+                p = Path(new_path)
+                if not p.exists():
+                    return self._send_json({"error": "not_found", "path": str(p)}, status=400)
+                Router.assets_root = p
+                Router.assets_source = "user-set"
+                cfg["assets_root"] = str(p)
+            # SC2 install path override - used by /__cascextract when auto-detect
+            # misses the user's install (non-standard location / Battle.net layout).
+            new_sc2 = data.get("sc2_install")
+            if new_sc2:
+                p = Path(new_sc2)
+                if not (p.exists() and (p / "StarCraft II.exe").exists()):
+                    return self._send_json({"error": "sc2_not_found_at_path", "path": str(p)}, status=400)
+                cfg["sc2_install"] = str(p)
+            save_config(cfg)
         return self._send_config()
 
     def _send_ls(self) -> None:

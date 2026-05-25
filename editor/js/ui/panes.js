@@ -98,14 +98,18 @@ export class PaneController {
             this.onLayoutChange(this.state);
         };
         const onUp = () => {
-            gutter.releasePointerCapture(ev.pointerId);
+            try { gutter.releasePointerCapture(ev.pointerId); } catch {}
             gutter.classList.remove('dragging');
             document.removeEventListener('pointermove', onMove);
             document.removeEventListener('pointerup', onUp);
+            document.removeEventListener('pointercancel', onUp);
             this.save();
         };
         document.addEventListener('pointermove', onMove);
         document.addEventListener('pointerup', onUp);
+        // pointercancel for OS-interrupted gestures (alt-tab during resize,
+        // touch palm rejection) so the listeners don't leak forever.
+        document.addEventListener('pointercancel', onUp);
     }
 }
 

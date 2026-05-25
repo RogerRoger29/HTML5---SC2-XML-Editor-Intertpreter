@@ -91,9 +91,16 @@ export class MergedTree {
             node.parent = cur;
             this.byPath.set(leafPath, node);
         } else {
-            // Re-opening: type stays as first definition; origin upgrades to
-            // 'mod' if a mod layer touches it.
-            if (origin === 'mod') node.origin = 'mod';
+            // Re-opening: origin upgrades to 'mod' when a mod layer touches
+            // a stock-origin node. ALSO let the mod's declared type override
+            // the stock's - modders sometimes re-open a frame with a more
+            // specific type (e.g. stock declares `Frame`, mod re-opens as
+            // `Button`). Previously the first-defined type was sticky.
+            if (origin === 'mod') {
+                node.origin = 'mod';
+                if (el.tag === 'Frame' && attrs.type) node.type = attrs.type;
+                else if (el.tag !== 'Frame') node.type = el.tag;
+            }
         }
         node.sources.push(el);
 
@@ -304,6 +311,14 @@ function materialize(node, registry, opts) {
         // mergeMod runs after mergeStock, so the LAST source pushed for any
         // node that was touched by the mod is the mod source.
         modSource = src;
+    }
+    // Diagnostic: when a mod-origin node has multiple sources, inspector
+    // edits / drag math will silently land on the LAST one. Surface that so
+    // the user can tell why a given edit went to "the wrong" definition.
+    // Common cause: a re-opened frame defined in two places in the same file.
+    if (node.origin === 'mod' && node.sources.length > 1) {
+        console.warn(
+            `[merge] ${node.path}: ${node.sources.length} sources; edits will target the last one`);
     }
 
     // Classify as a template if this name is the target of any template="..."

@@ -116,14 +116,24 @@ export class FontStyleSheet {
         return v;
     }
 
-    getStyle(name) {
+    getStyle(name, _seen) {
         if (!name) return null;
         if (this.resolved.has(name)) return this.resolved.get(name);
         const raw = this.rawStyles.get(name);
         if (!raw) return null;
         let base = {};
         if (raw.template) {
-            base = this.getStyle(raw.template) || {};
+            // Cycle guard: `<Style name="A" template="A"/>` (or any A->B->A
+            // chain) used to stack-overflow. Track the chain we've visited
+            // on the way down; bail with an empty base if we re-enter.
+            const seen = _seen || new Set();
+            if (seen.has(name)) {
+                console.warn(`[fontstyle] template cycle detected at "${name}" - returning bare style`);
+                base = {};
+            } else {
+                seen.add(name);
+                base = this.getStyle(raw.template, seen) || {};
+            }
         }
         const merged = {
             ...base,

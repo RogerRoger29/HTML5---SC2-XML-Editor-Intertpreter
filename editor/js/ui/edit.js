@@ -100,10 +100,14 @@ export class SelectionOverlay {
             try { captureTarget.releasePointerCapture(ev.pointerId); } catch {}
             document.removeEventListener('pointermove', onMove);
             document.removeEventListener('pointerup', onUp);
+            document.removeEventListener('pointercancel', onUp);
             this.onEdit(node, /*live=*/false);
         };
         document.addEventListener('pointermove', onMove);
         document.addEventListener('pointerup', onUp);
+        // pointercancel fires when the OS interrupts the gesture - without
+        // this listener the move/up pair would leak permanently.
+        document.addEventListener('pointercancel', onUp);
     }
 }
 

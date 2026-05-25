@@ -140,6 +140,28 @@ export function attachAutocomplete(input, getSuggestions, opts = {}) {
                 break;
         }
     });
+    // Window listeners reposition the dropdown when the input scrolls or the
+    // window resizes. The capturing scroll listener is the killer here: it
+    // fires for EVERY scrollable ancestor. Inspector rebuilds on every
+    // selection change + every inspector edit, recreating its inputs, and
+    // until this fix each rebuild leaked another pair of listeners.
+    //
+    // We detect input detachment via MutationObserver on document.body and
+    // tear the listeners + dropdown down once the input leaves the DOM.
+    // (Inspector calls rootEl.replaceChildren() which detaches without
+    // firing any 'remove' event.)
     window.addEventListener('resize', position);
     window.addEventListener('scroll', position, true);
+    const cleanup = () => {
+        window.removeEventListener('resize', position);
+        window.removeEventListener('scroll', position, true);
+        close();
+        observer.disconnect();
+    };
+    const observer = new MutationObserver(() => {
+        if (!input.isConnected) cleanup();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    // Expose for tests + callers that want to detach explicitly.
+    return cleanup;
 }

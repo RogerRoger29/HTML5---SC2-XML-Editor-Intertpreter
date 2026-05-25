@@ -15,7 +15,11 @@ export class TreeView {
         this.onSelect = onSelect;
         this.onReorder = opts.onReorder || null;
         this.selected = null;
-        this.collapsed = new WeakSet();
+        // Key collapse state by frame.path, NOT by frame object identity.
+        // rerender() allocates fresh MergedNode instances every time, so a
+        // WeakSet (or Set) keyed by object would lose collapse state on
+        // every edit. Path is stable across rerenders.
+        this.collapsedPaths = new Set();
         this._lastFrames = [];
         this._dragSource = null;
         this._dragMode = null;
@@ -42,7 +46,8 @@ export class TreeView {
         if (draggable) row.draggable = true;
 
         const hasKids = frame.children && frame.children.length > 0;
-        const collapsed = this.collapsed.has(frame);
+        const pathKey = frame.path || frame.name;
+        const collapsed = this.collapsedPaths.has(pathKey);
 
         const twisty = document.createElement('span');
         twisty.className = 'twisty';
@@ -50,8 +55,8 @@ export class TreeView {
         twisty.addEventListener('click', (ev) => {
             ev.stopPropagation();
             if (!hasKids) return;
-            if (collapsed) this.collapsed.delete(frame);
-            else this.collapsed.add(frame);
+            if (collapsed) this.collapsedPaths.delete(pathKey);
+            else this.collapsedPaths.add(pathKey);
             this.render(this._lastFrames);
             if (this.selected) this.select(this.selected);
         });
@@ -159,8 +164,12 @@ export class TreeView {
 
     select(frame) {
         this.selected = frame;
+        // Match by full path, not name. Two frames at different paths can
+        // share a name (e.g. every Button0..14 has a child "Button"), and
+        // matching on name would highlight all of them.
+        const targetPath = frame ? (frame.path || frame.name) : null;
         for (const row of this.rootEl.querySelectorAll('.tree-node')) {
-            row.classList.toggle('selected', frame && row.dataset.name === frame.name);
+            row.classList.toggle('selected', targetPath != null && row.dataset.path === targetPath);
         }
     }
 }

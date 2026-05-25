@@ -1007,20 +1007,29 @@ function rerender(opts = {}) {
     if (!opts.skipDecorate) decorate(state.frames);
     if (!opts.skipPaneUpdates) tree.render(state.frames);
 
-    // Re-locate previously selected frame after a re-render.
+    // Re-locate previously selected frame after a re-render. Path-only -
+    // no name fallback. The previous fallback (findFrameByName) could swap
+    // the selection silently when two frames share a name at different
+    // paths (Button0/Button vs Button1/Button is common in SC2 layouts).
+    // If the frame's path no longer exists after rerender it's gone, and
+    // we'd rather lose the selection than pick a same-named cousin.
     if (opts.keepSelection && state.selected) {
-        const path = state.selected.path;
-        const name = state.selected.name;
-        const found = findFrameByPath(state.frames, path) || findFrameByName(state.frames, name);
+        const found = findFrameByPath(state.frames, state.selected.path);
         if (found) {
             state.selected = found;
             if (found._el) found._el.classList.add('selected');
             selection.show(found);
             if (!opts.skipPaneUpdates) inspector.show(found);
+        } else {
+            // Selected frame is gone - clear so subsequent renders don't
+            // try to operate on a dangling reference.
+            state.selected = null;
+            selection.hide();
         }
     } else if (state.selected) {
-        const found = findFrameByName(state.frames, state.selected.name);
+        const found = findFrameByPath(state.frames, state.selected.path);
         if (found) selectFrame(found, false);
+        else { state.selected = null; selection.hide(); }
     }
     if (!opts.skipPaneUpdates) {
         els.xmlText.value = serializeXml(state.modDoc);
@@ -1523,8 +1532,12 @@ function addNewFrame(type) {
         const parentName = (parent.attrs.find(a => a.name === 'name') || {}).value;
         if (parentName) selPath = `${parentName}/${name}`;
     }
-    const target = findFrameByPath(state.frames, selPath)
-        || findFrameByName(state.frames, name);
+    // Path-only lookup: uniqueChildName guarantees no path collision
+    // inside `parent`, so falling back to name (the old code did) is both
+    // unnecessary AND risks matching a same-named frame elsewhere in the
+    // tree. If path lookup fails the insert was inconsistent with the
+    // rerender - better to surface that than paper over it.
+    const target = findFrameByPath(state.frames, selPath);
     if (target) selectFrame(target, false);
     setStatus(`Inserted ${type}:${name}. Edit in the inspector or rename via XML.`);
 }

@@ -93,12 +93,17 @@ export class FrameRenderer {
             const onUp = () => {
                 document.removeEventListener('pointermove', onMove);
                 document.removeEventListener('pointerup', onUp);
+                document.removeEventListener('pointercancel', onUp);
                 if (!dragged) {
                     this.onSelect && this.onSelect(node, { x: startX, y: startY });
                 }
             };
             document.addEventListener('pointermove', onMove);
             document.addEventListener('pointerup', onUp);
+            // pointercancel fires when the OS hijacks the gesture (e.g.
+            // alt-tab mid-drag, touchscreen palm rejection). Without this
+            // listener the move/up handlers leak permanently in those cases.
+            document.addEventListener('pointercancel', onUp);
         });
 
         this.nodesByEl.set(el, node);
