@@ -94,6 +94,13 @@ export function setAttr(el, name, value) {
         existing.value = value;
         delete existing.rawValue;
     } else {
+        // Adding a NEW attribute: clear the original-source trailer
+        // whitespace cached on attrs._trailer. The trailer was the
+        // whitespace between the last attr (or the tag name when no attrs
+        // existed) and `>` / `/>`. Now that we're inserting a real
+        // attribute, the trailer would end up in the wrong place ("<Tag
+        // foo="bar"      newattr="..."/>") and produce malformed spacing.
+        if (el.attrs._trailer) delete el.attrs._trailer;
         el.attrs.push({
             name,
             value,

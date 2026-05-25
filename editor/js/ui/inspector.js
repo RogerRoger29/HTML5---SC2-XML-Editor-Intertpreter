@@ -38,6 +38,16 @@ export class Inspector {
     }
 
     show(frame) {
+        // If a text/number input inside the inspector currently has focus,
+        // it may have a typed-but-not-yet-committed value (change event
+        // fires on blur, not on every keystroke for text fields). About to
+        // rebuild the DOM via replaceChildren -> the input gets detached
+        // without ever firing change -> the edit silently vanishes.
+        // Force a blur on the active element first so it fires change.
+        const active = document.activeElement;
+        if (active && this.rootEl.contains(active) && typeof active.blur === 'function') {
+            active.blur();
+        }
         this.frame = frame;
         this.rootEl.replaceChildren();
         if (!frame) {

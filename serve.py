@@ -37,6 +37,16 @@ import urllib.request
 import webbrowser
 from pathlib import Path
 
+# Single source of truth for the editor's Python-side version. Mirrors
+# editor/js/version.js. Used in the /__config response so the in-browser
+# About dialog and tester bug reports show the correct version. Robust to
+# the import not resolving (frozen-mode oddities) by falling back to "?".
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from version import VERSION
+except ImportError:
+    VERSION = "?"
+
 
 # ---------------------------------------------------------------------------
 # Path discovery: dev mode vs PyInstaller --onefile bundle.
@@ -251,7 +261,12 @@ class Router(http.server.SimpleHTTPRequestHandler):
         except Exception as err:
             return self._send_json({"error": "casclib_unavailable", "detail": str(err)}, status=500)
         try:
+            # Cap body at 1 MB. Texture-ref lists are tiny (maybe 10 KB for
+            # the largest layout); anything larger is a misuse and an
+            # unbounded Content-Length would OOM the server thread.
             length = int(self.headers.get("Content-Length") or 0)
+            if length > 1_048_576:
+                return self._send_json({"error": "body_too_large", "limit": 1_048_576}, status=413)
             body = json.loads(self.rfile.read(length).decode("utf-8")) if length else {}
         except Exception as err:
             return self._send_json({"error": "bad_json", "detail": str(err)}, status=400)
@@ -513,7 +528,7 @@ class Router(http.server.SimpleHTTPRequestHandler):
             except Exception as err:
                 sc2_source = f"detect failed: {err}"
         self._send_json({
-            "version": "0.5.0",
+            "version": VERSION,
             "frozen": _is_frozen(),
             "exe_dir": str(EXE_DIR),
             "project_root": str(Router.project_root),
@@ -656,10 +671,32 @@ def main() -> int:
 
     with httpd:
         if not args.no_open:
+            opened = False
+            err_msg = None
             try:
-                webbrowser.open(url)
-            except Exception:
-                pass
+                opened = webbrowser.open(url)
+            except Exception as err:
+                err_msg = str(err)
+            # If we couldn't auto-open the browser AND we're in frozen mode
+            # (no console output visible to the user), surface the URL via a
+            # Tk messagebox so the user actually knows what happened. Without
+            # this they get a black screen with nothing to click on.
+            if not opened and _is_frozen():
+                try:
+                    import tkinter as tk
+                    import tkinter.messagebox as mb
+                    root = tk.Tk(); root.withdraw()
+                    mb.showinfo(
+                        "SC2 UI Editor",
+                        f"Could not open your default browser automatically.\n\n"
+                        f"Open this URL manually:\n  {url}\n\n"
+                        + (f"Reason: {err_msg}" if err_msg else
+                           "webbrowser.open returned False - no browser is registered as your default."))
+                    root.destroy()
+                except Exception:
+                    pass    # tk also missing - nothing more we can do
+            if opened and not _is_frozen():
+                pass    # already printed the URL above; browser launched fine
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

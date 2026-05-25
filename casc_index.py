@@ -36,6 +36,10 @@ from pathlib import Path
 # Reuse the DLL bindings from casc.py.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import casc  # noqa: E402
+try:
+    from version import VERSION as _VERSION
+except ImportError:
+    _VERSION = "?"
 
 
 MAX_PATH = 1024
@@ -108,7 +112,11 @@ def build_index(sc2_install: Path, out_path: Path) -> dict:
             if any(lower.endswith(ext) for ext in INTERESTING_EXTENSIONS):
                 full = name_bytes.decode("mbcs", errors="replace")
                 leaf = full.rsplit("\\", 1)[-1].lower()
-                if leaf in files and files[leaf] != full:
+                # Compare lower-case versions so case-variant duplicates from
+                # CASC enumeration ("Mods\Foo" vs "MODS\foo") aren't recorded
+                # as fake collisions. Real different-path collisions (same
+                # leaf in different mod folders) still register.
+                if leaf in files and files[leaf].lower() != full.lower():
                     collisions.setdefault(leaf, [files[leaf]]).append(full)
                 else:
                     files[leaf] = full
@@ -138,7 +146,7 @@ def build_index(sc2_install: Path, out_path: Path) -> dict:
           f"{len(collisions):,} filename collisions ({elapsed:.1f}s)")
 
     payload = {
-        "version": "0.5.0",
+        "version": _VERSION,
         "scanned_at": time.strftime("%Y-%m-%d %H:%M:%S"),
         "sc2_install": str(sc2_install),
         "stats": {
