@@ -1,6 +1,17 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.5.3 - TextureType (tester request):
+//   * Inspector exposes a TextureType dropdown for any frame with a
+//     Texture child. Values per the SC2Mapster wiki: Normal, Border,
+//     HorizontalBorder, EndCap, NineSlice. Blank = "default Normal"
+//     and removes the element entirely.
+//   * Renderer extends beyond NineSlice + Tiled to also handle Border
+//     (9-slice with transparent center), HorizontalBorder, and EndCap
+//     (3-slice horizontal: cap-stretch-cap). Layouts using these for
+//     border / cap art now preview accurately instead of falling back
+//     to a plain stretch.
+//   * Validator warns on unrecognised TextureType values.
 // 0.5.2 - Tester feedback round 1 (issues #1-#4):
 //   * #4: Stop emitting <HAlign>/<VAlign> children - not valid SC2
 //          layout XML. Inspector loses those dropdowns; validator
@@ -55,4 +66,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.5.2';
+export const VERSION = '0.5.3';

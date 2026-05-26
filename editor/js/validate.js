@@ -111,6 +111,20 @@ function checkFrame(el, ancestors, out, registry) {
         }
     }
 
+    // 5b. TextureType: warn on unrecognized values so typos surface in
+    // the warnings pane. Documented values per the SC2Mapster wiki.
+    // None and Circular are documented as "purpose unknown" so we accept
+    // them silently rather than warn.
+    const ttEl = findElementChild(el, 'TextureType');
+    if (ttEl) {
+        const tt = attrVal(ttEl, 'val');
+        const KNOWN = new Set(['Normal', 'Border', 'HorizontalBorder', 'EndCap',
+                               'NineSlice', 'None', 'Circular']);
+        if (tt && !KNOWN.has(tt)) {
+            add('warning', `<TextureType val="${tt}"/>: not one of the documented values (Normal, Border, HorizontalBorder, EndCap, NineSlice).`);
+        }
+    }
+
     // 5. HAlign / VAlign are NOT real SC2 layout-XML elements (issue #4).
     // Text alignment is dictated by the assigned FontStyle, not a per-frame
     // override. SC2 will at best ignore these and at worst abort layout

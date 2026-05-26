@@ -364,6 +364,16 @@ export class Inspector {
                     suggesterByTag[tag]);
             }
         }
+        // TextureType: only meaningful when the frame has a Texture (so
+        // it controls how that texture maps to the frame box). Many SC2
+        // UI assets are designed to be 9-sliced / border-stretched - not
+        // exposing this locked users out of using them properly.
+        // Documented values (sc2mapster.wiki.gg/wiki/UI/Frame_Properties/TextureType):
+        //   Normal | Border | HorizontalBorder | EndCap | NineSlice
+        // Default when omitted = Normal.
+        if (wants.Texture) {
+            this._textureTypeRow(source);
+        }
         // (Issue #4: removed HAlign/VAlign inputs. SC2 doesn't recognise
         // those as per-frame XML elements - text alignment is dictated by
         // the assigned FontStyle (HAlign/VAlign live inside .SC2Style
@@ -371,6 +381,48 @@ export class Inspector {
         // ignored, at-worst caused the game to abort rendering. To change
         // alignment, edit/select a FontStyle whose Style entry has the
         // desired HAlign/VAlign.)
+    }
+
+    /** Dropdown for <TextureType val="..."/>. Blank = remove the element
+     *  and inherit the default (Normal). */
+    _textureTypeRow(source) {
+        const VALUES = ['Normal', 'Border', 'HorizontalBorder', 'EndCap', 'NineSlice'];
+        const div = document.createElement('div');
+        div.className = 'inspector-row';
+        const l = document.createElement('label');
+        l.textContent = 'TextureType';
+        l.title = 'How the texture maps to the frame box. Border / NineSlice / HorizontalBorder / EndCap use TextureCoords as slice insets.';
+        const sel = document.createElement('select');
+        const blank = document.createElement('option');
+        blank.value = '';
+        blank.textContent = '(default: Normal)';
+        sel.appendChild(blank);
+        for (const o of VALUES) {
+            const opt = document.createElement('option');
+            opt.value = o;
+            opt.textContent = o;
+            sel.appendChild(opt);
+        }
+        const el = findChild(source, 'TextureType');
+        if (el) {
+            const cur = attrVal(el, 'val') || '';
+            sel.value = cur;
+            // If the file has a value we don't list, surface it as a new
+            // option so it's editable rather than silently wiped on commit.
+            if (cur && !VALUES.includes(cur)) {
+                const stray = document.createElement('option');
+                stray.value = cur;
+                stray.textContent = `${cur} (non-standard)`;
+                sel.insertBefore(stray, sel.options[1]);
+                sel.value = cur;
+            }
+        }
+        sel.addEventListener('change', () => {
+            this._writeSizedChild(source, 'TextureType', sel.value, 'val');
+        });
+        div.appendChild(l);
+        div.appendChild(sel);
+        this.rootEl.appendChild(div);
     }
 
     _actionsSection(frame, source) {

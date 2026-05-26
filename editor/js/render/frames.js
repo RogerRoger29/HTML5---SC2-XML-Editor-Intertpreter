@@ -211,37 +211,85 @@ export class FrameRenderer {
             right: parseFloat(coords.right) || 1,
             bottom: parseFloat(coords.bottom) || 1,
         } : { left: 0, top: 0, right: 1, bottom: 1 };
-        const sx = c.left * srcCanvas.width;
-        const sy = c.top * srcCanvas.height;
-        const sw = (c.right - c.left) * srcCanvas.width;
-        const sh = (c.bottom - c.top) * srcCanvas.height;
 
-        if (textureType === 'NineSlice') {
-            // Splits the source into a 3x3 grid using TextureCoords as the
-            // *inset* fractions. Corners stay fixed size, edges stretch.
-            const insetL = c.left, insetT = c.top, insetR = c.right, insetB = c.bottom;
-            const W = srcCanvas.width, H = srcCanvas.height;
-            const lx = insetL * W, ty = insetT * H;
-            const rx = insetR * W, by = insetB * H;
-            const cornerL = lx, cornerT = ty, cornerR = W - rx, cornerB = H - by;
-            // Source rects.
-            drawSlice(ctx, srcCanvas,   0,          0,          cornerL, cornerT,   0,                  0,                  cornerL, cornerT); // TL
-            drawSlice(ctx, srcCanvas,   W - cornerR, 0,         cornerR, cornerT,   out.width - cornerR,0,                  cornerR, cornerT); // TR
-            drawSlice(ctx, srcCanvas,   0,          H - cornerB,cornerL, cornerB,   0,                  out.height-cornerB, cornerL, cornerB); // BL
-            drawSlice(ctx, srcCanvas,   W - cornerR,H - cornerB,cornerR, cornerB,   out.width-cornerR,  out.height-cornerB, cornerR, cornerB); // BR
-            // Edges (stretched).
-            drawSlice(ctx, srcCanvas,   cornerL,    0,          rx-lx,   cornerT,   cornerL,            0,                  out.width-cornerL-cornerR, cornerT); // T
-            drawSlice(ctx, srcCanvas,   cornerL,    H-cornerB,  rx-lx,   cornerB,   cornerL,            out.height-cornerB, out.width-cornerL-cornerR, cornerB); // B
-            drawSlice(ctx, srcCanvas,   0,          cornerT,    cornerL, by-ty,     0,                  cornerT,            cornerL, out.height-cornerT-cornerB); // L
-            drawSlice(ctx, srcCanvas,   W-cornerR,  cornerT,    cornerR, by-ty,     out.width-cornerR,  cornerT,            cornerR, out.height-cornerT-cornerB); // R
-            // Centre.
-            drawSlice(ctx, srcCanvas,   cornerL,    cornerT,    rx-lx,   by-ty,     cornerL,            cornerT,            out.width-cornerL-cornerR, out.height-cornerT-cornerB);
-        } else if (tiled) {
-            const pat = ctx.createPattern(srcCanvas, 'repeat');
-            ctx.fillStyle = pat;
-            ctx.fillRect(0, 0, out.width, out.height);
-        } else {
-            ctx.drawImage(srcCanvas, sx, sy, Math.max(1, sw), Math.max(1, sh), 0, 0, out.width, out.height);
+        // For 9-slice / border modes, c.left/right and c.top/bottom are
+        // interpreted as inset fractions into the source: c.left is how far
+        // in (from the left edge) the "left slice" ends; c.right is where
+        // the "right slice" starts. Same vertically.
+        const W = srcCanvas.width, H = srcCanvas.height;
+        const lx = c.left * W, ty = c.top * H;
+        const rx = c.right * W, by = c.bottom * H;
+        const cornerL = lx;             // width of left source slice
+        const cornerT = ty;             // height of top source slice
+        const cornerR = W - rx;         // width of right source slice
+        const cornerB = H - by;         // height of bottom source slice
+        const midSrcW = Math.max(0, rx - lx);  // stretchable middle (h)
+        const midSrcH = Math.max(0, by - ty);  // stretchable middle (v)
+        const midDstW = Math.max(0, out.width  - cornerL - cornerR);
+        const midDstH = Math.max(0, out.height - cornerT - cornerB);
+
+        // Helpers for the four corner pieces and four edge pieces of a
+        // 9-slice. Used by both NineSlice and Border; Border just skips
+        // the center.
+        const drawCorners = () => {
+            drawSlice(ctx, srcCanvas, 0,         0,          cornerL, cornerT, 0,                    0,                     cornerL, cornerT); // TL
+            drawSlice(ctx, srcCanvas, W-cornerR, 0,          cornerR, cornerT, out.width - cornerR,  0,                     cornerR, cornerT); // TR
+            drawSlice(ctx, srcCanvas, 0,         H-cornerB,  cornerL, cornerB, 0,                    out.height - cornerB,  cornerL, cornerB); // BL
+            drawSlice(ctx, srcCanvas, W-cornerR, H-cornerB,  cornerR, cornerB, out.width - cornerR,  out.height - cornerB,  cornerR, cornerB); // BR
+        };
+        const drawEdges = () => {
+            drawSlice(ctx, srcCanvas, cornerL, 0,          midSrcW, cornerT, cornerL,             0,                    midDstW, cornerT); // T
+            drawSlice(ctx, srcCanvas, cornerL, H-cornerB,  midSrcW, cornerB, cornerL,             out.height-cornerB,   midDstW, cornerB); // B
+            drawSlice(ctx, srcCanvas, 0,       cornerT,    cornerL, midSrcH, 0,                   cornerT,              cornerL, midDstH); // L
+            drawSlice(ctx, srcCanvas, W-cornerR, cornerT,  cornerR, midSrcH, out.width-cornerR,   cornerT,              cornerR, midDstH); // R
+        };
+        const drawCenter = () => {
+            drawSlice(ctx, srcCanvas, cornerL, cornerT, midSrcW, midSrcH, cornerL, cornerT, midDstW, midDstH);
+        };
+
+        switch (textureType) {
+            case 'NineSlice':
+                drawCorners();
+                drawEdges();
+                drawCenter();
+                break;
+
+            case 'Border':
+                // 9-slice with the center omitted - leaves a transparent
+                // middle, commonly used to outline a region.
+                drawCorners();
+                drawEdges();
+                break;
+
+            case 'HorizontalBorder':
+            case 'EndCap': {
+                // 3-slice horizontally: left cap, stretched middle, right cap.
+                // Vertical axis stretches the full source height to the full
+                // output height. HorizontalBorder and EndCap behave the same
+                // way in our preview - in-game EndCap is documented as a
+                // 2-row split; without a clear spec we draw it as a 3-slice
+                // which covers the common use case (caps + stretched middle).
+                drawSlice(ctx, srcCanvas, 0,         0,        cornerL, H,        0,                    0,           cornerL,            out.height); // L cap
+                drawSlice(ctx, srcCanvas, lx,        0,        midSrcW, H,        cornerL,              0,           midDstW,            out.height); // middle
+                drawSlice(ctx, srcCanvas, W-cornerR, 0,        cornerR, H,        out.width - cornerR,  0,           cornerR,            out.height); // R cap
+                break;
+            }
+
+            default:
+                if (tiled) {
+                    const pat = ctx.createPattern(srcCanvas, 'repeat');
+                    ctx.fillStyle = pat;
+                    ctx.fillRect(0, 0, out.width, out.height);
+                } else {
+                    // Normal: stretch (or excerpt via TextureCoords) the
+                    // source to fill the box.
+                    const sx = c.left * W;
+                    const sy = c.top * H;
+                    const sw = Math.max(1, (c.right - c.left) * W);
+                    const sh = Math.max(1, (c.bottom - c.top) * H);
+                    ctx.drawImage(srcCanvas, sx, sy, sw, sh, 0, 0, out.width, out.height);
+                }
+                break;
         }
         return out;
     }
