@@ -125,6 +125,31 @@ function checkFrame(el, ancestors, out, registry) {
         }
     }
 
+    // 5c. Alpha: must be a number 0..255 (or a constant reference).
+    const alphaEl = findElementChild(el, 'Alpha');
+    if (alphaEl) {
+        const raw = attrVal(alphaEl, 'val');
+        if (raw && !raw.startsWith('#')) {
+            const n = parseFloat(raw);
+            if (!Number.isFinite(n)) {
+                add('warning', `<Alpha val="${raw}"/>: not a number (expected 0–255).`);
+            } else if (n < 0 || n > 255) {
+                add('warning', `<Alpha val="${raw}"/>: out of range (expected 0–255).`);
+            }
+        }
+    }
+
+    // 5d. BlendMode: warn on values outside the documented set.
+    const bmEl = findElementChild(el, 'BlendMode');
+    if (bmEl) {
+        const bm = attrVal(bmEl, 'val');
+        const KNOWN_BM = new Set(['Normal', 'Add', 'Multiply', 'Mod', 'Alpha',
+                                  'Disable', 'Darken', 'Lighten']);
+        if (bm && !KNOWN_BM.has(bm)) {
+            add('warning', `<BlendMode val="${bm}"/>: unrecognised blend mode.`);
+        }
+    }
+
     // 5. HAlign / VAlign are NOT real SC2 layout-XML elements (issue #4).
     // Text alignment is dictated by the assigned FontStyle, not a per-frame
     // override. SC2 will at best ignore these and at worst abort layout

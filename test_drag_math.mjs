@@ -7,12 +7,24 @@ import { readFileSync } from 'node:fs';
 import { parseXml } from './editor/js/xml/parser.js';
 import { serializeXml, setAttr } from './editor/js/xml/serializer.js';
 
-// We can't import edit.js directly under Node because it imports from
-// '../xml/serializer.js' which is fine, but we don't have DOM. So instead
-// replicate the drag math here against the same XML, simulating multiple
-// pointermove events.
+// We can't import edit.js directly under Node because it needs a DOM, so we
+// replicate the drag math here against an XML fixture, simulating multiple
+// pointermove events. The fixture is embedded inline rather than read from a
+// sibling user layout so the suite is self-contained (the previous external
+// dependency on UpgradeSlotSystem/ broke this test when that folder vanished).
+// Baseline offsets: Bottom=-470, Right=-20.
+const FIXTURE = `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Desc>
+    <Frame type="Frame" name="UpgradeSlotPanel">
+        <Anchor side="Top" relative="$parent" pos="Min" offset="0" />
+        <Anchor side="Left" relative="$parent" pos="Min" offset="0" />
+        <Anchor side="Right" relative="$parent" pos="Max" offset="-20" />
+        <Anchor side="Bottom" relative="$parent" pos="Max" offset="-470" />
+    </Frame>
+</Desc>
+`;
 
-const src = readFileSync('../UpgradeSlotSystem/UpgradeSlotSystem.SC2Mod/Base.SC2Data/UI/Layout/UpgradeSlotPanel.SC2Layout', 'utf8');
+const src = process.argv[2] ? readFileSync(process.argv[2], 'utf8') : FIXTURE;
 const doc = parseXml(src);
 
 function findFrame(el, name) {

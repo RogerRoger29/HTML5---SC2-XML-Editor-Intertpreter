@@ -81,6 +81,7 @@ export class Inspector {
             this._declaredSizeSection(frame, source);
             this._anchorsSection(frame, source);
             this._textPropsSection(frame, source);
+            this._appearanceSection(frame, source);
         } else {
             // Show inherited values as text only.
             if (frame.width != null || frame.height != null) {
@@ -373,6 +374,16 @@ export class Inspector {
         // Default when omitted = Normal.
         if (wants.Texture) {
             this._textureTypeRow(source);
+            // Tiled repeats the texture instead of stretching it.
+            this._boolRow('Tiled', source, 'Tiled',
+                'Repeat the texture to fill the frame instead of stretching.');
+            // TextureCoords: the slice insets (and the source sub-rect for
+            // Normal). Essential for configuring Border / NineSlice.
+            this._textureCoordsRow(source);
+            // Color multiply-tints the texture (white = unchanged).
+            const colorEl = findChild(source, 'Color');
+            this._colorRow('Color (tint)', colorEl ? attrVal(colorEl, 'val') : '',
+                (v) => this._writeSizedChild(source, 'Color', v, 'val'));
         }
         // (Issue #4: removed HAlign/VAlign inputs. SC2 doesn't recognise
         // those as per-frame XML elements - text alignment is dictated by
@@ -423,6 +434,165 @@ export class Inspector {
         div.appendChild(l);
         div.appendChild(sel);
         this.rootEl.appendChild(div);
+    }
+
+    /** General appearance properties common to every frame type. Each maps
+     *  to a CSS effect the renderer applies (see frames.js#_applyAppearance),
+     *  so editing them updates the canvas live. */
+    _appearanceSection(frame, source) {
+        this._sectionTitle('Appearance');
+        // Visible: hides the frame (and its subtree). Default true.
+        this._boolRow('Visible', source, 'Visible',
+            'Uncheck to hide this frame and its children.', { defaultOn: true });
+        // Alpha: 0 (transparent) .. 255 (opaque). Maps to CSS opacity.
+        const alphaEl = findChild(source, 'Alpha');
+        this._numberRow('Alpha', alphaEl ? attrVal(alphaEl, 'val') : '',
+            (v, live) => this._writeSizedChild(source, 'Alpha', v, 'val', { live, liveSession: true }),
+            '255', { note: '0–255. Blank = fully opaque.' });
+        // RenderPriority: z-order. Higher draws on top.
+        const rpEl = findChild(source, 'RenderPriority');
+        this._numberRow('RenderPriority', rpEl ? attrVal(rpEl, 'val') : '',
+            (v, live) => this._writeSizedChild(source, 'RenderPriority', v, 'val', { live, liveSession: true }),
+            '', { note: 'Draw order; higher = in front.' });
+        // BlendMode: only Add / Multiply preview meaningfully.
+        this._selectRow('BlendMode', source, 'BlendMode',
+            ['Normal', 'Add', 'Multiply', 'Alpha', 'Disable'],
+            { blankLabel: '(default: Normal)' });
+        // Enabled: interaction flag (no special preview - documented).
+        this._boolRow('Enabled', source, 'Enabled',
+            'Interaction flag. Preview does not simulate the disabled look.',
+            { defaultOn: true });
+    }
+
+    /** Checkbox row for a boolean <Tag val="true|false"/> child.
+     *  `defaultOn` declares the implicit value when the element is absent;
+     *  when the user sets the value back to that default we REMOVE the
+     *  element to keep the XML minimal. Writes SC2's "true"/"false". */
+    _boolRow(label, source, tag, title, opts = {}) {
+        const defaultOn = !!opts.defaultOn;
+        const div = document.createElement('div');
+        div.className = 'inspector-row inspector-bool-row';
+        const l = document.createElement('label');
+        l.textContent = label;
+        if (title) l.title = title;
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        const el = findChild(source, tag);
+        const cur = el ? (attrVal(el, 'val') || '').toLowerCase() : null;
+        const isOn = cur == null ? defaultOn : !(cur === 'false' || cur === '0');
+        cb.checked = isOn;
+        cb.addEventListener('change', () => {
+            // If the new state equals the implicit default, drop the element;
+            // otherwise write the explicit boolean.
+            if (cb.checked === defaultOn) {
+                this._writeSizedChild(source, tag, '', 'val');   // remove
+            } else {
+                this._writeSizedChild(source, tag, cb.checked ? 'true' : 'false', 'val');
+            }
+        });
+        div.appendChild(l);
+        div.appendChild(cb);
+        this.rootEl.appendChild(div);
+    }
+
+    /** Generic dropdown for a <Tag val="..."/> child with a fixed value set.
+     *  Blank option removes the element (inherit default). Non-listed
+     *  existing values are preserved as a "(non-standard)" option. */
+    _selectRow(label, source, tag, values, opts = {}) {
+        const div = document.createElement('div');
+        div.className = 'inspector-row';
+        const l = document.createElement('label');
+        l.textContent = label;
+        if (opts.title) l.title = opts.title;
+        const sel = document.createElement('select');
+        const blank = document.createElement('option');
+        blank.value = '';
+        blank.textContent = opts.blankLabel || '(none)';
+        sel.appendChild(blank);
+        for (const o of values) {
+            const opt = document.createElement('option');
+            opt.value = o;
+            opt.textContent = o;
+            sel.appendChild(opt);
+        }
+        const el = findChild(source, tag);
+        if (el) {
+            const cur = attrVal(el, 'val') || '';
+            if (cur && !values.includes(cur)) {
+                const stray = document.createElement('option');
+                stray.value = cur;
+                stray.textContent = `${cur} (non-standard)`;
+                sel.insertBefore(stray, sel.options[1]);
+            }
+            sel.value = cur;
+        }
+        sel.addEventListener('change', () => {
+            this._writeSizedChild(source, tag, sel.value, 'val');
+        });
+        div.appendChild(l);
+        div.appendChild(sel);
+        this.rootEl.appendChild(div);
+    }
+
+    /** Four-up editor for <TextureCoords left=".." top=".." right=".." bottom=".."/>.
+     *  Values are normalized 0..1 fractions. Editing any field writes the
+     *  whole element (creating it with sensible defaults if absent); clearing
+     *  all four back to the full-image default removes it. */
+    _textureCoordsRow(source) {
+        const SIDES = ['left', 'top', 'right', 'bottom'];
+        const DEFAULTS = { left: '0', top: '0', right: '1', bottom: '1' };
+        const el = findChild(source, 'TextureCoords');
+        const cur = {};
+        for (const s of SIDES) cur[s] = el ? (attrVal(el, s) ?? '') : '';
+
+        const title = document.createElement('div');
+        title.className = 'inspector-subtitle';
+        title.textContent = 'TextureCoords (0–1)';
+        title.title = 'Slice insets for Border / NineSlice, or the source sub-rect for Normal. left/top/right/bottom as fractions of the source image.';
+        this.rootEl.appendChild(title);
+
+        const grid = document.createElement('div');
+        grid.className = 'inspector-coords-grid';
+        const inputs = {};
+        for (const s of SIDES) {
+            const cell = document.createElement('div');
+            cell.className = 'inspector-coords-cell';
+            const lab = document.createElement('label');
+            lab.textContent = s;
+            const inp = document.createElement('input');
+            inp.type = 'number';
+            inp.step = '0.01';
+            inp.value = cur[s];
+            inp.placeholder = DEFAULTS[s];
+            inputs[s] = inp;
+            const commit = () => {
+                // Gather current four values; treat blank as the default.
+                const vals = {};
+                let allDefault = true;
+                for (const k of SIDES) {
+                    const raw = inputs[k].value.trim();
+                    vals[k] = raw === '' ? DEFAULTS[k] : raw;
+                    if (vals[k] !== DEFAULTS[k]) allDefault = false;
+                }
+                this.onBeforeChange(this.frame);
+                const existing = findChild(source, 'TextureCoords');
+                if (allDefault) {
+                    if (existing) removeChildAndWhitespace(source, existing);
+                } else if (existing) {
+                    for (const k of SIDES) setAttr(existing, k, vals[k]);
+                } else {
+                    const created = makeElement('TextureCoords',
+                        SIDES.map(k => [k, vals[k]]), true);
+                    appendChildPreservingIndent(source, created);
+                }
+                this.onChange(this.frame);
+            };
+            inp.addEventListener('change', commit);
+            cell.appendChild(lab);
+            cell.appendChild(inp);
+            grid.appendChild(cell);
+        }
+        this.rootEl.appendChild(grid);
     }
 
     _actionsSection(frame, source) {

@@ -1,6 +1,21 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.5.4 - Frame appearance & image properties (WYSIWYG completeness):
+//   * New inspector "Appearance" section: Visible, Alpha (0-255),
+//     RenderPriority, BlendMode, Enabled. Renderer honours each
+//     (display / opacity / z-index / mix-blend-mode) so edits show
+//     live on the canvas.
+//   * Image content gains Tiled, a 4-up TextureCoords editor (needed
+//     to configure the Border/NineSlice modes from 0.5.3), and a Color
+//     tint (multiply-composited into the texture canvas).
+//   * Validator warns on out-of-range Alpha and unrecognised BlendMode.
+//   * Fixed a long-standing child-insertion indent bug: new property /
+//     frame children were placed at the closing-tag indent and stole its
+//     newline; they now insert as properly-indented last siblings.
+//   * Tests made self-contained (embedded fixtures) so the suite no
+//     longer depends on external mod folders. New test_property_edit.mjs
+//     guards the inspector's add/update/remove XML paths.
 // 0.5.3 - TextureType (tester request):
 //   * Inspector exposes a TextureType dropdown for any frame with a
 //     Texture child. Values per the SC2Mapster wiki: Normal, Border,
@@ -66,4 +81,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.5.3';
+export const VERSION = '0.5.4';

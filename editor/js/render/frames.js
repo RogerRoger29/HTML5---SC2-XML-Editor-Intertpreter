@@ -49,9 +49,53 @@ export class FrameRenderer {
                 n._el.style.top = (n.y - py) + 'px';
                 n._el.style.width = n.w + 'px';
                 n._el.style.height = n.h + 'px';
+                // Refresh non-geometry appearance too so live inspector edits
+                // to Alpha / Visible / RenderPriority / BlendMode track during
+                // the positions-only fast path (texture-dependent props like
+                // Tiled / TextureCoords / Color still need a full rerender).
+                this._applyAppearance(n._el, n);
             }
             if (n.children && n.children.length) this.updatePositions(n.children);
         }
+    }
+
+    /** Apply the CSS-mappable frame appearance properties. Called from both
+     *  _renderNode (full paint) and updatePositions (live fast path) so the
+     *  two stay in sync. node.xml carries every property child. */
+    _applyAppearance(el, node) {
+        const xml = node.xml;
+        // Visible: omitted = true. False hides the frame (and its children,
+        // via display:none — matches SC2 where an invisible parent hides
+        // the subtree).
+        el.style.display = node.visible === false ? 'none' : '';
+
+        // Alpha: 0-255 in SC2, maps to CSS opacity 0..1. Omitted = opaque.
+        // opacity on a parent multiplies into children, which approximates
+        // SC2's inherited alpha.
+        const alphaRaw = findChildVal(xml, 'Alpha');
+        if (alphaRaw != null && alphaRaw !== '') {
+            const a = parseFloat(alphaRaw);
+            el.style.opacity = Number.isFinite(a)
+                ? String(Math.max(0, Math.min(1, a / 255))) : '';
+        } else {
+            el.style.opacity = '';
+        }
+
+        // RenderPriority: SC2's z-order. Higher = on top. Maps to z-index.
+        const rp = findChildVal(xml, 'RenderPriority');
+        if (rp != null && rp !== '' && Number.isFinite(parseFloat(rp))) {
+            el.style.zIndex = String(parseInt(rp, 10));
+        } else {
+            el.style.zIndex = '';
+        }
+
+        // BlendMode: only Add has a faithful, widely-supported CSS analogue.
+        // 'plus-lighter' is true additive (Chromium, the exe's target). Mod/
+        // Multiply -> 'multiply'; everything else renders normally.
+        const bm = (findChildVal(xml, 'BlendMode') || '').toLowerCase();
+        if (bm === 'add') el.style.mixBlendMode = 'plus-lighter';
+        else if (bm === 'mod' || bm === 'multiply') el.style.mixBlendMode = 'multiply';
+        else el.style.mixBlendMode = '';
     }
 
     render(nodes) {
@@ -75,7 +119,7 @@ export class FrameRenderer {
         el.style.top = (node.y - py) + 'px';
         el.style.width = node.w + 'px';
         el.style.height = node.h + 'px';
-        if (!node.visible) el.style.display = 'none';
+        this._applyAppearance(el, node);
 
         // Type-specific painters.
         switch (node.type) {
@@ -140,6 +184,9 @@ export class FrameRenderer {
         const textureType = findChildVal(node.xml, 'TextureType') || 'Normal';
         const tiled = (findChildVal(node.xml, 'Tiled') || '').toLowerCase() === 'true';
         const coords = findChildAttrs(node.xml, 'TextureCoords');
+        // Color multiply-tints the texture (white = no change). Both <Color>
+        // and <LayerColor> appear in stock layouts; Color is the common one.
+        const tint = sc2ColorToHex(findChildVal(node.xml, 'Color'));
 
         if (!texAttr) {
             inner.style.background = 'rgba(120,120,140,0.18)';
@@ -173,6 +220,7 @@ export class FrameRenderer {
                     textureType,
                     tiled,
                     coords,
+                    tint,
                 });
                 if (renderCanvas.width === 0 || renderCanvas.height === 0) {
                     console.warn(`[paint] zero-size canvas for ${node.name} (${node.w}x${node.h})`, texAttr);
@@ -198,7 +246,7 @@ export class FrameRenderer {
         });
     }
 
-    _compositeTexture(srcCanvas, { width, height, textureType, tiled, coords }) {
+    _compositeTexture(srcCanvas, { width, height, textureType, tiled, coords, tint }) {
         const out = document.createElement('canvas');
         out.width = Math.max(1, Math.round(width));
         out.height = Math.max(1, Math.round(height));
@@ -291,6 +339,22 @@ export class FrameRenderer {
                 }
                 break;
         }
+
+        // <Color> tint: multiply the composited pixels by the tint colour,
+        // then re-apply the original alpha so transparent regions stay
+        // transparent. White (ffffff) is a no-op so we skip it.
+        if (tint && tint !== '#ffffff') {
+            const mask = document.createElement('canvas');
+            mask.width = out.width;
+            mask.height = out.height;
+            mask.getContext('2d').drawImage(out, 0, 0);   // copy = alpha source
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.fillStyle = tint;
+            ctx.fillRect(0, 0, out.width, out.height);
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.drawImage(mask, 0, 0);
+            ctx.globalCompositeOperation = 'source-over';
+        }
         return out;
     }
 
@@ -343,6 +407,27 @@ export class FrameRenderer {
 function drawSlice(ctx, src, sx, sy, sw, sh, dx, dy, dw, dh) {
     if (sw <= 0 || sh <= 0 || dw <= 0 || dh <= 0) return;
     ctx.drawImage(src, sx, sy, sw, sh, dx, dy, dw, dh);
+}
+
+/** Parse an SC2 <Color> value to a CSS "#rrggbb" string, or null if it's
+ *  unparseable / a constant reference (so the caller skips tinting).
+ *  Accepts: RRGGBB, AARRGGBB (alpha dropped), and "r,g,b[,a]" decimals. */
+function sc2ColorToHex(v) {
+    if (!v || typeof v !== 'string') return null;
+    v = v.trim();
+    if (v.startsWith('#')) return null;          // named constant ref
+    if (v.includes('|')) v = v.split('|')[0].trim();  // gradient -> first stop
+    const h2 = (n) => Math.max(0, Math.min(255, n | 0)).toString(16).padStart(2, '0');
+    if (v.includes(',')) {
+        const p = v.split(',').map(s => parseInt(s.trim(), 10));
+        if (p.length >= 3 && p.slice(0, 3).every(Number.isFinite)) {
+            return '#' + h2(p[0]) + h2(p[1]) + h2(p[2]);
+        }
+        return null;
+    }
+    if (/^[0-9a-fA-F]{6}$/.test(v)) return '#' + v.toLowerCase();
+    if (/^[0-9a-fA-F]{8}$/.test(v)) return '#' + v.slice(2).toLowerCase();  // ARGB
+    return null;
 }
 
 // findChildVal / findChildAttrs moved to xml/helpers.js in R4.1.

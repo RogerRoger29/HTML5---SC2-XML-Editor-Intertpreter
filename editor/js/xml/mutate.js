@@ -19,8 +19,26 @@
  */
 export function inferChildIndent(parent) {
     if (!parent || !parent.children) return '\n    ';
-    for (let i = parent.children.length - 1; i >= 0; i--) {
-        const k = parent.children[i];
+    const kids = parent.children;
+    // Prefer the indent of the whitespace text node immediately before the
+    // LAST element child - that's the real sibling indent. The trailing
+    // whitespace before the closing tag is usually one level shallower
+    // (it indents </Parent>, not a child), so taking the very last
+    // trailing-ws match would insert new children at the closing-tag
+    // indent and read as mis-nested.
+    for (let i = kids.length - 1; i >= 0; i--) {
+        if (kids[i].type === 'element') {
+            for (let j = i - 1; j >= 0; j--) {
+                if (kids[j].type !== 'text') break;
+                const m = kids[j].raw.match(/\n([ \t]*)$/);
+                if (m) return '\n' + m[1];
+            }
+            break;
+        }
+    }
+    // Fallback: any trailing-ws text node (covers element-less parents).
+    for (let i = kids.length - 1; i >= 0; i--) {
+        const k = kids[i];
         if (k.type === 'text' && /\n[ \t]*$/.test(k.raw)) {
             const m = k.raw.match(/\n([ \t]*)$/);
             if (m) return '\n' + m[1];
@@ -72,18 +90,32 @@ export function makeElement(tag, attrs, selfClosing, children = []) {
     };
 }
 
-/** Append a child element to `parent`, inserting a leading whitespace
- *  text node that matches the parent's existing indentation pattern.
- *  Marks the parent dirty.
+/** Append a child element to `parent` as a properly-indented last sibling.
+ *  The new child is inserted BEFORE the trailing whitespace that indents
+ *  the closing tag, so the close tag keeps its own line. Marks the parent
+ *  dirty.
  */
 export function appendChildPreservingIndent(parent, child) {
+    // A self-closing parent can't hold children; un-collapse it first so the
+    // serializer emits <Parent>...</Parent> instead of dropping the child.
+    if (parent.selfClosing) parent.selfClosing = false;
     const kids = parent.children;
     const indent = inferChildIndent(parent);
-    const last = kids[kids.length - 1];
-    if (!last || last.type !== 'text' || !/\s$/.test(last.raw)) {
-        kids.push(textNode(indent));
+    // Step back over the trailing whitespace-only text node(s) that indent
+    // the closing tag, so we insert the new child *before* them.
+    let idx = kids.length;
+    while (idx > 0 && kids[idx - 1].type === 'text' && /^\s*$/.test(kids[idx - 1].raw)) {
+        idx--;
     }
-    kids.push(child);
+    kids.splice(idx, 0, textNode(indent), child);
+    // If there was no trailing whitespace (e.g. previously self-closing or a
+    // single-line parent), add a newline so the closing tag lands on its own
+    // line at the parent's own indent (one level shallower than the child).
+    const afterChildIdx = idx + 2;
+    if (afterChildIdx >= kids.length) {
+        const parentIndent = indent.replace(/\n( *)( {4})$/, '\n$1') || '\n';
+        kids.push(textNode(parentIndent));
+    }
     parent.dirty = true;
 }
 
