@@ -14,6 +14,45 @@ import { attrVal, findChild } from '../xml/helpers.js';
 
 const HANDLE_DIRS = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
 
+// Magnetism tolerance for snap-to-guide, in canvas pixels. Slightly larger
+// than guides.js DEFAULT_TOLERANCE (3) so a snap engages right as the guide
+// line would appear.
+const GUIDE_TOL = 4;
+
+/** Nudge a body-move delta so the dragged frame's nearest edge/center
+ *  snaps onto a candidate alignment coordinate. For a whole-frame move
+ *  every edge translates 1:1 with (dx, dy), so the adjustment that aligns
+ *  one axis is just (target - (edge + delta)). The smallest-magnitude
+ *  adjustment within tolerance wins per axis; both axes are independent.
+ *  Pure function — exported for unit testing.
+ *  @param {{x,y,w,h}} box   start box in canvas space
+ *  @param {number} dx,dy    raw cursor delta in canvas space
+ *  @param {{xs:number[], ys:number[]}} targets candidate edge coords
+ *  @param {number} tol      magnetism tolerance
+ *  @returns {{dx:number, dy:number}}
+ */
+export function magnetizeBodyMove(box, dx, dy, targets, tol) {
+    const pick = (edges, delta, vals) => {
+        let best = null;
+        for (const e of edges) {
+            const cur = e + delta;
+            for (const t of (vals || [])) {
+                const adj = t - cur;
+                if (Math.abs(adj) <= tol && (best === null || Math.abs(adj) < Math.abs(best))) {
+                    best = adj;
+                }
+            }
+        }
+        return best || 0;
+    };
+    const xEdges = [box.x, box.x + box.w, box.x + box.w / 2];
+    const yEdges = [box.y, box.y + box.h, box.y + box.h / 2];
+    return {
+        dx: dx + pick(xEdges, dx, targets && targets.xs),
+        dy: dy + pick(yEdges, dy, targets && targets.ys),
+    };
+}
+
 export class SelectionOverlay {
     constructor(stage, opts) {
         this.stage = stage;
@@ -24,6 +63,11 @@ export class SelectionOverlay {
         // if snapping is off. Re-read on every drag so toggling in the UI
         // takes effect immediately.
         this.snapFn = opts.snapFn || (() => 0);
+        // Snap-targets function returns { xs:[...], ys:[...] } of candidate
+        // alignment edge coordinates (canvas space) for a node's siblings /
+        // parent. Used to magnetize body moves to nearby edges when grid
+        // snap is off. Returns null/empty to disable.
+        this.snapTargetsFn = opts.snapTargetsFn || (() => null);
         this.node = null;
         this.root = document.createElement('div');
         this.root.className = 'selection-overlay';
@@ -87,6 +131,10 @@ export class SelectionOverlay {
         const startX = ev.clientX, startY = ev.clientY;
         const z = this.zoomFn() || 1;
         const start = captureStart(source, node);
+        // Capture static alignment targets once at drag start (sibling edges
+        // don't move while we drag). Only used for whole-frame body moves,
+        // where every edge translates 1:1 with the delta.
+        const snapTargets = dir === 'body' ? this.snapTargetsFn(node) : null;
 
         this.onBeforeEdit(node);
 
@@ -94,7 +142,16 @@ export class SelectionOverlay {
             const dx = (e.clientX - startX) / z;
             const dy = (e.clientY - startY) / z;
             const snap = this.snapFn() || 0;
-            applyDrag(source, dir, dx, dy, start, snap);
+            // Guide magnetism: when grid snap is OFF, nudge the delta so a
+            // moving edge aligns exactly with a nearby sibling/parent edge.
+            // Grid snap takes precedence when enabled (single source of
+            // truth for quantisation), so the two never fight.
+            let mdx = dx, mdy = dy;
+            if (!snap && snapTargets) {
+                const m = magnetizeBodyMove(start.startBox, dx, dy, snapTargets, GUIDE_TOL);
+                mdx = m.dx; mdy = m.dy;
+            }
+            applyDrag(source, dir, mdx, mdy, start, snap);
             this.onEdit(node, /*live=*/true);
         };
         const onUp = (e) => {

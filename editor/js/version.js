@@ -1,6 +1,15 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.5.6 - Snap-to-guide on drag:
+//   * Body moves now magnetically snap to nearby sibling/parent edges
+//     and centers (the alignment guides already drew the lines; now the
+//     frame actually snaps to them). Active when grid snap is OFF; grid
+//     snap takes precedence when on, so the two never fight.
+//   * Implemented as a pure delta-magnetization (magnetizeBodyMove) that
+//     only nudges the cursor delta — the tested anchor-offset math in
+//     applyDrag is untouched. Resize-handle snapping deferred (needs
+//     per-anchor edge math). Covered by test_snap_magnet.mjs.
 // 0.5.5 - Anchor presets:
 //   * One-click anchor buttons in the inspector's Anchors section:
 //     Fill (sideless $parent anchor), Center (Top/Left Mid with
@@ -89,4 +98,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.5.5';
+export const VERSION = '0.5.6';

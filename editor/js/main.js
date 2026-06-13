@@ -279,7 +279,32 @@ const selection = new SelectionOverlay(els.stage, {
     },
     onBeforeEdit: snapshotForUndo,
     onEdit: handleEdit,
+    // Candidate alignment edges for snap-to-guide on body moves. Gathers
+    // every other frame's left/right/centerX (xs) and top/bottom/centerY
+    // (ys) in canvas space, skipping the dragged frame + its descendants +
+    // synthetic wrappers (same exclusions guides.js uses).
+    snapTargetsFn: (dragged) => collectSnapTargets(dragged),
 });
+
+// Build the {xs, ys} alignment-edge lists used by the drag overlay's
+// snap-to-guide. Walks state.frames once.
+function collectSnapTargets(dragged) {
+    const xs = [];
+    const ys = [];
+    const skip = new Set();
+    (function collect(n) { skip.add(n); (n.children || []).forEach(collect); })(dragged);
+    const visit = (nodes) => {
+        for (const f of nodes) {
+            if (!skip.has(f) && !f.synthetic && typeof f.x === 'number') {
+                xs.push(f.x, f.x + f.w, f.x + f.w / 2);
+                ys.push(f.y, f.y + f.h, f.y + f.h / 2);
+            }
+            if (f.children && f.children.length) visit(f.children);
+        }
+    };
+    visit(state.frames);
+    return { xs, ys };
+}
 
 // Undo stack: snapshots of the raw XML string from before each edit.
 // Bounded to 100 entries to keep memory under control on long sessions.
