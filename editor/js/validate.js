@@ -44,6 +44,20 @@ function checkFrame(el, ancestors, out, registry) {
 
     const add = (severity, message) => out.push({ severity, message, framePath, element: el });
 
+    // Flag a value that is a "#Constant" reference the registry can't resolve
+    // (typo'd or undefined constant). resolveValue returns the ref unchanged
+    // when it can't resolve it, so a still-#-prefixed result means "missing".
+    // Gated on stock being loaded so a stock-constant ref isn't falsely
+    // flagged during the async stock-load window.
+    const stockReady = registry && registry.loadedFiles && registry.loadedFiles.size > 0;
+    const checkConstRef = (raw, where) => {
+        if (!stockReady || typeof raw !== 'string' || !raw.startsWith('#')) return;
+        const resolved = registry.resolveValue(raw);
+        if (typeof resolved === 'string' && resolved.startsWith('#')) {
+            add('error', `${where} references constant "${raw}" which isn't defined in this layout or stock — in-game it resolves to nothing (treated as 0 / ignored). Check the spelling, or define it with <Constant name="${raw.slice(1)}" val="..."/>.`);
+        }
+    };
+
     // 1. Dangling template reference.
     if (attrs.template && registry) {
         const tpl = attrs.template;
@@ -91,6 +105,7 @@ function checkFrame(el, ancestors, out, registry) {
         if (off != null && off !== '' && !off.startsWith('#') && !Number.isFinite(parseFloat(off))) {
             add('warning', `<Anchor side="${side || '?'}" offset="${off}"/>: offset is not a number or constant reference.`);
         }
+        checkConstRef(off, `<Anchor side="${side || '?'}"> offset`);
     }
 
     // 4. Width / Height ignored due to anchor double-pinning.
@@ -109,6 +124,7 @@ function checkFrame(el, ancestors, out, registry) {
         if (v && !v.startsWith('#') && !Number.isFinite(parseFloat(v))) {
             add('warning', `<${tag} val="${v}"/>: value is not a number or constant reference.`);
         }
+        checkConstRef(v, `<${tag}>`);
     }
 
     // 5b. TextureType: warn on unrecognized values so typos surface in

@@ -1,6 +1,13 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.6.2 - Validator: unresolved constant references:
+//   * New rule flags a Width / Height / anchor-offset that references a
+//     "#Constant" the registry can't resolve (typo'd or undefined) — in
+//     game these resolve to nothing (treated as 0 / ignored). Surfaces in
+//     the Warnings pane as an error with a fix hint. Gated on stock being
+//     loaded so a stock-constant ref isn't falsely flagged during the
+//     async load window. Pure analysis; covered by test_validate.mjs.
 // 0.6.1 - Inspector constant-reference display:
 //   * A Width / Height / anchor-offset whose value is a "#Constant" used to
 //     show BLANK in its number input (a type=number can't hold "#Foo").
@@ -165,4 +172,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.6.1';
+export const VERSION = '0.6.2';
