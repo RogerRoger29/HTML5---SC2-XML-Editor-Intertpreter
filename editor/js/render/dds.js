@@ -37,6 +37,13 @@ export function decodeDds(buffer) {
     // DDS_HEADER (124 bytes) starts at offset 4. See MSDN doc above for layout.
     const height = view.getUint32(12, true);
     const width = view.getUint32(16, true);
+    // width/height are attacker-controlled (the file comes from CASC / disk).
+    // Reject implausible dimensions BEFORE they're used to size the output
+    // buffer or loop bounds - a header claiming e.g. 46341x46341 would try to
+    // allocate ~8.6 GB. 16384 comfortably exceeds any real SC2 UI texture.
+    if (!(width > 0 && height > 0 && width <= 16384 && height <= 16384)) {
+        throw new DdsDecodeError(`implausible DDS dimensions ${width}x${height}`);
+    }
     // PIXELFORMAT struct begins at offset 76, length 32 bytes.
     const pfFlags = view.getUint32(76 + 4, true);
     const pfFourCC = view.getUint32(76 + 8, true);
@@ -53,20 +60,37 @@ export function decodeDds(buffer) {
         throw new DdsDecodeError('DX10/BC7 textures not yet supported');
     }
 
-    const data = new Uint8Array(buffer, dataOffset);
-    const out = new Uint8ClampedArray(width * height * 4);
-
+    // Determine the decoder and the minimum pixel-data byte count for this
+    // format, and verify the buffer actually holds that much BEFORE allocating
+    // the output - a truncated file whose header claims large dimensions would
+    // otherwise drive out-of-bounds reads (silently producing garbage) or a
+    // pointless large allocation.
+    const avail = buffer.byteLength - dataOffset;
+    let decoder = null;
+    let expected;
     if (pfFlags & DDPF_FOURCC) {
+        const bw = Math.ceil(width / 4), bh = Math.ceil(height / 4);
         switch (pfFourCC) {
-            case FOURCC_DXT1: decodeDxt1(data, width, height, out); break;
-            case FOURCC_DXT3: decodeDxt3(data, width, height, out); break;
-            case FOURCC_DXT5: decodeDxt5(data, width, height, out); break;
+            case FOURCC_DXT1: expected = bw * bh * 8;  decoder = decodeDxt1; break;
+            case FOURCC_DXT3: expected = bw * bh * 16; decoder = decodeDxt3; break;
+            case FOURCC_DXT5: expected = bw * bh * 16; decoder = decodeDxt5; break;
             default: throw new DdsDecodeError('unsupported FourCC ' + pfFourCC.toString(16));
         }
     } else if (pfFlags & DDPF_RGB) {
-        decodeUncompressed(data, width, height, pfRGBBitCount, pfRMask, pfGMask, pfBMask, pfAMask, out);
+        expected = width * height * Math.ceil(pfRGBBitCount / 8);
     } else {
         throw new DdsDecodeError('unsupported pixel format flags ' + pfFlags.toString(16));
+    }
+    if (avail < expected) {
+        throw new DdsDecodeError(`DDS pixel data truncated: have ${avail} bytes, need ${expected}`);
+    }
+
+    const data = new Uint8Array(buffer, dataOffset);
+    const out = new Uint8ClampedArray(width * height * 4);
+    if (decoder) {
+        decoder(data, width, height, out);
+    } else {
+        decodeUncompressed(data, width, height, pfRGBBitCount, pfRMask, pfGMask, pfBMask, pfAMask, out);
     }
 
     return { width, height, imageData: out };

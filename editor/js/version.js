@@ -1,6 +1,22 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.5.8 - Round 6 audit (3rd pass; verified fixes):
+//   * merge: follow CHAINED template inheritance. A frame using template
+//     "X" where X itself has template="Y" now inherits Y's children +
+//     props too (was silently dropping the base). Fixes stock multi-level
+//     templates like StandardRadioButtonTemplate -> StandardCheckBoxTemplate.
+//   * merge: clear the synthetic flag when a chain-wrapper path is later
+//     given a real <Frame> definition (was leaving it unselectable).
+//   * textures: a transient fetch failure no longer pins a permanent miss
+//     (evicted + retried); genuine "not found" still cached (no fetch storm).
+//   * dds: validate dimensions + pixel-data length before allocating, so a
+//     truncated / garbage .dds can't drive a huge allocation or OOB reads.
+//   * parser: out-of-range numeric character references (&#1114112;) no
+//     longer throw an uncaught RangeError - left verbatim like other
+//     unknown entities.
+//   * serializer: a bare attribute (`<x disabled>`) serializes as just the
+//     name when its element is dirtied (was emitting `disabled""`).
 // 0.5.7 - Round 5 audit (multi-agent deep audit; verified fixes):
 //   * serializer: emit each unedited attribute's verbatim source (rawValue)
 //     so entities / unusual escaping round-trip byte-exact even when the
@@ -121,4 +137,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.5.7';
+export const VERSION = '0.5.8';

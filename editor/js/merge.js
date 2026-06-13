@@ -100,6 +100,11 @@ export class MergedTree {
                 if (el.tag === 'Frame' && attrs.type) node.type = attrs.type;
                 else if (el.tag !== 'Frame') node.type = el.tag;
             }
+            // This node was previously synthesized as a chain wrapper for a
+            // deeper path (e.g. GameUI/A/B defined A before GameUI/A existed),
+            // but now a REAL <Frame> defines it. Clear the synthetic flag so it
+            // becomes selectable / draggable and isn't mislabelled.
+            node.synthetic = false;
         }
         node.sources.push(el);
 
@@ -233,26 +238,47 @@ function materialize(node, registry, opts, depth = 0) {
     // terminates instead of overflowing the stack.
     const props = [];
     if (node.template && depth < MAX_TEMPLATE_DEPTH) {
-        const tmpl = registry.findTemplate(node.template);
-        if (tmpl) {
+        // A template can itself derive from another via its own template=
+        // attribute (e.g. stock StandardRadioButtonTemplate derives from
+        // StandardCheckBoxTemplate). Resolve the WHOLE inheritance chain,
+        // not just the directly-referenced template, or the base template's
+        // children/props are silently dropped. chain[0] is the most-derived
+        // (node.template); the last entry is the deepest base.
+        const chain = [];
+        const seen = new Set();
+        let tname = node.template;
+        while (tname && !seen.has(tname) && chain.length < MAX_TEMPLATE_DEPTH) {
+            seen.add(tname);
+            const t = registry.findTemplate(tname);
+            if (!t) break;
+            chain.push(t);
+            tname = (t.attrs.find(a => a.name === 'template') || {}).value || null;
+        }
+        // Frame children: walk derived -> base, adding a child only when no
+        // child with that name exists yet. So local children win over all
+        // templates, and a derived template's child overrides the base's.
+        for (const tmpl of chain) {
             for (const c of tmpl.children) {
                 if (c.type !== 'element') continue;
-                if (FRAME_TAG.test(c.tag) || c.tag === 'Frame') {
-                    const childName = (c.attrs.find(a => a.name === 'name') || {}).value;
-                    if (!childName) continue;
-                    // Only add the template's child if we don't already have one with
-                    // that name (local children win). The full subtree of the template
-                    // child gets cloned via elementToNode so deep nested grandchildren
-                    // (NormalImage / HoverImage inside a Button) come along.
-                    if (!node.children.find(ch => ch.name === childName)) {
-                        const subPath = node.path + '/' + childName;
-                        const child = elementToNode(c, subPath, node.origin);
-                        child.parent = node;
-                        node.children.push(child);
-                    }
-                } else {
-                    props.push(c);
+                if (!(FRAME_TAG.test(c.tag) || c.tag === 'Frame')) continue;
+                const childName = (c.attrs.find(a => a.name === 'name') || {}).value;
+                if (!childName) continue;
+                if (!node.children.find(ch => ch.name === childName)) {
+                    const subPath = node.path + '/' + childName;
+                    const child = elementToNode(c, subPath, node.origin);
+                    child.parent = node;
+                    node.children.push(child);
                 }
+            }
+        }
+        // Non-frame props: push base -> derived so that, with the layout
+        // engine's last-wins semantics, a derived template overrides its base
+        // (and local props, pushed below, override both).
+        for (let i = chain.length - 1; i >= 0; i--) {
+            for (const c of chain[i].children) {
+                if (c.type !== 'element') continue;
+                if (FRAME_TAG.test(c.tag) || c.tag === 'Frame') continue;
+                props.push(c);
             }
         }
     }

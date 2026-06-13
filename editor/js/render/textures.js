@@ -136,16 +136,25 @@ export class TextureLoader {
         if (this.cache.has(ref)) return this.cache.get(ref);
         const p = this._load(ref);
         this.cache.set(ref, p);
+        // A TRANSIENT failure (a candidate fetch threw - server hiccup /
+        // offline) rejects the promise; evict it so a later render retries
+        // instead of pinning a permanent miss. A genuine "not found" (all
+        // candidates returned cleanly-not-ok) resolves to null and STAYS
+        // cached, so missing textures don't re-fetch on every rerender.
+        // (After the user extracts a missing asset, resetAssetDependentCaches
+        // clears the whole cache, so that path retries too.)
+        p.catch(() => this.cache.delete(ref));
         return p;
     }
 
     async _load(ref) {
         const urls = this.candidateUrls(ref);
         const decodeErrors = [];
+        let fetchThrew = false;
         for (const url of urls) {
             let resp;
             try { resp = await fetch(url); }
-            catch (err) { continue; }
+            catch (err) { fetchThrew = true; continue; }
             if (!resp.ok) continue;
             // The HTTP request succeeded; from here a failure means the file
             // is on disk but the decoder couldn't handle it. Record + report.
@@ -165,6 +174,10 @@ export class TextureLoader {
         }
         if (decodeErrors.length) {
             console.warn(`[textures] decode FAILED for ${ref}:`, decodeErrors);
+        } else if (fetchThrew) {
+            // No candidate was reachable AND at least one fetch threw: treat as
+            // transient and reject so the cache entry is evicted (see load()).
+            throw new Error(`transient fetch failure for ${ref}`);
         } else {
             console.warn('[textures] not found:', ref);
         }

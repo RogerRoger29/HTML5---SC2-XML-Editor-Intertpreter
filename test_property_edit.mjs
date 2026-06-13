@@ -153,5 +153,30 @@ function getFrame(doc) {
     check('rawValue edit is a minimal diff', out.length === src.length);
 }
 
+// --- 8. Round 6: out-of-range numeric entity must not crash the parser, and
+//        round-trips verbatim (left undecoded).
+{
+    let threw = false;
+    let out = '';
+    try {
+        const doc = parseXml('<?xml version="1.0"?>\n<Desc><A x="&#1114112;"/></Desc>\n');
+        out = serializeXml(doc);
+    } catch (e) { threw = true; }
+    check('out-of-range numeric entity does not throw', !threw);
+    check('out-of-range numeric entity round-trips verbatim', out.includes('x="&#1114112;"'));
+}
+
+// --- 9. Round 6: a bare attribute serializes as just the name (not name="")
+//        when its element is dirtied.
+{
+    const doc = parseXml('<?xml version="1.0"?>\n<Desc><A disabled/></Desc>\n');
+    const a = findChild(doc.root, 'A') || getFrame(doc);
+    // dirty the <A> element by adding an attribute
+    setAttr(a, 'foo', 'bar');
+    const out = serializeXml(doc);
+    check('bare attr not corrupted to name=""', out.includes('disabled') && !out.includes('disabled""'));
+    check('bare attr stays bare + new attr added', out.includes('<A disabled foo="bar"/>'));
+}
+
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

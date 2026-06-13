@@ -182,7 +182,9 @@ function parseElement(ctx) {
         skipWhitespace(ctx);
         if (s.charCodeAt(ctx.pos) !== 61 /* = */) {
             // Bare attribute (XML technically doesn't allow this; tolerate).
-            attrs.push({ name, value: '', quote: '"', rawBetween: ws, rawEq: s.slice(eqStart, ctx.pos), rawAfter: '' });
+            // Tag it `bare` so the serializer emits just the name (not name="")
+            // if the element is later dirtied.
+            attrs.push({ name, value: '', quote: '"', rawBetween: ws, rawEq: s.slice(eqStart, ctx.pos), rawAfter: '', bare: true });
             continue;
         }
         ctx.pos++; // '='
@@ -290,7 +292,13 @@ function decodeEntities(s) {
     return s.replace(/&(?:(amp|lt|gt|quot|apos)|#(\d+)|#x([0-9a-fA-F]+));/g,
         (m, name, dec, hex) => {
             if (name) return ENTITIES[name];
-            if (dec) return String.fromCodePoint(parseInt(dec, 10));
-            return String.fromCodePoint(parseInt(hex, 16));
+            // Numeric character references. Guard the codepoint range:
+            // String.fromCodePoint throws RangeError above 0x10FFFF, which
+            // would escape parseXml as an uncaught crash instead of a clean
+            // XmlParseError. An out-of-range/invalid ref is left verbatim,
+            // consistent with how unknown entities (&foo;) fall through.
+            const cp = parseInt(dec != null ? dec : hex, dec != null ? 10 : 16);
+            if (!Number.isFinite(cp) || cp < 0 || cp > 0x10FFFF) return m;
+            return String.fromCodePoint(cp);
         });
 }

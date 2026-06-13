@@ -62,6 +62,9 @@ function buildOpening(el) {
         // to a single space.
         out += a.rawBetween != null ? a.rawBetween : ' ';
         out += a.name;
+        // A bare attribute (e.g. `<input disabled>`) has no `=value`. Emit just
+        // the name; without this, a dirtied element would serialize `disabled""`.
+        if (a.bare) { if (a.rawAfter) out += a.rawAfter; continue; }
         out += a.rawEq != null ? a.rawEq : '=';
         const q = a.quote || '"';
         // Preserve the verbatim source between the quotes for UNEDITED
