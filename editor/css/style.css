@@ -482,6 +482,29 @@ body.hide-outlines .sc2-frame .frame-label { display: none; }
     background: rgba(255,180,80,0.04);
 }
 
+/* Anchor preset buttons (Fill / Center / corner pins). */
+.inspector-anchor-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px 10px 6px;
+}
+.inspector-anchor-presets button {
+    background: #1f2228;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 2px 8px;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    line-height: 1.4;
+}
+.inspector-anchor-presets button:hover {
+    background: #2a2e36;
+    border-color: var(--accent, #5fa9ff);
+}
+
 /* Boolean (checkbox) rows: left-align the checkbox in the value column
    rather than stretching it across the full width. */
 .inspector-bool-row input[type="checkbox"] {

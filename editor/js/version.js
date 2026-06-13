@@ -1,6 +1,14 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.5.5 - Anchor presets:
+//   * One-click anchor buttons in the inspector's Anchors section:
+//     Fill (sideless $parent anchor), Center (Top/Left Mid with
+//     half-size offsets from the resolved box), and four corner pins
+//     (TL/TR/BL/BR — two side anchors each, keeping Width/Height).
+//   * Each replaces all existing <Anchor> children atomically and
+//     snapshots undo. Round-trips byte-clean (covered by
+//     test_property_edit.mjs).
 // 0.5.4 - Frame appearance & image properties (WYSIWYG completeness):
 //   * New inspector "Appearance" section: Visible, Alpha (0-255),
 //     RenderPriority, BlendMode, Enabled. Renderer honours each
@@ -81,4 +89,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.5.4';
+export const VERSION = '0.5.5';

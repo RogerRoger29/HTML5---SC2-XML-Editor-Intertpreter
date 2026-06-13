@@ -228,6 +228,7 @@ export class Inspector {
 
     _anchorsSection(frame, source) {
         this._sectionTitle('Anchors');
+        this._anchorPresetsRow(frame, source);
         const anchorsBySide = {
             Top: null, Bottom: null, Left: null, Right: null,
         };
@@ -238,6 +239,74 @@ export class Inspector {
         }
         for (const side of ['Top', 'Bottom', 'Left', 'Right']) {
             this._anchorRow(side, anchorsBySide[side], source);
+        }
+    }
+
+    /** One-click anchor presets. Each replaces ALL of the frame's existing
+     *  <Anchor> children with the preset's set, snapshotting undo first.
+     *  Fill / corner pins keep the frame's declared Width/Height; Center
+     *  computes half-size offsets from the resolved box so the frame's
+     *  centre lands on the parent's centre. */
+    _anchorPresetsRow(frame, source) {
+        const row = document.createElement('div');
+        row.className = 'inspector-anchor-presets';
+        const mk = (label, title, preset) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.textContent = label;
+            b.title = title;
+            b.addEventListener('click', () => this._applyAnchorPreset(frame, source, preset));
+            row.appendChild(b);
+        };
+        mk('Fill', 'Fill parent (single anchor, offset 0)', 'fill');
+        mk('Center', 'Centre in parent (keeps Width/Height)', 'center');
+        mk('↖', 'Pin to top-left corner', 'tl');
+        mk('↗', 'Pin to top-right corner', 'tr');
+        mk('↙', 'Pin to bottom-left corner', 'bl');
+        mk('↘', 'Pin to bottom-right corner', 'br');
+        this.rootEl.appendChild(row);
+    }
+
+    _applyAnchorPreset(frame, source, preset) {
+        // Build the list of anchor specs for the chosen preset. Each spec is
+        // an array of [name,value] attr pairs for one <Anchor> element.
+        let specs;
+        const P = '$parent';
+        if (preset === 'fill') {
+            // Sideless fill anchor: insets the frame from the parent by 0.
+            specs = [[['relative', P], ['offset', '0']]];
+        } else if (preset === 'center') {
+            const hw = Math.round((frame.w || 0) / 2);
+            const hh = Math.round((frame.h || 0) / 2);
+            specs = [
+                [['side', 'Top'],  ['relative', P], ['pos', 'Mid'], ['offset', String(-hh)]],
+                [['side', 'Left'], ['relative', P], ['pos', 'Mid'], ['offset', String(-hw)]],
+            ];
+        } else {
+            // Corner pins: two side anchors at Min/Max, offset 0. Keeps the
+            // frame's declared Width/Height.
+            const vert = (preset[0] === 't')
+                ? [['side', 'Top'], ['relative', P], ['pos', 'Min'], ['offset', '0']]
+                : [['side', 'Bottom'], ['relative', P], ['pos', 'Max'], ['offset', '0']];
+            const horz = (preset[1] === 'l')
+                ? [['side', 'Left'], ['relative', P], ['pos', 'Min'], ['offset', '0']]
+                : [['side', 'Right'], ['relative', P], ['pos', 'Max'], ['offset', '0']];
+            specs = [vert, horz];
+        }
+        this.onBeforeChange(this.frame);
+        this._setAnchors(source, specs);
+        this.onChange(this.frame);
+        this.show(this.frame);
+    }
+
+    /** Replace every <Anchor> child of `source` with the given specs. */
+    _setAnchors(source, specs) {
+        // Remove existing anchors (iterate over a snapshot since we mutate).
+        for (const c of source.children.filter(c => c.type === 'element' && c.tag === 'Anchor')) {
+            removeChildAndWhitespace(source, c);
+        }
+        for (const attrs of specs) {
+            appendChildPreservingIndent(source, makeElement('Anchor', attrs, true));
         }
     }
 

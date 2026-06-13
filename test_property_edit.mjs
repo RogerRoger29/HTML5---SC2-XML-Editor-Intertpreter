@@ -101,5 +101,36 @@ function getFrame(doc) {
     check('Visible removed on return-to-default', out === FIXTURE);
 }
 
+// --- 6. Anchor presets: clear all <Anchor> children then add new ones
+//        (the _setAnchors path used by Fill / Center / corner pins).
+{
+    const FRAMED = `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Desc>
+    <Frame type="Frame" name="Panel">
+        <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+        <Anchor side="Left" relative="$parent" pos="Min" offset="0"/>
+        <Width val="100"/>
+        <Height val="80"/>
+    </Frame>
+</Desc>
+`;
+    const doc = parseXml(FRAMED);
+    const frame = getFrame(doc);
+    // Clear existing anchors.
+    for (const c of frame.children.filter(c => c.type === 'element' && c.tag === 'Anchor')) {
+        removeChildAndWhitespace(frame, c);
+    }
+    // Add a single sideless "fill" anchor.
+    appendChildPreservingIndent(frame, makeElement('Anchor', [['relative', '$parent'], ['offset', '0']], true));
+    const out = serializeXml(doc);
+    check('Fill preset: old anchors gone', !/side="Top"/.test(out) && !/side="Left"/.test(out));
+    check('Fill preset: fill anchor present', out.includes('<Anchor relative="$parent" offset="0"/>'));
+    check('Fill preset: Width/Height untouched', out.includes('<Width val="100"/>') && out.includes('<Height val="80"/>'));
+    check('Fill preset: idempotent round-trip', serializeXml(parseXml(out)) === out);
+    // Anchors should still be indented as siblings (8 spaces), not at the
+    // closing-tag indent.
+    check('Fill preset: anchor indented like siblings', /\n        <Anchor relative/.test(out));
+}
+
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);
