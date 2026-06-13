@@ -132,5 +132,26 @@ function getFrame(doc) {
     check('Fill preset: anchor indented like siblings', /\n        <Anchor relative/.test(out));
 }
 
+// --- 7. rawValue preservation (Round 5 audit): dirtying ONE attribute of an
+//        element must not re-encode its sibling attributes' entities. The
+//        parser keeps each attribute's verbatim source as rawValue; the
+//        serializer must emit it for unedited attrs.
+{
+    const src = '<?xml version="1.0" encoding="utf-8" standalone="yes"?>\n'
+        + '<Desc>\n'
+        + '    <Frame type="Frame" name="P">\n'
+        + '        <Anchor side="Left" relative="$parent" offset="0" note="a&#62;b"/>\n'
+        + '    </Frame>\n'
+        + '</Desc>\n';
+    const doc = parseXml(src);
+    const anchor = findChild(getFrame(doc), 'Anchor');
+    setAttr(anchor, 'offset', '5');     // dirties the element -> buildOpening runs
+    const out = serializeXml(doc);
+    check('sibling entity attr preserved verbatim (not re-encoded)', out.includes('note="a&#62;b"'));
+    check('edited attr updated', out.includes('offset="5"'));
+    // The whole doc differs ONLY in the offset value (0 -> 5): same length.
+    check('rawValue edit is a minimal diff', out.length === src.length);
+}
+
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

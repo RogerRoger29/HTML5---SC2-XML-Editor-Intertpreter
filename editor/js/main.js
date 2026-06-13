@@ -64,8 +64,6 @@ const els = {
     inspector: document.getElementById('inspector'),
     openDialog: document.getElementById('open-dialog'),
     openPath: document.getElementById('open-path'),
-    loadingOverlay: document.getElementById('loading-overlay'),
-    loadingMsg: document.getElementById('loading-msg'),
 };
 
 const state = {
@@ -813,6 +811,11 @@ function openFromText(text, fileName) {
     // Tag every element with a _parent reference so the inspector's "Delete
     // frame" / "Duplicate" actions can walk to the containing element in O(1).
     setParentRefs(state.modDoc);
+    // Drop the previous document's undo/redo history. Without this, Ctrl+Z
+    // after opening a new file would re-install a snapshot from the OLD file,
+    // silently swapping the open document (cross-document undo). Covers every
+    // entry point: Open, New, drag-drop, Apply-XML.
+    undoStack.clear();
     state.currentFileName = fileName;
     // Enable menu items that need an open doc.
     if (menubar) {
@@ -982,6 +985,12 @@ function rerender(opts = {}) {
         };
         patch(newFrames);
         state.frames = newFrames;
+        // Re-apply active StateGroup actions so a state-driven visibility /
+        // color override survives the live fast path. Without this, a frame
+        // hidden by the active Hover/Pressed preview (or its color override)
+        // flickers back to its base appearance during a drag/spin and only
+        // settles on commit, since the fast path rebuilds the tree fresh.
+        applyStateActions(state.frames, state.activeStates);
         layoutFrames(state.frames, W, H);
         renderer.updatePositions(state.frames);
         if (opts.keepSelection && state.selected) {
@@ -1199,14 +1208,8 @@ function decorate(nodes) {
     }
 }
 
-function findFrameByName(frames, name) {
-    for (const f of frames) {
-        if (f.name === name) return f;
-        const r = findFrameByName(f.children || [], name);
-        if (r) return r;
-    }
-    return null;
-}
+// (findFrameByName removed in the Round 5 audit — it was only self-recursive
+// with no external caller. Selection is by path via findFrameByPath.)
 
 function snapshotForUndo() {
     undoStack.snapshot(state.modDoc);
@@ -1901,11 +1904,7 @@ function fileToDataUrl(file) {
     });
 }
 
-function showLoading(msg) {
-    els.loadingOverlay.hidden = false;
-    setLoadingMsg(msg);
-}
-function setLoadingMsg(msg) { els.loadingMsg.textContent = msg; }
-function hideLoading() { els.loadingOverlay.hidden = true; }
+// (showLoading / setLoadingMsg / hideLoading removed in the Round 5 audit —
+// the loading-overlay helpers had no callers anywhere.)
 function setStatus(s) { els.status.textContent = s; }
 function setXmlStatus(s) { els.xmlStatus.textContent = s; }

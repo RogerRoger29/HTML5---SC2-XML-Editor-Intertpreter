@@ -217,11 +217,22 @@ function collectTemplateRefs(el, into) {
 // expects (a frame node with .xml, .anchors, .width, .height, .visible, .children).
 // We synthesize a virtual XML element that combines props from all source
 // elements plus the resolved template.
-function materialize(node, registry, opts) {
+// Hard cap on materialize recursion depth. Real layouts nest < ~20 deep;
+// this only trips for pathological / cyclic template references (a template
+// whose child resolves template= back to an ancestor), which would otherwise
+// recurse forever and freeze the editor on load. Stock constants resolution
+// (stock.js) already has a cycle guard; this is the template-expansion one.
+const MAX_TEMPLATE_DEPTH = 64;
+let _materializeDepthWarned = false;
+
+function materialize(node, registry, opts, depth = 0) {
     // Resolve template inheritance: extract template's non-frame props directly,
     // and clone its child frames into our subtree (full depth recursion).
+    // Past the depth cap we STOP expanding templates (the only thing that adds
+    // new descendants), so the recursion over the now-finite child set
+    // terminates instead of overflowing the stack.
     const props = [];
-    if (node.template) {
+    if (node.template && depth < MAX_TEMPLATE_DEPTH) {
         const tmpl = registry.findTemplate(node.template);
         if (tmpl) {
             for (const c of tmpl.children) {
@@ -336,10 +347,15 @@ function materialize(node, registry, opts) {
         height,
         visible,
         _modSource: node.origin === 'mod' ? modSource : null,
-        children: node.children.map(c => materialize(c, registry, opts)),
+        children: node.children.map(c => materialize(c, registry, opts, depth + 1)),
         parent: null,
     };
     for (const c of matNode.children) c.parent = matNode;
+    if (depth >= MAX_TEMPLATE_DEPTH && !_materializeDepthWarned) {
+        _materializeDepthWarned = true;
+        console.warn(`[merge] template/frame nesting hit depth cap (${MAX_TEMPLATE_DEPTH}) at ${node.path}; ` +
+            `stopped expanding to avoid runaway recursion (likely a cyclic template= reference).`);
+    }
     return matNode;
 }
 

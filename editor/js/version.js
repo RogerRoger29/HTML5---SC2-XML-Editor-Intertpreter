@@ -1,6 +1,29 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.5.7 - Round 5 audit (multi-agent deep audit; verified fixes):
+//   * serializer: emit each unedited attribute's verbatim source (rawValue)
+//     so entities / unusual escaping round-trip byte-exact even when the
+//     element is dirtied for another reason (was re-encoding from the
+//     decoded value).
+//   * undo: clear the undo/redo stack on Open/New so Ctrl+Z can no longer
+//     reinstall a previous document's snapshot (cross-document undo).
+//   * merge: depth-cap template materialization (cyclic template= no longer
+//     stack-overflows / freezes the editor on load).
+//   * inspector: Duplicate now links _parent on the clone subtree, so a
+//     later Delete/Duplicate of the copy works without reopening the file.
+//   * triggers export: unique Variable identifiers for same-named frames
+//     (was emitting duplicate gv_<name> -> SC2 codegen compile error).
+//   * edit: resize-creates-Width/Height now uses the shared indent-correct
+//     helper (deduped a buggy local copy).
+//   * live fast path: re-applies active StateGroup actions so state-driven
+//     visibility/color no longer flickers during a drag.
+//   * mutate: child-insert dedent handles tabs / 2-space indents.
+//   * Python: casc short-read now deletes the partial + fails instead of
+//     caching a truncated asset; serve.py snapshots the CASC handle/assets
+//     root under the lock and re-loads config before writing (concurrency).
+//   * Dead-code + comment cleanups (findFrameByName, loading overlay,
+//     layout.js ternary, menubar comment).
 // 0.5.6 - Snap-to-guide on drag:
 //   * Body moves now magnetically snap to nearby sibling/parent edges
 //     and centers (the alignment guides already drew the lines; now the
@@ -98,4 +121,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.5.6';
+export const VERSION = '0.5.7';

@@ -1109,34 +1109,8 @@ dialog code { color: var(--accent); }
 .sc2-frame[data-origin="mod"].outline.visible-outline { outline-color: rgba(95,169,255,0.7); }
 .sc2-frame[data-origin="stock"].outline.visible-outline { outline-color: rgba(255,180,80,0.55); }
 
-#loading-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(10,12,16,0.72);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-#loading-overlay[hidden] { display: none; }
-.loading-box {
-    background: var(--bg-pane);
-    border: 1px solid var(--border);
-    padding: 22px 28px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-.spinner {
-    width: 22px;
-    height: 22px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.9s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+/* (#loading-overlay / .loading-box / .spinner removed in the Round 5 audit —
+   the loading overlay had no callers and was deleted.) */
 
 #assets-banner {
     position: fixed;

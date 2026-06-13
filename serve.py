@@ -239,8 +239,14 @@ class Router(http.server.SimpleHTTPRequestHandler):
         if path in table:
             return getattr(self, table[path])
         for key, handler_name in table.items():
-            if key.endswith("/") and path.startswith(key.rstrip("/")):
-                return getattr(self, handler_name)
+            # Prefix routes are registered with a trailing "/" (e.g. "/__ls/").
+            # Match the exact base ("/__ls") OR anything under it ("/__ls/..."),
+            # but NOT an unrelated path that merely shares the prefix string
+            # ("/__lsfoo"), which the old rstrip-based test let through.
+            if key.endswith("/"):
+                base = key[:-1]
+                if path == base or path.startswith(key):
+                    return getattr(self, handler_name)
         return None
 
     def do_GET(self):  # noqa: N802 (http.server naming)
@@ -317,6 +323,13 @@ class Router(http.server.SimpleHTTPRequestHandler):
                 n = Router.casc_index.load(idx_path)
                 if n:
                     print(f"[serve] loaded CASC index: {n} files from {idx_path}", file=sys.stderr)
+            # Snapshot the handle + active assets root under the lock. A
+            # concurrent /__cascextract that repoints the install could
+            # otherwise close()/replace Router.casc_storage between here and
+            # the extract call below, leaving us extracting against a swapped
+            # or just-closed archive (check-then-act race).
+            storage = Router.casc_storage
+            assets_root_snapshot = Router.assets_root
 
         # Build the final list of CASC paths to try.
         files: list[str] = list(body.get("files") or [])
@@ -379,10 +392,10 @@ class Router(http.server.SimpleHTTPRequestHandler):
         if not files:
             return self._send_json({"error": "no_files_requested"}, status=400)
 
-        out_dir = (Router.assets_root or EXE_DIR / "stock-data")
+        out_dir = (assets_root_snapshot or EXE_DIR / "stock-data")
         try:
-            Router.casc_storage.open()
-            result = Router.casc_storage.extract_batch(files, out_dir)
+            storage.open()
+            result = storage.extract_batch(files, out_dir)
         except Exception as err:
             return self._send_json({"error": "extract_failed", "detail": str(err)}, status=500)
         result["assets_root"] = str(out_dir)
@@ -395,6 +408,11 @@ class Router(http.server.SimpleHTTPRequestHandler):
             if not Router.assets_root and result["extracted"]:
                 Router.assets_root = out_dir
                 Router.assets_source = "casc-extracted"
+                # Re-load config INSIDE the lock before mutating. The `cfg`
+                # read near the top of this handler is stale - a concurrent
+                # /__config POST (e.g. setting sc2_install) committed in the
+                # meantime would be clobbered if we saved the old snapshot.
+                cfg = load_config()
                 cfg["assets_root"] = str(out_dir)
                 save_config(cfg)
         self._send_json(result)

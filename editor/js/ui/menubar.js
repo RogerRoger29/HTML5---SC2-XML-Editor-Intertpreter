@@ -46,8 +46,8 @@ export class MenuBar {
                 }
             });
         }
-        // Wire data-action buttons. Use mousedown so the action fires before
-        // the dropdown closes on the subsequent click event.
+        // Wire data-action buttons on click. The handler closes the dropdown
+        // itself (via _closeAll below), so a plain click is sufficient.
         this.rootEl.addEventListener('click', (ev) => {
             const target = ev.target.closest('[data-action]');
             if (!target) return;

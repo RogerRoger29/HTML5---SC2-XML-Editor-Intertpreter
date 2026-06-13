@@ -11,6 +11,7 @@
 
 import { setAttr } from '../xml/serializer.js';
 import { attrVal, findChild } from '../xml/helpers.js';
+import { makeElement, appendChildPreservingIndent } from '../xml/mutate.js';
 
 const HANDLE_DIRS = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
 
@@ -278,44 +279,11 @@ function writeSized(el, tag, newVal) {
     if (child) {
         setAttr(child, 'val', out);
     } else {
-        const created = makeElement(tag, [{ name: 'val', value: out }], true);
-        appendNewChild(el, created);
+        // Use the shared, indent-correct helper. The old local copy here
+        // placed the new <Width>/<Height> at the closing-tag indent (one
+        // level too shallow), producing a noisy round-trip diff when a
+        // resize first created a size element. Deduped in the Round 5 audit.
+        appendChildPreservingIndent(el, makeElement(tag, [['val', out]], true));
     }
     el.dirty = true;
-}
-
-function makeElement(tag, attrs, selfClosing) {
-    return {
-        type: 'element',
-        tag,
-        attrs: attrs.map(a => ({
-            name: a.name, value: a.value, quote: '"',
-            rawBetween: ' ', rawEq: '=', rawAfter: '',
-        })),
-        selfClosing: !!selfClosing,
-        children: [],
-        opening: null, closing: null,
-        source: null,
-        start: 0, end: 0,
-        dirty: true,
-    };
-}
-
-function appendNewChild(parent, child) {
-    const kids = parent.children;
-    let indent = '\n    ';
-    for (let i = kids.length - 1; i >= 0; i--) {
-        const k = kids[i];
-        if (k.type === 'text' && /\n[ \t]*$/.test(k.raw)) {
-            const m = k.raw.match(/\n([ \t]*)$/);
-            if (m) indent = '\n' + m[1];
-            break;
-        }
-    }
-    const lastTrailing = kids[kids.length - 1];
-    if (!lastTrailing || lastTrailing.type !== 'text' || !/\s$/.test(lastTrailing.raw)) {
-        kids.push({ type: 'text', raw: indent, start: 0, end: 0, dirty: true });
-    }
-    kids.push(child);
-    parent.dirty = true;
 }

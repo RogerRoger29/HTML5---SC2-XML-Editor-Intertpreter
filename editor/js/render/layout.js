@@ -89,7 +89,10 @@ function resolveRelative(node, ref) {
         while (n.parent && n.parent.children) n = n.parent;
         return n;
     }
-    let cur = ref.startsWith('$parent/') ? node.parent : node.parent;
+    // A path ref (`$parent/Foo/Bar` or a bare `Sibling`) resolves relative to
+    // the parent's children. (Both forms start from node.parent; the leading
+    // `$parent/` is just stripped below.)
+    let cur = node.parent;
     const path = ref.replace(/^\$parent\//, '').split('/');
     for (const seg of path) {
         if (!cur || !cur.children) return null;

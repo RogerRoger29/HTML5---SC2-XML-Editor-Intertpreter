@@ -64,7 +64,13 @@ function buildOpening(el) {
         out += a.name;
         out += a.rawEq != null ? a.rawEq : '=';
         const q = a.quote || '"';
-        out += q + encodeAttrValue(a.value, q) + q;
+        // Preserve the verbatim source between the quotes for UNEDITED
+        // attributes (the parser stores it as rawValue), so entities and
+        // unusual-but-legal escaping round-trip byte-exact even when the
+        // element is dirtied for another reason. setAttr deletes rawValue
+        // on edit, and makeElement-created attrs have none, so those fall
+        // through to encodeAttrValue.
+        out += q + (a.rawValue != null ? a.rawValue : encodeAttrValue(a.value, q)) + q;
         if (a.rawAfter) out += a.rawAfter;
     }
     if (el.attrs._trailer) out += el.attrs._trailer;

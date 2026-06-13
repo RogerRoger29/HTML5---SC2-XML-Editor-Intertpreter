@@ -63,6 +63,20 @@ export function inferIndentBefore(parent, idx) {
     return '\n    ';
 }
 
+/** Remove one indentation level from a "\n<whitespace>" indent string, so a
+ *  child indent becomes its parent's (closing-tag) indent. Handles tabs and
+ *  arbitrary space widths, not just 4 spaces. For ambiguous space counts it
+ *  prefers a 4- then 2-space unit. This only feeds the rare un-collapse /
+ *  single-line-parent branch, and the result still round-trips idempotently. */
+function dedentOne(indent) {
+    const m = /^\n([ \t]*)$/.exec(indent);
+    if (!m) return indent || '\n';
+    const ws = m[1];
+    if (ws.endsWith('\t')) return '\n' + ws.slice(0, -1);     // strip one tab
+    const unit = ws.length % 4 === 0 ? 4 : ws.length % 2 === 0 ? 2 : 1;
+    return '\n' + ws.slice(0, Math.max(0, ws.length - unit));
+}
+
 /** Build a fresh dirty text node from a raw string. */
 export function textNode(raw) {
     return { type: 'text', raw, start: 0, end: 0, dirty: true };
@@ -113,8 +127,7 @@ export function appendChildPreservingIndent(parent, child) {
     // line at the parent's own indent (one level shallower than the child).
     const afterChildIdx = idx + 2;
     if (afterChildIdx >= kids.length) {
-        const parentIndent = indent.replace(/\n( *)( {4})$/, '\n$1') || '\n';
-        kids.push(textNode(parentIndent));
+        kids.push(textNode(dedentOne(indent)));
     }
     parent.dirty = true;
 }

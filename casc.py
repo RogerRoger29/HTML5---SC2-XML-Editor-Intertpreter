@@ -266,6 +266,17 @@ def _extract_one(dll, storage, casc_name: str, out_path: Path) -> None:
                     break
                 fp.write(bytes(buf[offset:offset + read.value]))
                 offset += read.value
+        # A short read (0 bytes before the full size) would leave a TRUNCATED
+        # file on disk. The caller counts a returning _extract_one as success,
+        # and later runs skip any existing non-empty file - so the corrupt
+        # partial would be cached permanently and never re-fetched. Delete it
+        # and raise so the caller records a failure instead.
+        if offset < n:
+            try:
+                out_path.unlink()
+            except OSError:
+                pass
+            raise CascError(f"short read {casc_name}: {offset}/{n} bytes", 0)
     finally:
         dll.CascCloseFile(file_handle)
 

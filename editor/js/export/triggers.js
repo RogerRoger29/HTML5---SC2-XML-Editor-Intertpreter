@@ -78,10 +78,26 @@ export function generateTriggersXml(opts) {
     // Per-frame: one Variable + one SetVariable FunctionCall (+ param children).
     // Buttons additionally get a click-event trigger + its 3 params + a
     // Comment placeholder action when includeClickHandlers is on.
+    // Identifiers become Galaxy variable names (gv_<ident>) and must be unique.
+    // Two frames can share a leaf name at different paths (Button0/Label,
+    // Button1/Label) — emitting the same identifier twice makes the SC2 Editor
+    // codegen duplicate variables (compile error) and an ambiguous !gv_<name>
+    // click control id. De-dupe by suffixing _2, _3, ... on collision.
+    const usedIdents = new Set();
+    const uniqueIdent = (name) => {
+        let ident = toIdent(name);
+        if (usedIdents.has(ident)) {
+            let n = 2;
+            while (usedIdents.has(`${ident}_${n}`)) n++;
+            ident = `${ident}_${n}`;
+        }
+        usedIdents.add(ident);
+        return ident;
+    };
     const frameRecords = frames.map((f) => {
         const rec = {
             ...f,
-            ident: toIdent(f.name),
+            ident: uniqueIdent(f.name),
             idVariable: minter.next(),
             idSetCall: minter.next(),
             idVarParam: minter.next(),
@@ -133,7 +149,7 @@ export function generateTriggersXml(opts) {
     // value can be passed anywhere Galaxy expects a frame path.)
     for (const f of frameRecords) {
         lines.push(`        <Element Type="Variable" Id="${f.idVariable}">`);
-        lines.push(`            <Identifier>${enc(toIdent(f.name))}</Identifier>`);
+        lines.push(`            <Identifier>${enc(f.ident)}</Identifier>`);
         lines.push(`            <VariableType>`);
         lines.push(`                <Type Value="string"/>`);
         lines.push(`            </VariableType>`);

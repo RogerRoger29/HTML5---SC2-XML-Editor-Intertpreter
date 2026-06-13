@@ -932,8 +932,24 @@ function duplicateSibling(el) {
     if (idx === -1) return false;
     const indent = inferIndentBefore(el._parent, idx);
     kids.splice(idx + 1, 0, textNode(indent), copy);
+    // Link _parent on the cloned subtree. deepCloneElement can't know the
+    // parent, and the full rerender after this does NOT re-run setParentRefs,
+    // so without this the copy (and its children) have no _parent and a later
+    // Delete / Duplicate on the copy silently no-ops until the file is reopened.
+    linkParents(copy, el._parent);
     el._parent.dirty = true;
     return true;
+}
+
+/** Recursively set _parent on an element subtree (mirrors main.js#setParentRefs
+ *  but scoped to a freshly-inserted clone). */
+function linkParents(el, parent) {
+    el._parent = parent;
+    if (el.children) {
+        for (const c of el.children) {
+            if (c.type === 'element') linkParents(c, el);
+        }
+    }
 }
 
 function round(n) {
