@@ -41,6 +41,9 @@ export class Inspector {
         // Callback fired when the user picks a different state from the
         // dropdown so the host can rerender.
         this.onStateChange = opts.onStateChange || (() => {});
+        // Resolves a "#Constant" reference to its final value (registry-backed).
+        // Used to show resolved values for constant-driven fields read-only.
+        this.resolveConstant = opts.resolveConstant || ((v) => v);
     }
 
     show(frame) {
@@ -373,17 +376,31 @@ export class Inspector {
         row.appendChild(rel);
 
         const off = document.createElement('input');
-        off.type = 'number';
-        off.step = '1';
-        off.value = attrVal(anchorEl, 'offset') || '0';
-        // Live update: hold the spinner or type a value and the canvas
-        // tracks it in real time. Undo snapshot fires once per focus session.
-        this._wireLiveNumber(off, (val, live) => {
-            const v = parseFloat(val);
-            if (!Number.isFinite(v)) return;
-            setAttr(anchorEl, 'offset', String(v));
-            this.onChange(this.frame, !!live);
-        });
+        const offVal = attrVal(anchorEl, 'offset') || '0';
+        if (typeof offVal === 'string' && offVal.startsWith('#')) {
+            // Constant-reference offset: a number input can't show "#Foo".
+            // Display it read-only with the resolved value in the tooltip.
+            off.type = 'text';
+            off.value = offVal;
+            off.readOnly = true;
+            off.classList.add('const-ref');
+            const resolved = this.resolveConstant(offVal);
+            off.title = (resolved !== offVal)
+                ? `${offVal} = ${resolved} — constant reference; edit in the XML pane`
+                : `${offVal} — constant reference`;
+        } else {
+            off.type = 'number';
+            off.step = '1';
+            off.value = offVal;
+            // Live update: hold the spinner or type a value and the canvas
+            // tracks it in real time. Undo snapshot fires once per focus session.
+            this._wireLiveNumber(off, (val, live) => {
+                const v = parseFloat(val);
+                if (!Number.isFinite(v)) return;
+                setAttr(anchorEl, 'offset', String(v));
+                this.onChange(this.frame, !!live);
+            });
+        }
         row.appendChild(off);
 
         const remove = document.createElement('button');
@@ -766,7 +783,33 @@ export class Inspector {
         this.rootEl.appendChild(div);
     }
 
+    /** Read-only row for a value that is a "#Constant" reference. A number
+     *  input can't hold "#Foo", so a constant-driven Width/Height would
+     *  otherwise show blank. Display the ref + its resolved value and point
+     *  the user at the XML pane / Constants browser. */
+    _constRefRow(label, ref) {
+        const resolved = this.resolveConstant(ref);
+        const div = document.createElement('div');
+        div.className = 'inspector-row inspector-row-constref';
+        const l = document.createElement('label');
+        l.textContent = label;
+        const v = document.createElement('span');
+        v.className = 'const-ref';
+        // textContent (not innerHTML) — no escaping needed, no injection.
+        v.textContent = (resolved != null && resolved !== ref) ? `${ref}  = ${resolved}` : ref;
+        v.title = 'Constant reference. Edit the value in the XML pane; browse all via View → Constants.';
+        div.appendChild(l);
+        div.appendChild(v);
+        this.rootEl.appendChild(div);
+    }
+
     _numberRow(label, value, onCommit, placeholder = '', opts = {}) {
+        // A constant reference (e.g. <Width val="#HeroGap"/>) can't render in a
+        // number input. Show it read-only with the resolved value instead.
+        if (typeof value === 'string' && value.startsWith('#')) {
+            this._constRefRow(label, value);
+            return;
+        }
         const div = document.createElement('div');
         div.className = 'inspector-row';
         if (opts.disabled) div.classList.add('inspector-row-disabled');

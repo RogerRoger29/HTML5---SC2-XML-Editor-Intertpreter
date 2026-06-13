@@ -1,6 +1,13 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.6.1 - Inspector constant-reference display:
+//   * A Width / Height / anchor-offset whose value is a "#Constant" used to
+//     show BLANK in its number input (a type=number can't hold "#Foo").
+//     The inspector now renders such fields read-only as "#Ref = resolved"
+//     (resolved via the registry, incl. mod constants from 0.6.0), with a
+//     tooltip pointing at the XML pane / Constants browser. Display-only —
+//     no XML-write path, so no round-trip risk.
 // 0.6.0 - Constants browser + mod-constant resolution:
 //   * New View -> Constants dialog: lists every <Constant> visible to the
 //     layout (stock + the open mod's own), with the raw value, the
@@ -158,4 +165,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.6.0';
+export const VERSION = '0.6.1';

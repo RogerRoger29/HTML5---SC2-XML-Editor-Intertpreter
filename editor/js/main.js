@@ -195,6 +195,8 @@ const inspector = new Inspector(els.inspector, {
         texture: (q) => suggestTextures(q),
         style: (q) => suggestStyles(q),
     },
+    // Resolve "#Constant" refs for read-only display in the inspector.
+    resolveConstant: (v) => registry.resolveValue(v),
 });
 
 // --- autocomplete data sources --------------------------------------------
