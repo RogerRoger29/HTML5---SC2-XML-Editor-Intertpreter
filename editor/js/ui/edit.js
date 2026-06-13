@@ -20,19 +20,27 @@ const HANDLE_DIRS = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
 // line would appear.
 const GUIDE_TOL = 4;
 
-/** Nudge a body-move delta so the dragged frame's nearest edge/center
- *  snaps onto a candidate alignment coordinate. For a whole-frame move
- *  every edge translates 1:1 with (dx, dy), so the adjustment that aligns
- *  one axis is just (target - (edge + delta)). The smallest-magnitude
- *  adjustment within tolerance wins per axis; both axes are independent.
+/** Nudge a drag delta so the dragged frame's active edge(s) / center snap
+ *  onto a candidate alignment coordinate. Works for both whole-frame moves
+ *  (dir 'body': every edge + center translates 1:1) and resize handles
+ *  (only the handle's edges move). For a resize, the moving edge tracks the
+ *  cursor 1:1 EXCEPT a left/top edge that's "pinned" — i.e. the frame has no
+ *  anchor on that axis, so applyDrag resizes from the opposite side and the
+ *  edge doesn't actually follow the cursor. We skip snapping those so the
+ *  magnetism never fights the real geometry. The smallest-magnitude
+ *  adjustment within tolerance wins per axis; axes are independent.
  *  Pure function — exported for unit testing.
- *  @param {{x,y,w,h}} box   start box in canvas space
- *  @param {number} dx,dy    raw cursor delta in canvas space
+ *  @param {string} dir      handle id ('body','n','e','se',...)
+ *  @param {{x,y,w,h}} box    start box in canvas space
+ *  @param {number} dx,dy     raw cursor delta in canvas space
  *  @param {{xs:number[], ys:number[]}} targets candidate edge coords
- *  @param {number} tol      magnetism tolerance
+ *  @param {number} tol       magnetism tolerance
+ *  @param {{top,bottom,left,right}} [hasAnchor] which sides are anchored
  *  @returns {{dx:number, dy:number}}
  */
-export function magnetizeBodyMove(box, dx, dy, targets, tol) {
+export function magnetizeMove(dir, box, dx, dy, targets, tol, hasAnchor = null) {
+    const A = AFFECTS[dir];
+    if (!A) return { dx, dy };
     const pick = (edges, delta, vals) => {
         let best = null;
         for (const e of edges) {
@@ -46,8 +54,23 @@ export function magnetizeBodyMove(box, dx, dy, targets, tol) {
         }
         return best || 0;
     };
-    const xEdges = [box.x, box.x + box.w, box.x + box.w / 2];
-    const yEdges = [box.y, box.y + box.h, box.y + box.h / 2];
+    let xEdges, yEdges;
+    if (A.move) {
+        xEdges = [box.x, box.x + box.w, box.x + box.w / 2];
+        yEdges = [box.y, box.y + box.h, box.y + box.h / 2];
+    } else {
+        xEdges = [];
+        yEdges = [];
+        // A left/top edge only tracks the cursor if the frame is anchored on
+        // that axis (else it's pinned and the opposite side resizes). With no
+        // hasAnchor info, optimistically include it. Right/bottom always track.
+        const xAnchored = !hasAnchor || hasAnchor.left || hasAnchor.right;
+        const yAnchored = !hasAnchor || hasAnchor.top || hasAnchor.bottom;
+        if (A.left && xAnchored) xEdges.push(box.x);
+        if (A.right) xEdges.push(box.x + box.w);
+        if (A.top && yAnchored) yEdges.push(box.y);
+        if (A.bottom) yEdges.push(box.y + box.h);
+    }
     return {
         dx: dx + pick(xEdges, dx, targets && targets.xs),
         dy: dy + pick(yEdges, dy, targets && targets.ys),
@@ -133,9 +156,9 @@ export class SelectionOverlay {
         const z = this.zoomFn() || 1;
         const start = captureStart(source, node);
         // Capture static alignment targets once at drag start (sibling edges
-        // don't move while we drag). Only used for whole-frame body moves,
-        // where every edge translates 1:1 with the delta.
-        const snapTargets = dir === 'body' ? this.snapTargetsFn(node) : null;
+        // don't move while we drag). Used for body moves AND resize handles —
+        // magnetizeMove picks the right edges per handle direction.
+        const snapTargets = this.snapTargetsFn(node);
 
         this.onBeforeEdit(node);
 
@@ -149,7 +172,7 @@ export class SelectionOverlay {
             // truth for quantisation), so the two never fight.
             let mdx = dx, mdy = dy;
             if (!snap && snapTargets) {
-                const m = magnetizeBodyMove(start.startBox, dx, dy, snapTargets, GUIDE_TOL);
+                const m = magnetizeMove(dir, start.startBox, dx, dy, snapTargets, GUIDE_TOL, start.hasAnchor);
                 mdx = m.dx; mdy = m.dy;
             }
             applyDrag(source, dir, mdx, mdy, start, snap);

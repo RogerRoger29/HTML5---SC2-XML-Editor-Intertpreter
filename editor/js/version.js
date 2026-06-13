@@ -1,6 +1,15 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.5.9 - Resize-handle snapping (completes snap-to-guide):
+//   * Resize handles now magnetically snap to nearby sibling/parent edges
+//     too, not just whole-frame moves (0.5.6). magnetizeBodyMove became the
+//     general magnetizeMove(dir, ...): for a resize it snaps only the
+//     handle's moving edge(s), and skips a left/top edge that's "pinned"
+//     (frame has no anchor on that axis, so it resizes from the far side and
+//     the edge doesn't track the cursor). Active when grid snap is OFF.
+//   * Still pure delta-magnetization — applyDrag's offset math is untouched.
+//     15 cases in test_snap_magnet.mjs (body + every resize handle).
 // 0.5.8 - Round 6 audit (3rd pass; verified fixes):
 //   * merge: follow CHAINED template inheritance. A frame using template
 //     "X" where X itself has template="Y" now inherits Y's children +
@@ -137,4 +146,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.5.8';
+export const VERSION = '0.5.9';
