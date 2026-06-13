@@ -64,6 +64,10 @@ const els = {
     inspector: document.getElementById('inspector'),
     openDialog: document.getElementById('open-dialog'),
     openPath: document.getElementById('open-path'),
+    constantsDialog: document.getElementById('constants-dialog'),
+    constantsBody: document.getElementById('constants-dialog-body'),
+    constantsCount: document.getElementById('constants-dialog-count'),
+    constantsFilter: document.getElementById('constants-filter'),
 };
 
 const state = {
@@ -481,6 +485,7 @@ function wireEvents() {
     menubar.register('find',        () => findPalette.open());
     menubar.register('add-frame',   (data) => addNewFrame(data.type));
     menubar.register('fit',         () => fitZoom());
+    menubar.register('show-constants', () => openConstantsDialog());
     menubar.register('set-backdrop', () => els.backdropInput.click());
     menubar.register('welcome-tour', () => welcomeTour.open());
     menubar.register('export-triggers', () => openTriggersExportDialog());
@@ -828,7 +833,8 @@ function openFromText(text, fileName) {
     // Without this, frames inheriting from same-file templates render empty.
     const fileBase = fileName.replace(/\.[^.]+$/, '').split(/[\\\/]/).pop();
     const tmplCount = registry.addModTemplates(state.modDoc.root, fileBase);
-    console.info(`[open] ${fileName}: registered ${tmplCount} mod templates as "${fileBase}/*"`);
+    const constCount = registry.addModConstants(state.modDoc.root);
+    console.info(`[open] ${fileName}: registered ${tmplCount} mod templates as "${fileBase}/*", ${constCount} constants`);
     els.xmlText.value = text;
     els.btnApplyXml.disabled = false;
     runRoundTripCheck();
@@ -1406,6 +1412,62 @@ body { margin:0; background:#0a0c10; color:#d6d8dc; font:13px "Segoe UI", system
     setStatus(`Exported ${fname} (${sizeKb} KB) - self-contained, opens in any browser.`);
 }
 
+// Constants browser (View -> Constants). Read-only list of every <Constant>
+// visible to the layout - stock plus the open mod's own - with the raw value
+// and the #-resolved final value. A filter narrows by name or value.
+function openConstantsDialog() {
+    const dlg = els.constantsDialog;
+    if (!dlg) return;
+    // Union of stock + the open mod's constants. Mod wins on a name collision
+    // (matches resolveValue), so it's tagged "mod" and shows the mod value.
+    const allNames = new Set([...registry.constants.keys(), ...registry.modConstants.keys()]);
+    const rows = [];
+    for (const name of allNames) {
+        const isMod = registry.modConstants.has(name);
+        const value = isMod ? registry.modConstants.get(name) : registry.constants.get(name);
+        const resolved = registry.resolveValue('#' + name);
+        rows.push({
+            name,
+            value,
+            // Only meaningful when the value was itself a #-reference chain.
+            resolved: resolved !== value ? resolved : '',
+            source: isMod ? 'mod' : 'stock',
+        });
+    }
+    rows.sort((a, b) => a.name.localeCompare(b.name));
+
+    const render = (filter) => {
+        const f = (filter || '').toLowerCase().trim();
+        const shown = f
+            ? rows.filter(r => r.name.toLowerCase().includes(f) || String(r.value).toLowerCase().includes(f))
+            : rows;
+        els.constantsCount.textContent = rows.length
+            ? `(${shown.length}${f ? ' of ' + rows.length : ''})` : '';
+        if (!rows.length) {
+            els.constantsBody.innerHTML = '<p class="hint">No constants visible. Stock constants load with the stock UI (enable "Show stock UI" or open a layout); mod constants come from the open layout.</p>';
+            return;
+        }
+        const cells = shown.map(r => `
+            <tr>
+                <td><code>#${escapeHtml(r.name)}</code></td>
+                <td><code>${escapeHtml(String(r.value))}</code></td>
+                <td>${r.resolved ? `<code>${escapeHtml(String(r.resolved))}</code>` : '<span class="hint">—</span>'}</td>
+                <td><span class="const-src const-src-${r.source}">${r.source}</span></td>
+            </tr>`).join('');
+        els.constantsBody.innerHTML = `
+            <table class="constants-table">
+                <thead><tr><th>Name</th><th>Value</th><th>Resolved</th><th>Source</th></tr></thead>
+                <tbody>${cells || '<tr><td colspan="4" class="hint">No match.</td></tr>'}</tbody>
+            </table>`;
+    };
+    render('');
+    if (els.constantsFilter) {
+        els.constantsFilter.value = '';
+        els.constantsFilter.oninput = () => render(els.constantsFilter.value);
+    }
+    dlg.showModal();
+}
+
 function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -1720,10 +1782,11 @@ async function resetAssetDependentCaches({ rerenderAfter = true } = {}) {
     state.stockLoading = false;
     await loadStockLayouts().catch(() => {});
     await loadFontStyles().catch(() => {});
-    // Re-register the current mod's templates (they got cleared above).
+    // Re-register the current mod's templates + constants (cleared above).
     if (state.modDoc && state.currentFileName) {
         const fileBase = state.currentFileName.replace(/\.[^.]+$/, '').split(/[\\\/]/).pop();
         registry.addModTemplates(state.modDoc.root, fileBase);
+        registry.addModConstants(state.modDoc.root);
     }
     if (rerenderAfter) rerender({ keepSelection: true });
 }

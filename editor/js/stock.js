@@ -23,7 +23,8 @@ const LAYOUT_BASE = STOCK_ASSETS_BASE;
 
 export class StockRegistry {
     constructor() {
-        this.constants = new Map();
+        this.constants = new Map();        // stock <Constant> defs (persist across file opens)
+        this.modConstants = new Map();     // the OPEN mod doc's <Constant> defs (replaced per open)
         this.templatesByPath = new Map();  // "StandardTemplates/StandardButtonTemplate" -> el
         this.templatesByName = new Map();  // "StandardButtonTemplate" -> el (last write wins)
         this.framesByPath = new Map();     // "GameUI/UIContainer/.../HeroPanel" -> { el, sources: [] }
@@ -143,6 +144,32 @@ export class StockRegistry {
         return count;
     }
 
+    // Register the open mod doc's own <Constant> definitions into the mod
+    // table (separate from stock) so the layout engine resolves a mod's
+    // `#MyConst` references (Width/Height/offset/etc.) - previously these
+    // stayed unresolved and the frame got no size. Mod values override stock
+    // on a name collision. REPLACES any previously-registered mod constants,
+    // so opening a different file doesn't leave the prior file's constants
+    // resolvable. Returns the number registered.
+    addModConstants(docRoot) {
+        this.modConstants.clear();
+        if (!docRoot || !docRoot.children) return 0;
+        let count = 0;
+        const walk = (el) => {
+            for (const c of el.children || []) {
+                if (c.type !== 'element') continue;
+                if (c.tag === 'Constant') {
+                    const a = attrMap(c);
+                    if (a.name) { this.modConstants.set(a.name, a.val ?? ''); count++; }
+                } else {
+                    walk(c);   // constants may sit under a wrapper element
+                }
+            }
+        };
+        walk(docRoot);
+        return count;
+    }
+
     // Load the editor's hand-maintained stock-frame position table (data/stock-frames.json).
     // Each entry becomes a synthetic <Frame> element registered under framesByPath, so when
     // a mod targets that path we can pre-populate anchors/size that stock XML lacks.
@@ -166,13 +193,16 @@ export class StockRegistry {
         }
     }
 
-    // Resolve "#Foo" through the constants table.
+    // Resolve "#Foo" through the constants tables. The open mod's constants
+    // take precedence over stock on a name collision (the mod is the active
+    // document). The `seen` set guards against cyclic references.
     resolveValue(v) {
         if (typeof v !== 'string') return v;
         const seen = new Set();
         while (v.startsWith('#') && !seen.has(v)) {
             seen.add(v);
-            const next = this.constants.get(v.slice(1));
+            const key = v.slice(1);
+            const next = this.modConstants.has(key) ? this.modConstants.get(key) : this.constants.get(key);
             if (next == null) return v;
             v = next;
         }

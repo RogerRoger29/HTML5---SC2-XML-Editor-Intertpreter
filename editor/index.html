@@ -90,6 +90,7 @@
                     </label>
                     <hr>
                     <button type="button" data-action="fit">Fit canvas <span class="menu-kbd">F</span></button>
+                    <button type="button" data-action="show-constants" title="Browse all #Constant definitions and their resolved values">Constants&hellip;</button>
                 </div>
             </div>
         </nav>
@@ -210,6 +211,18 @@
             <div id="assets-dialog-body">
                 <p class="hint">Loading current config&hellip;</p>
             </div>
+            <menu>
+                <button value="close" type="submit">Close</button>
+            </menu>
+        </form>
+    </dialog>
+
+    <dialog id="constants-dialog">
+        <form method="dialog">
+            <h3>Constants <span id="constants-dialog-count"></span></h3>
+            <p class="hint">Every <code>&lt;Constant&gt;</code> visible to this layout — stock plus the open mod's own. "Resolved" follows <code>#</code>-references to a final value.</p>
+            <input id="constants-filter" type="text" placeholder="Filter by name or value&hellip;" autocomplete="off" style="width: 100%; margin-bottom: 8px;">
+            <div id="constants-dialog-body"></div>
             <menu>
                 <button value="close" type="submit">Close</button>
             </menu>

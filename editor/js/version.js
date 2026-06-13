@@ -1,6 +1,18 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.6.0 - Constants browser + mod-constant resolution:
+//   * New View -> Constants dialog: lists every <Constant> visible to the
+//     layout (stock + the open mod's own), with the raw value, the
+//     #-resolved final value, and a stock/mod source tag, plus a filter.
+//   * Latent-bug fix: a mod's own <Constant> definitions are now resolved
+//     by the layout engine. Previously only STOCK constants were in the
+//     table, so a mod frame using Width="#MyConst" (etc.) got no size.
+//     Mod constants live in a separate map (cleared per open, so opening
+//     a different file can't leave the previous file's constants
+//     resolvable) and override stock on a name collision.
+//   * Covered by test_constants.mjs (resolution, chaining, mod-wins,
+//     no-stale-leak, end-to-end materialization).
 // 0.5.9 - Resize-handle snapping (completes snap-to-guide):
 //   * Resize handles now magnetically snap to nearby sibling/parent edges
 //     too, not just whole-frame moves (0.5.6). magnetizeBodyMove became the
@@ -146,4 +158,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.5.9';
+export const VERSION = '0.6.0';

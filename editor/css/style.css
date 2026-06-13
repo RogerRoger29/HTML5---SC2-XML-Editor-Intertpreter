@@ -1049,6 +1049,16 @@ dialog code { color: var(--accent); }
 .assets-table td { padding: 4px 0; }
 .assets-table td em { color: var(--fg-dim); }
 .assets-table td .src { color: var(--fg-dim); font-style: italic; font-size: 11px; }
+/* Constants browser table. */
+.constants-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.constants-table th { text-align: left; padding: 4px 10px 4px 0; color: var(--fg-dim); font-weight: normal; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg-pane); }
+.constants-table td { padding: 3px 10px 3px 0; vertical-align: top; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.constants-table code { font-family: Consolas, monospace; }
+#constants-dialog-body { max-height: 50vh; overflow: auto; }
+.const-src { font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; }
+.const-src-mod { background: rgba(95,169,255,0.18); color: #9cc8ff; }
+.const-src-stock { background: rgba(255,180,80,0.14); color: #ffba73; }
+
 .assets-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 .dlg-progress { color: var(--accent); padding: 6px 8px; background: rgba(95,169,255,0.08); border-radius: 4px; font-family: Consolas, monospace; font-size: 12px; }
 
