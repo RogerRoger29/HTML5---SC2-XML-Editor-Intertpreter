@@ -1,6 +1,16 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.9.2 - Fifth commander-button hotkey mapping:
+//   * Commander rows now switch from CommanderAbility3 to the valid
+//     CommandButton04 command-card hotkey instead of leaving the fifth button
+//     without an explicit HotkeyUse.
+//   * Validation names the exact CommandButton replacement for invalid
+//     CommanderAbility4 through CommanderAbility14 values.
+//   * The validator checks every HotkeyUse against SC2's engine-defined list
+//     and catches empty values, mismatched command slots, and duplicate sibling
+//     hotkeys before a layout is handed to the game.
+//
 // 0.9.1 - Fifth commander-button hotkey safety:
 //   * Add Matching Button no longer emits the invalid CommanderAbility4 enum.
 //     Fifth and later commander buttons inherit their normal CButton hotkey.
@@ -265,4 +275,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.9.1';
+export const VERSION = '0.9.2';

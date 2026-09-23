@@ -5,7 +5,7 @@ You're working on the **SC2 UI Editor**, a visual authoring tool for SC2
 are several non-obvious invariants and a couple of bugs we already burned
 hours on that you don't want to re-introduce.
 
-Current version: **0.9.1** (frontend source: `editor/js/version.js`; backend mirror: `version.py`).
+Current version: **0.9.2** (frontend source: `editor/js/version.js`; backend mirror: `version.py`).
 
 For user-facing docs, see [README.md](README.md). For deferred features and
 open threads, see [SESSION_STATE.md](SESSION_STATE.md).

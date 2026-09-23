@@ -100,12 +100,34 @@ const hasConstError = (results) =>
     const invalid = parseXml(`<?xml version="1.0"?><Desc><Frame type="CommandButton" name="Fifth"><HotkeyUse val="CommanderAbility4"/></Frame></Desc>`);
     const invalidOut = validate(invalid, null);
     check('CommanderAbility4 is rejected',
-        invalidOut.some(w => w.severity === 'error' && /only defines CommanderAbility0/.test(w.message)));
+        invalidOut.some(w => w.severity === 'error' && /Use CommandButton04/.test(w.message)));
 
     const valid = parseXml(`<?xml version="1.0"?><Desc><Frame type="CommandButton" name="Fourth"><HotkeyUse val="CommanderAbility3"/></Frame></Desc>`);
     const validOut = validate(valid, null);
     check('CommanderAbility3 remains valid',
         !validOut.some(w => /only defines CommanderAbility0/.test(w.message)));
+}
+
+// 9. General HotkeyUse validation catches parser-breaking IDs, empty values,
+// slot mismatches, and accidental duplicates while accepting known IDs.
+{
+    const doc = parseXml(`<?xml version="1.0"?><Desc>
+        <Frame type="Frame" name="Panel">
+            <Frame type="CommandButton" name="CommandButton04"><HotkeyUse val="CommandButton05"/></Frame>
+            <Frame type="CommandButton" name="Other"><HotkeyUse val="CommandButton05"/></Frame>
+            <Frame type="CommandButton" name="Broken"><HotkeyUse val="MadeUpHotkey"/></Frame>
+            <Frame type="CommandButton" name="Empty"><HotkeyUse/></Frame>
+        </Frame>
+    </Desc>`);
+    const out = validate(doc, null);
+    check('unknown HotkeyUse is rejected',
+        out.some(w => w.severity === 'error' && /MadeUpHotkey.*not a recognized/.test(w.message)));
+    check('empty HotkeyUse is rejected',
+        out.some(w => w.severity === 'error' && /has no value/.test(w.message)));
+    check('command-card slot mismatch is warned',
+        out.some(w => w.severity === 'warning' && /belongs to command-card slot 6/.test(w.message)));
+    check('duplicate sibling hotkeys are warned',
+        out.some(w => w.severity === 'warning' && /both use HotkeyUse/.test(w.message)));
 }
 
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURE(S)`);

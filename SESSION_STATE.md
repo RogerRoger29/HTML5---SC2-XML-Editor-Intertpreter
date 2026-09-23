@@ -1,6 +1,6 @@
 # SESSION_STATE.md
 
-Snapshot of where the SC2 UI Editor stands as of **v0.9.1**, what's
+Snapshot of where the SC2 UI Editor stands as of **v0.9.2**, what's
 deferred, what's a known rough edge, and what to do next.
 
 Read [AGENTS.md](AGENTS.md) for architecture / invariants first; this
@@ -10,7 +10,7 @@ file is the "what we haven't done yet + why" companion.
 
 ## Release status
 
-- **Version:** 0.9.1 - see `editor/js/version.js` for full per-milestone
+- **Version:** 0.9.2 - see `editor/js/version.js` for full per-milestone
   changelog comments.
 - **Distribution:** unsigned single-file `.exe` (13.2 MB) built via
   `python build.py`. Lives at `sc2-ui-editor/dist/SC2UIEditor.exe`.

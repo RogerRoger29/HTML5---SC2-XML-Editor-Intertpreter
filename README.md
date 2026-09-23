@@ -91,8 +91,8 @@ selection; and grow a container around its direct children.
 **Copy an existing button pattern** copies the actual last matching button,
 continues the detected spacing, chooses the next numbered name, and advances a
 supported numbered `HotkeyUse` values. SC2 only defines `CommanderAbility0`
-through `CommanderAbility3`, so later commander buttons use their normal
-Data-module button hotkey. Recognized commander layouts can also extend their
+through `CommanderAbility3`, so later commander buttons switch to the matching
+`CommandButton04` through `CommandButton14` slot hotkey. Recognized commander layouts can also extend their
 artwork safely. The Mengsk preset reuses the flat right-hand texture section
 and end cap instead of stretching the central crest.
 

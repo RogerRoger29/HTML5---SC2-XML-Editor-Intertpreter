@@ -13,6 +13,7 @@
 // Pure function, no DOM. Run on every rerender; cheap for typical layouts.
 
 import { attrMap, attrVal, findChild as findElementChild } from './xml/helpers.js';
+import { VALID_HOTKEY_USES } from './hotkeys.js';
 
 const FRAME_TAGS = /^(Frame|Panel|Image|Label|Button|Bar|Box|Tooltip|HeroPanel|HeroFrame|CommandPanel|MinimapPanel|ResourcePanel|CheckBox|EditBox|ListBox|ProgressBar|StatusBar|ScrollBar|Slider|TextureSelectFrame|InfoPanel)$/;
 
@@ -220,18 +221,31 @@ function checkFrame(el, ancestors, out, registry) {
     // SC2 defines exactly four special commander top-bar hotkey slots. A
     // fifth command-card button is valid, but CommanderAbility4 is not an
     // accepted HotkeyUse enumeration and causes the layout loader to reject
-    // the element. Let the fifth button inherit its CButton hotkey instead.
+    // the element. CommandButton04 is the built-in fifth-slot alternative.
     const hotkeyUse = findElementChild(el, 'HotkeyUse');
     if (hotkeyUse) {
         const value = attrVal(hotkeyUse, 'val') || '';
         const commanderHotkey = value.match(/^CommanderAbility(\d+)$/);
-        if (commanderHotkey && Number(commanderHotkey[1]) > 3) {
-            add('error', `<HotkeyUse val="${value}"/> is invalid. SC2 only defines CommanderAbility0 through CommanderAbility3. Remove this element and set the added ability's normal button hotkey in the Data module.`);
+        if (!value) {
+            add('error', '<HotkeyUse> has no value. Remove the empty element or choose a valid SC2 hotkey ID.');
+        } else if (commanderHotkey && Number(commanderHotkey[1]) > 3) {
+            const slot = Number(commanderHotkey[1]);
+            const replacement = slot <= 14 ? ` Use CommandButton${String(slot).padStart(2, '0')} for that command-card slot.` : '';
+            add('error', `<HotkeyUse val="${value}"/> is invalid. SC2 only defines CommanderAbility0 through CommanderAbility3.${replacement}`);
+        } else if (!VALID_HOTKEY_USES.has(value)) {
+            add('error', `<HotkeyUse val="${value}"/> is not a recognized SC2 hotkey ID. Unknown values can stop the layout from loading.`);
+        }
+
+        const frameSlot = name.match(/^CommandButton(\d{2})$/);
+        const hotkeySlot = value.match(/^CommandButton(?:Alt|Self)?(\d{2})$/);
+        if (frameSlot && hotkeySlot && frameSlot[1] !== hotkeySlot[1]) {
+            add('warning', `${name} uses ${value}, which belongs to command-card slot ${Number(hotkeySlot[1]) + 1}. Use the matching slot unless this mismatch is intentional.`);
         }
     }
 
     // 6. Duplicate sibling frame names (within this frame).
     const childNames = new Map();
+    const childHotkeys = new Map();
     for (const c of el.children || []) {
         if (c.type !== 'element') continue;
         if (c.tag !== 'Frame' && !FRAME_TAGS.test(c.tag)) continue;
@@ -241,6 +255,16 @@ function checkFrame(el, ancestors, out, registry) {
             add('error', `Duplicate child name "${cn}" inside ${framePath}. SC2 expects sibling frames to be uniquely named.`);
         }
         childNames.set(cn, c);
+
+        const childHotkey = findElementChild(c, 'HotkeyUse');
+        const hotkeyValue = childHotkey ? attrVal(childHotkey, 'val') : '';
+        if (hotkeyValue) {
+            if (childHotkeys.has(hotkeyValue)) {
+                add('warning', `Child buttons "${childHotkeys.get(hotkeyValue)}" and "${cn}" both use HotkeyUse "${hotkeyValue}". Pressing that key may activate the wrong control.`);
+            } else {
+                childHotkeys.set(hotkeyValue, cn);
+            }
+        }
     }
 }
 

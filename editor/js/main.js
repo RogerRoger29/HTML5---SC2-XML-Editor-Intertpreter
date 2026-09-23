@@ -2045,7 +2045,8 @@ function addMatchingButtonFromUi() {
             `Continued the detected ${result.step}px spacing.`,
         ];
         if (result.hotkey) pieces.push(`Set HotkeyUse to ${result.hotkey}.`);
-        if (result.hotkeyOmitted) pieces.push('Left out HotkeyUse because SC2 only defines CommanderAbility0 through CommanderAbility3. The new ability uses its normal Data-module button hotkey.');
+        if (result.hotkeyFallback) pieces.push('SC2 only defines four CommanderAbility hotkeys, so this uses the valid command-card slot hotkey instead.');
+        if (result.hotkeyOmitted) pieces.push('Left out HotkeyUse because the new button is beyond SC2\'s 15 command-card hotkey slots.');
         if (artResult.applied) pieces.push(`Extended the Mengsk artwork for ${artResult.extraCount} extra button${artResult.extraCount === 1 ? '' : 's'}.`);
         pieces.push('The entire operation is available as one Undo step.');
         if (els.guidedResult) {

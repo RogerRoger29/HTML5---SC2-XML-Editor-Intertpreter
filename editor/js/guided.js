@@ -121,6 +121,7 @@ export function addMatchingButton(selected) {
         parentSource,
         hotkey: hotkeyResult.value,
         hotkeyOmitted: hotkeyResult.omitted,
+        hotkeyFallback: hotkeyResult.fallback,
         reusedExisting,
         newPath: plan.parent.path ? `${plan.parent.path}/${plan.name}` : plan.name,
     };
@@ -350,19 +351,24 @@ function nudgeSource(source, dx, dy) {
 
 function updateSequentialHotkey(el, newName) {
     const hotkey = findChild(el, 'HotkeyUse');
-    if (!hotkey) return { value: null, omitted: false };
+    if (!hotkey) return { value: null, omitted: false, fallback: false };
     const current = attrVal(hotkey, 'val') || '';
     const currentMatch = current.match(/^(.*?)(\d+)$/);
     const nameMatch = String(newName).match(/(\d+)$/);
-    if (!currentMatch || !nameMatch) return { value: current || null, omitted: false };
+    if (!currentMatch || !nameMatch) return { value: current || null, omitted: false, fallback: false };
     const nextIndex = Number(nameMatch[1]);
     if (currentMatch[1] === 'CommanderAbility' && nextIndex > 3) {
+        if (nextIndex <= 14) {
+            const fallback = `CommandButton${String(nextIndex).padStart(2, '0')}`;
+            setAttr(hotkey, 'val', fallback);
+            return { value: fallback, omitted: false, fallback: true };
+        }
         removeChildAndWhitespace(el, hotkey);
-        return { value: null, omitted: true };
+        return { value: null, omitted: true, fallback: false };
     }
     const next = currentMatch[1] + String(nextIndex);
     setAttr(hotkey, 'val', next);
-    return { value: next, omitted: false };
+    return { value: next, omitted: false, fallback: false };
 }
 
 function setChildValue(parent, tag, value) {
