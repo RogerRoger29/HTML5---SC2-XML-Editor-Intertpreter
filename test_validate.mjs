@@ -55,5 +55,24 @@ const hasConstError = (results) =>
     check('numeric value: no const error', !hasConstError(out));
 }
 
+// 6. A copied layout whose filename no longer matches its self-template
+// namespace gets a document-level warning.
+{
+    const doc = parseXml(`<?xml version="1.0"?>
+<Desc>
+    <Frame type="Button" name="ButtonTemplate"/>
+    <Frame type="Frame" name="Screen">
+        <Frame type="Button" name="UseIt" template="OriginalUI/ButtonTemplate"/>
+    </Frame>
+</Desc>
+`);
+    const out = validate(doc, regWith({}), { fileName: 'Renamed.SC2Layout' });
+    check('renamed self-template namespace is warned',
+        out.some(w => w.severity === 'warning' && /OriginalUI\.SC2Layout/.test(w.message)));
+    const matching = validate(doc, regWith({}), { fileName: 'OriginalUI.SC2Layout' });
+    check('matching self-template namespace is accepted',
+        !matching.some(w => /namespaces templates/.test(w.message)));
+}
+
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

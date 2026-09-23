@@ -1067,6 +1067,70 @@ dialog code { color: var(--accent); }
 .const-src-mod { background: rgba(95,169,255,0.18); color: #9cc8ff; }
 .const-src-stock { background: rgba(255,180,80,0.14); color: #ffba73; }
 
+/* Privacy-aware support report exporter. */
+#diagnostics-dialog[open] { min-width: 560px; max-width: 720px; }
+#diagnostics-dialog form { display: flex; flex-direction: column; gap: 10px; }
+#diagnostics-dialog h3 { margin: 0; }
+#diagnostics-dialog .hint { color: var(--fg-dim); font-size: 12px; margin: 0; }
+#diagnostics-description {
+    box-sizing: border-box;
+    width: 100%;
+    resize: vertical;
+    background: #14161a;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 7px;
+    font: inherit;
+}
+.diagnostics-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+}
+.diagnostics-checkbox input { margin-top: 3px; }
+.diagnostics-checkbox span { display: flex; flex-direction: column; gap: 3px; }
+.diagnostics-checkbox small, .diagnostics-privacy { color: var(--fg-dim); line-height: 1.4; }
+.diagnostics-privacy { margin: 0; font-size: 11px; }
+
+/* Guided authoring and in-game setup help. Keep [open] on flex layouts so
+   unopened native dialogs retain display:none. */
+#quick-button-dialog[open] { min-width: 520px; max-width: 680px; }
+#quick-button-dialog form { display: flex; flex-direction: column; gap: 10px; }
+#quick-button-dialog h3, #game-setup-dialog h3 { margin: 0; }
+#quick-button-dialog .hint, #game-setup-dialog .hint {
+    color: var(--fg-dim);
+    font-size: 12px;
+    line-height: 1.45;
+    margin: 0;
+}
+#quick-button-dialog label { display: flex; flex-direction: column; gap: 4px; }
+#quick-button-dialog label small { color: var(--fg-dim); font-size: 11px; }
+#quick-button-dialog input[type="number"] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    padding: 5px 7px;
+}
+.quick-target {
+    background: rgba(95,169,255,0.08);
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    overflow-wrap: anywhere;
+}
+.quick-button-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 12px;
+}
+#game-setup-dialog[open] { min-width: 520px; max-width: 720px; }
+.game-setup-steps { padding-left: 24px; line-height: 1.45; }
+.game-setup-steps li { margin: 10px 0; }
+
 .assets-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 .dlg-progress { color: var(--accent); padding: 6px 8px; background: rgba(95,169,255,0.08); border-radius: 4px; font-family: Consolas, monospace; font-size: 12px; }
 

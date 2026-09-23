@@ -24,10 +24,17 @@ import { validate } from './validate.js';
 import { applyStateActions } from './state-groups.js';
 import { VERSION } from './version.js';
 import { STOCK_ASSETS_BASE } from './constants.js';
+import { DiagnosticRecorder, buildDiagnosticReport, pathHint } from './diagnostics.js';
+import { appendFrameAtSelection, oneIndentDeeper } from './authoring.js';
 import {
     inferChildIndent, textNode, makeElement as elementNode,
     appendChildPreservingIndent, removeChildAndWhitespace,
 } from './xml/mutate.js';
+
+// Capture a bounded, redacted copy of console activity from the beginning of
+// app startup. Original console output continues unchanged for F12 debugging.
+const diagnosticRecorder = new DiagnosticRecorder();
+diagnosticRecorder.installConsoleCapture();
 
 const els = {
     menuBar: document.getElementById('menu-bar'),
@@ -68,6 +75,19 @@ const els = {
     constantsBody: document.getElementById('constants-dialog-body'),
     constantsCount: document.getElementById('constants-dialog-count'),
     constantsFilter: document.getElementById('constants-filter'),
+    diagnosticsDialog: document.getElementById('diagnostics-dialog'),
+    diagnosticsDescription: document.getElementById('diagnostics-description'),
+    diagnosticsIncludeLayout: document.getElementById('diagnostics-include-layout'),
+    diagnosticsIncludeLogs: document.getElementById('diagnostics-include-logs'),
+    quickButtonDialog: document.getElementById('quick-button-dialog'),
+    quickButtonTarget: document.getElementById('quick-button-target'),
+    quickButtonName: document.getElementById('quick-button-name'),
+    quickButtonText: document.getElementById('quick-button-text'),
+    quickButtonWidth: document.getElementById('quick-button-width'),
+    quickButtonHeight: document.getElementById('quick-button-height'),
+    quickButtonTop: document.getElementById('quick-button-top'),
+    quickButtonLeft: document.getElementById('quick-button-left'),
+    gameSetupDialog: document.getElementById('game-setup-dialog'),
 };
 
 const state = {
@@ -79,6 +99,8 @@ const state = {
     selected: null,
     pristineSource: '',
     stockLoaded: false,
+    fileHandle: null,
+    activeStates: new Map(),
 };
 
 const registry = new StockRegistry();
@@ -185,7 +207,11 @@ const inspector = new Inspector(els.inspector, {
         // positions-only fast path the drag editing uses so the canvas
         // tracks every step without flicker. live=false on commit (blur /
         // Enter / change) does the full rerender + side pane refresh.
-        if (!frame) { selectFrame(null, false); return; }
+        if (!frame) {
+            selectFrame(null, false);
+            rerender();
+            return;
+        }
         if (live) rerender({ keepSelection: true, positionsOnly: true });
         else rerender({ keepSelection: true });
     },
@@ -319,15 +345,9 @@ const undoStack = new UndoStack();
 // the same spot cycle through frames stacked at that point.
 state.lastClick = null;
 
-// FileSystemFileHandle from showOpenFilePicker (when the browser supports
-// the File System Access API). Lets us write the open file back in place
-// without prompting on every save.
-state.fileHandle = null;
-
-// Active state-group selections for preview. Keyed by
-// `${framePath}#${groupName}` -> state name. Shared between the inspector
-// and the renderer so picking a state in the inspector reflects on canvas.
-state.activeStates = new Map();
+// fileHandle and activeStates are initialized in the state object before the
+// Inspector is constructed. The Inspector and renderer must hold the SAME
+// activeStates Map or state-preview dropdown changes never reach the canvas.
 
 // Debug global so issues can be probed from F12 console:
 //   sc2.frames           - current resolved frame tree
@@ -340,6 +360,12 @@ window.sc2 = {
     textures,
     registry,
     fontstyles,
+    diagnosticRecorder,
+    getDiagnostics: (options = {}) => createDiagnosticReport({
+        includeLayoutSource: options.includeLayoutSource !== false,
+        includeLogs: options.includeLogs !== false,
+        description: options.description || '',
+    }),
     async testTexture(ref) {
         console.log('candidate URLs:', textures.candidateUrls(ref));
         const c = await textures.load(ref);
@@ -390,6 +416,7 @@ async function init() {
         setStatus,
         refresh: () => resetAssetDependentCaches(),
         onConfigChanged: (cfg) => { state.config = cfg; },
+        sessionToken: state.config.session_token,
     });
     if (!state.config.assets_present) {
         assetsUi.renderBanner(state.config);
@@ -413,8 +440,9 @@ async function init() {
     }).catch(err => console.warn('[textures] Assets.txt load failed:', err));
 }
 
-async function loadFontStyles() {
+async function loadFontStyles({ reset = false } = {}) {
     try {
+        if (reset) fontstyles.reset();
         const text = await fetch(STOCK_ASSETS_BASE + 'UI/fontstyles.sc2style')
             .then(r => r.ok ? r.text() : null);
         if (!text) return;
@@ -431,6 +459,8 @@ async function loadFontStyles() {
 }
 
 function newDynamicStylesheet() {
+    const previous = document.getElementById('sc2-dynamic-styles');
+    if (previous) previous.remove();
     const styleEl = document.createElement('style');
     styleEl.id = 'sc2-dynamic-styles';
     document.head.appendChild(styleEl);
@@ -458,13 +488,21 @@ function wireEvents() {
     els.fileInput.addEventListener('change', async (ev) => {
         const file = ev.target.files && ev.target.files[0];
         if (!file) return;
-        const text = await file.text();
-        // Native picker doesn't give us a writable handle, so save-back
-        // will go through Save-As (download) until the user re-opens via
-        // showOpenFilePicker.
-        state.fileHandle = null;
-        openFromText(text, file.name);
-        ev.target.value = '';
+        try {
+            const text = await file.text();
+            // Native picker doesn't give us a writable handle, so save-back
+            // will go through Save-As (download). Clear every prior file
+            // context so textures and Ctrl+S cannot target the old document.
+            openFromText(text, file.name, {
+                fileHandle: null,
+                currentPath: null,
+                modRoot: null,
+            });
+        } catch (err) {
+            setStatus(`Failed to open ${file.name}: ${err.message}`);
+        } finally {
+            ev.target.value = '';
+        }
     });
 
     els.openDialog.addEventListener('close', () => {
@@ -485,11 +523,14 @@ function wireEvents() {
     menubar.register('redo',        () => doRedo());
     menubar.register('deselect',    () => selectFrame(null, false));
     menubar.register('find',        () => findPalette.open());
+    menubar.register('quick-button', () => openQuickButtonDialog());
     menubar.register('add-frame',   (data) => addNewFrame(data.type));
     menubar.register('fit',         () => fitZoom());
     menubar.register('show-constants', () => openConstantsDialog());
     menubar.register('set-backdrop', () => els.backdropInput.click());
     menubar.register('welcome-tour', () => welcomeTour.open());
+    menubar.register('game-setup-help', () => els.gameSetupDialog?.showModal());
+    menubar.register('export-diagnostics', () => openDiagnosticsDialog());
     menubar.register('export-triggers', () => openTriggersExportDialog());
     menubar.register('about', () => {
         alert(`SC2 UI Editor v${VERSION}\n\n`
@@ -504,6 +545,12 @@ function wireEvents() {
         // Defer one frame so the menu / panes are positioned before we
         // try to spotlight them.
         requestAnimationFrame(() => welcomeTour.open());
+    }
+
+    if (els.quickButtonDialog) {
+        els.quickButtonDialog.addEventListener('close', () => {
+            if (els.quickButtonDialog.returnValue === 'insert') addGuidedButton();
+        });
     }
 
     // Drag-drop on canvas.
@@ -526,8 +573,17 @@ function wireEvents() {
         drop.classList.remove('drag-over');
         const f = ev.dataTransfer.files && ev.dataTransfer.files[0];
         if (!f) return;
-        const text = await f.text();
-        openFromText(text, f.name);
+        if (!confirmDiscardChanges()) return;
+        try {
+            const text = await f.text();
+            openFromText(text, f.name, {
+                fileHandle: null,
+                currentPath: null,
+                modRoot: null,
+            });
+        } catch (err) {
+            setStatus(`Failed to open ${f.name}: ${err.message}`);
+        }
     });
 
     // Toggles. Stock layouts are loaded in the background regardless; this
@@ -633,12 +689,16 @@ function wireEvents() {
 
     els.btnApplyXml.addEventListener('click', () => {
         try {
-            openFromText(els.xmlText.value, state.currentFileName || 'layout.SC2Layout');
+            applyXmlEditorText();
             setXmlStatus('Applied.');
         } catch (err) {
             setXmlStatus('Parse error: ' + err.message);
         }
     });
+    // Text typed into the XML pane has not reached modDoc until Apply, but it
+    // is still user work. Mark it dirty immediately so closing or opening a
+    // different layout cannot discard it without a warning.
+    els.xmlText.addEventListener('input', () => updateDirtyIndicator(true));
     // "Assets..." button - always-available access to SC2 install, stock data,
     // and texture extraction. Replaces the assets banner once it's dismissed.
     els.btnAssets.addEventListener('click', () => assetsUi && assetsUi.openDialog());
@@ -756,6 +816,20 @@ function wireEvents() {
             rerender();
         }
     });
+    window.addEventListener('beforeunload', (ev) => {
+        if (!isDocumentDirty()) return;
+        ev.preventDefault();
+        ev.returnValue = '';
+    });
+    if (els.diagnosticsDialog) {
+        els.diagnosticsDialog.addEventListener('close', () => {
+            if (els.diagnosticsDialog.returnValue !== 'export') return;
+            exportDiagnostics().catch((err) => {
+                console.error('[diagnostics] export failed:', err);
+                setStatus('Could not export diagnostics: ' + err.message);
+            });
+        });
+    }
 }
 
 function hasFiles(ev) {
@@ -792,38 +866,54 @@ async function loadStockLayouts() {
 
 async function openByUrl(path) {
     if (!path) return;
+    if (!confirmDiscardChanges()) return;
     setStatus('Opening ' + path);
     try {
         const text = await fetch(path).then(r => {
             if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
             return r.text();
         });
-        state.currentPath = path;
         // Find the containing .SC2Mod folder (or .SC2Map) so the renderer
         // can resolve custom textures from that mod's Base.SC2Assets first.
         // e.g. /project/Shepherd/ShepardMod.SC2Mod/Base.SC2Data/UI/Layout/foo.SC2Layout
         //   -> /project/Shepherd/ShepardMod.SC2Mod
         const modRootMatch = path.match(/^(.*?\.SC2(Mod|Map))\//i);
-        textures.setModRoot(modRootMatch ? modRootMatch[1] : null);
-        openFromText(text, path.split('/').pop());
+        openFromText(text, path.split('/').pop(), {
+            fileHandle: null,
+            currentPath: path,
+            modRoot: modRootMatch ? modRootMatch[1] : null,
+        });
         setStatus('Opened ' + path);
     } catch (err) {
         setStatus('Failed to open: ' + err.message);
     }
 }
 
-function openFromText(text, fileName) {
+function openFromText(text, fileName, context = {}) {
+    // Parse before mutating ANY editor state. A malformed replacement must
+    // leave the current document, writable handle, paths, and registries intact.
+    const parsed = parseXml(text);
     state.pristineSource = text;
-    state.modDoc = parseXml(text);
+    state.modDoc = parsed;
+    if (Object.prototype.hasOwnProperty.call(context, 'fileHandle')) {
+        state.fileHandle = context.fileHandle;
+    }
+    if (Object.prototype.hasOwnProperty.call(context, 'currentPath')) {
+        state.currentPath = context.currentPath;
+    }
+    if (Object.prototype.hasOwnProperty.call(context, 'modRoot')) {
+        textures.setModRoot(context.modRoot);
+    }
     // Tag every element with a _parent reference so the inspector's "Delete
     // frame" / "Duplicate" actions can walk to the containing element in O(1).
-    setParentRefs(state.modDoc);
+    const { fileBase, tmplCount, constCount } = rehydrateCurrentDocument(fileName);
     // Drop the previous document's undo/redo history. Without this, Ctrl+Z
     // after opening a new file would re-install a snapshot from the OLD file,
     // silently swapping the open document (cross-document undo). Covers every
     // entry point: Open, New, drag-drop, Apply-XML.
     undoStack.clear();
     state.currentFileName = fileName;
+    state.activeStates.clear();
     // Enable menu items that need an open doc.
     if (menubar) {
         menubar.setEnabled('save', true);
@@ -833,9 +923,6 @@ function openFromText(text, fileName) {
     // Register this file's bare-named top-level frames as templates so other
     // frames can resolve template="FileBase/Name" or template="Name".
     // Without this, frames inheriting from same-file templates render empty.
-    const fileBase = fileName.replace(/\.[^.]+$/, '').split(/[\\\/]/).pop();
-    const tmplCount = registry.addModTemplates(state.modDoc.root, fileBase);
-    const constCount = registry.addModConstants(state.modDoc.root);
     console.info(`[open] ${fileName}: registered ${tmplCount} mod templates as "${fileBase}/*", ${constCount} constants`);
     els.xmlText.value = text;
     els.btnApplyXml.disabled = false;
@@ -849,6 +936,54 @@ function openFromText(text, fileName) {
     // silently skips files already on disk so the first open after a clean
     // install pulls textures while the canvas already renders box outlines.
     maybeAutoExtractTextures();
+}
+
+// Commit the XML pane as an edit of the current document. This deliberately
+// differs from openFromText(): Apply must preserve the writable file handle,
+// original pristine source, path/mod-root context, and existing undo history.
+// Treating Apply as a new document used to make the edited text appear saved
+// and made Ctrl+Z unable to recover the prior document state.
+function applyXmlEditorText() {
+    const text = els.xmlText.value;
+    const parsed = parseXml(text); // Parse first so a syntax error changes nothing.
+    snapshotForUndo();
+    state.modDoc = parsed;
+    rehydrateCurrentDocument();
+    state.activeStates.clear();
+    rerender({ keepSelection: true });
+    maybeAutoExtractTextures();
+}
+
+// Save always includes the text currently visible in the XML pane. If it has
+// not been applied yet, commit it first; invalid XML blocks the save instead
+// of silently writing the older canvas model.
+function applyPendingXmlBeforeSave() {
+    if (!state.modDoc) return false;
+    const serialized = serializeXml(state.modDoc);
+    if (els.xmlText.value === serialized) return true;
+    try {
+        applyXmlEditorText();
+        return true;
+    } catch (err) {
+        setXmlStatus('Parse error: ' + err.message);
+        setStatus('Save blocked: fix or revert the invalid XML in the XML pane.');
+        return false;
+    }
+}
+
+// Restore all non-serialized links and registry overlays for the current
+// parsed document. Undo/redo and ordinary opens both go through these helpers.
+function rehydrateCurrentDocument(fileName = state.currentFileName) {
+    setParentRefs(state.modDoc);
+    return registerCurrentDocument(fileName);
+}
+
+function registerCurrentDocument(fileName = state.currentFileName) {
+    const safeName = fileName || 'layout.SC2Layout';
+    const fileBase = safeName.replace(/\.[^.]+$/, '').split(/[\\\/]/).pop();
+    const tmplCount = registry.addModTemplates(state.modDoc && state.modDoc.root, fileBase);
+    const constCount = registry.addModConstants(state.modDoc && state.modDoc.root);
+    return { fileBase, tmplCount, constCount };
 }
 
 // Scan the currently-open mod doc for every asset reference (textures, the
@@ -877,7 +1012,10 @@ async function maybeAutoExtractTextures() {
         };
         const resp = await fetch('/__cascextract', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-SC2UI-Token': state.config.session_token || '',
+            },
             body: JSON.stringify(body),
         });
         if (!resp.ok) {
@@ -999,7 +1137,7 @@ function rerender(opts = {}) {
         // flickers back to its base appearance during a drag/spin and only
         // settles on commit, since the fast path rebuilds the tree fresh.
         applyStateActions(state.frames, state.activeStates);
-        layoutFrames(state.frames, W, H);
+        state.layoutDiagnostics = layoutFrames(state.frames, W, H);
         renderer.updatePositions(state.frames);
         if (opts.keepSelection && state.selected) {
             const found = findFrameByPath(state.frames, state.selected.path);
@@ -1024,7 +1162,7 @@ function rerender(opts = {}) {
     const viewMode = els.viewMode ? els.viewMode.value : 'game';
     state.frames = filterByViewMode(allFrames, viewMode);
     updateEmptyHint(state.frames);
-    layoutFrames(state.frames, W, H);
+    state.layoutDiagnostics = layoutFrames(state.frames, W, H);
     // Apply user-selected state overrides (Hover / Pressed / Checked / etc.)
     // BEFORE the renderer paints, so state-driven visibility + color show.
     applyStateActions(state.frames, state.activeStates);
@@ -1059,6 +1197,7 @@ function rerender(opts = {}) {
     if (!opts.skipPaneUpdates) {
         els.xmlText.value = serializeXml(state.modDoc);
         runRoundTripCheck();
+        updateDirtyIndicator();
         refreshWarnings();
     }
 }
@@ -1068,7 +1207,9 @@ function rerender(opts = {}) {
 let cachedWarnings = [];
 
 function refreshWarnings() {
-    cachedWarnings = state.modDoc ? validate(state.modDoc, registry) : [];
+    cachedWarnings = state.modDoc
+        ? validate(state.modDoc, registry, { fileName: state.currentFileName })
+        : [];
     const counts = countBySeverity(cachedWarnings);
     if (!els.btnWarnings) return;
     // Only show the button when there's something actionable to surface.
@@ -1229,7 +1370,7 @@ function doUndo() {
     // Re-parse the snapshot rather than mutating in place so all references
     // (sources, props arrays) are rebuilt cleanly.
     state.modDoc = parseXml(prev);
-    state.pristineSource = prev;
+    rehydrateCurrentDocument();
     els.xmlText.value = prev;
     rerender({ keepSelection: true });
     setStatus(`Undo. ${undoStack.undo.length} more available.`);
@@ -1239,7 +1380,7 @@ function doRedo() {
     const next = undoStack.popForRedo(state.modDoc);
     if (next == null) { setStatus('Nothing to redo.'); return; }
     state.modDoc = parseXml(next);
-    state.pristineSource = next;
+    rehydrateCurrentDocument();
     els.xmlText.value = next;
     rerender({ keepSelection: true });
     setStatus(`Redo. ${undoStack.redo.length} more available.`);
@@ -1313,6 +1454,7 @@ function handleEdit(node, live) {
         if (state.selected) inspector.show(state.selected);
         els.xmlText.value = serializeXml(state.modDoc);
         runRoundTripCheck();
+        updateDirtyIndicator();
     }
 }
 
@@ -1399,7 +1541,7 @@ body { margin:0; background:#0a0c10; color:#d6d8dc; font:13px "Segoe UI", system
 </head>
 <body>
 <div class="preview-wrapper">${stageClone.outerHTML.replace(/id="canvas-stage"/, 'class="sc2-stage"')}</div>
-<p class="preview-meta">Exported from <code>SC2 UI Editor v${state.config && state.config.version || '0.3'}</code> &middot; source: <code>${escapeHtml(state.currentFileName || '(unknown)')}</code></p>
+<p class="preview-meta">Exported from <code>SC2 UI Editor v${escapeHtml(VERSION)}</code> &middot; source: <code>${escapeHtml(state.currentFileName || '(unknown)')}</code></p>
 </body>
 </html>`;
 
@@ -1482,18 +1624,16 @@ function escapeHtml(s) {
 // emit it as a properly-formatted skeleton so a serializer round-trip stays
 // idempotent.
 function createNewLayout() {
+    if (!confirmDiscardChanges()) return;
     const SKELETON =
         '<?xml version="1.0" encoding="utf-8" standalone="yes"?>\n' +
         '<Desc>\n' +
         '</Desc>\n';
-    state.currentPath = null;
-    // Clear the previously-opened file's FileSystemFileHandle - otherwise
-    // Ctrl+S on the new untitled doc would silently overwrite the file the
-    // user just had open. Data-loss bug. Save / SaveAs will prompt for a
-    // new handle when needed.
-    state.fileHandle = null;
-    textures.setModRoot(null);     // no mod assets context for a brand-new doc
-    openFromText(SKELETON, 'untitled.SC2Layout');
+    openFromText(SKELETON, 'untitled.SC2Layout', {
+        fileHandle: null,
+        currentPath: null,
+        modRoot: null,
+    });
     setStatus('New blank layout. Use "+ Add frame..." to start adding content.');
 }
 
@@ -1503,22 +1643,22 @@ function createNewLayout() {
 function addNewFrame(type) {
     if (!state.modDoc || !state.modDoc.root) {
         createNewLayout();
+        if (!state.modDoc || !state.modDoc.root) return;
     }
-    const parent = (state.selected && state.selected._modSource)
-        || state.modDoc.root;
-    const name = uniqueChildName(parent, type);
-    const newFrame = buildFrameElement(type, name);
+    const selectedBefore = state.selected;
+    const name = uniqueSelectionChildName(selectedBefore, type);
+    const newFrame = buildFrameElement(type, name, {
+        frameIndent: insertionFrameIndent(selectedBefore),
+    });
     snapshotForUndo();
-    appendChildPreservingIndent(parent, newFrame);
+    const insertion = appendFrameAtSelection(state.modDoc, selectedBefore, newFrame);
     setParentRefs(state.modDoc);   // re-link _parent refs for the new subtree
     rerender();
     // Try to select the new frame in the rerendered tree. Path is parent path
     // + "/" + name (or just name if parent is the root <Desc>).
-    let selPath = name;
-    if (parent !== state.modDoc.root) {
-        const parentName = (parent.attrs.find(a => a.name === 'name') || {}).value;
-        if (parentName) selPath = `${parentName}/${name}`;
-    }
+    const selPath = insertion.parentPath
+        ? `${insertion.parentPath}/${name}`
+        : name;
     // Path-only lookup: uniqueChildName guarantees no path collision
     // inside `parent`, so falling back to name (the old code did) is both
     // unnecessary AND risks matching a same-named frame elsewhere in the
@@ -1526,7 +1666,32 @@ function addNewFrame(type) {
     // rerender - better to surface that than paper over it.
     const target = findFrameByPath(state.frames, selPath);
     if (target) selectFrame(target, false);
-    setStatus(`Inserted ${type}:${name}. Edit in the inspector or rename via XML.`);
+    const overrideNote = insertion.createdOverride
+        ? ` Created an override for stock frame ${insertion.parentPath}.`
+        : '';
+    setStatus(`Inserted ${type}:${name}.${overrideNote} Edit it in the inspector or drag it on the canvas.`);
+}
+
+function uniqueSelectionChildName(selected, type) {
+    if (selected && selected._modSource) return uniqueChildName(selected._modSource, type);
+    const taken = new Set((selected?.children || []).map(child => child.name));
+    if (!selected && state.modDoc?.root) {
+        for (const child of state.modDoc.root.children || []) {
+            if (child.type !== 'element') continue;
+            const attr = child.attrs?.find(item => item.name === 'name');
+            if (attr) taken.add(attr.value);
+        }
+    }
+    let n = 0;
+    while (taken.has(`${type}${n}`)) n++;
+    return `${type}${n}`;
+}
+
+function insertionFrameIndent(selected) {
+    if (selected?._modSource) return inferChildIndent(selected._modSource);
+    const rootIndent = inferChildIndent(state.modDoc.root);
+    if (selected?.path && !selected.synthetic) return oneIndentDeeper(rootIndent);
+    return rootIndent;
 }
 
 function uniqueChildName(parent, type) {
@@ -1551,19 +1716,19 @@ function uniqueChildName(parent, type) {
 // Reference: mapster.talv.space/ui-layout/frame-type — each FrameType page
 // lists its DescInternal children. We seed the minimum that's interactive;
 // the user fills in textures / labels via inspector or XML.
-function buildFrameElement(type, name) {
-    const i = '\n        ';
-    const i2 = '\n            ';
-    const close = '\n    ';
+function buildFrameElement(type, name, options = {}) {
+    const close = options.frameIndent || '\n    ';
+    const i = oneIndentDeeper(close);
+    const i2 = oneIndentDeeper(i);
     const children = [
         textNode(i),
-        elementNode('Anchor', [['side','Top'],['relative','$parent'],['pos','Min'],['offset','0']], true),
+        elementNode('Anchor', [['side','Top'],['relative','$parent'],['pos','Min'],['offset', options.top ?? '0']], true),
         textNode(i),
-        elementNode('Anchor', [['side','Left'],['relative','$parent'],['pos','Min'],['offset','0']], true),
+        elementNode('Anchor', [['side','Left'],['relative','$parent'],['pos','Min'],['offset', options.left ?? '0']], true),
         textNode(i),
-        elementNode('Width', [['val','100']], true),
+        elementNode('Width', [['val', options.width ?? '100']], true),
         textNode(i),
-        elementNode('Height', [['val','100']], true),
+        elementNode('Height', [['val', options.height ?? '100']], true),
     ];
     // Helper for the very common "Image sub-frame anchored to fill parent
     // with a placeholder texture" pattern used by Button/CheckBox/ListBox.
@@ -1601,6 +1766,8 @@ function buildFrameElement(type, name) {
                 elementNode('Anchor', [['relative','$parent'],['offset','0']], true),
                 textNode(i2),
                 elementNode('Style', [['val','StandardTemplate']], true),
+                textNode(i2),
+                elementNode('Text', [['val', options.text ?? 'New Button']], true),
                 textNode(i),
             ]));
     } else if (type === 'CheckBox') {
@@ -1624,6 +1791,64 @@ function buildFrameElement(type, name) {
     return elementNode('Frame', [['type', type], ['name', name]], false, children);
 }
 
+function openQuickButtonDialog() {
+    if (!state.modDoc || !state.modDoc.root) createNewLayout();
+    if (!state.modDoc || !state.modDoc.root) return;
+    if (!els.quickButtonDialog) return;
+    const target = state.selected?.path || '(document root)';
+    els.quickButtonTarget.textContent = target;
+    els.quickButtonName.value = uniqueSelectionChildName(state.selected, 'Button');
+    els.quickButtonText.value = 'New Button';
+    els.quickButtonWidth.value = '120';
+    els.quickButtonHeight.value = '48';
+    els.quickButtonTop.value = '0';
+    els.quickButtonLeft.value = '0';
+    els.quickButtonDialog.returnValue = '';
+    els.quickButtonDialog.showModal();
+    els.quickButtonName.focus();
+    els.quickButtonName.select();
+}
+
+function addGuidedButton() {
+    const selectedBefore = state.selected;
+    let name = (els.quickButtonName.value || 'Button0').trim();
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+        name = uniqueSelectionChildName(selectedBefore, 'Button');
+    }
+    const taken = new Set((selectedBefore?.children || []).map(child => child.name));
+    if (selectedBefore?._modSource) {
+        for (const child of selectedBefore._modSource.children || []) {
+            const attr = child.type === 'element' && child.attrs?.find(item => item.name === 'name');
+            if (attr) taken.add(attr.value);
+        }
+    }
+    if (taken.has(name)) {
+        const base = name;
+        let suffix = 2;
+        while (taken.has(`${base}${suffix}`)) suffix++;
+        name = `${base}${suffix}`;
+    }
+    const button = buildFrameElement('Button', name, {
+        text: els.quickButtonText.value,
+        width: String(Math.max(1, Number(els.quickButtonWidth.value) || 120)),
+        height: String(Math.max(1, Number(els.quickButtonHeight.value) || 48)),
+        top: String(Number(els.quickButtonTop.value) || 0),
+        left: String(Number(els.quickButtonLeft.value) || 0),
+        frameIndent: insertionFrameIndent(selectedBefore),
+    });
+    snapshotForUndo();
+    const insertion = appendFrameAtSelection(state.modDoc, selectedBefore, button);
+    setParentRefs(state.modDoc);
+    rerender();
+    const path = insertion.parentPath ? `${insertion.parentPath}/${name}` : name;
+    const target = findFrameByPath(state.frames, path);
+    if (target) selectFrame(target, false);
+    const overrideNote = insertion.createdOverride
+        ? ` A stock override for ${insertion.parentPath} was created automatically.`
+        : '';
+    setStatus(`Added ${name}.${overrideNote} Drag it into place, then export trigger XML if it needs click behavior.`);
+}
+
 // elementNode / textNode / appendChildElement all moved to xml/mutate.js
 // in R4.2 (renamed makeElement / textNode / appendChildPreservingIndent).
 
@@ -1639,6 +1864,7 @@ function buildFrameElement(type, name) {
 // either opens showSaveFilePicker or falls back to the prompt+download.
 
 async function openFile() {
+    if (!confirmDiscardChanges()) return;
     if (window.showOpenFilePicker) {
         try {
             const [handle] = await window.showOpenFilePicker({
@@ -1650,10 +1876,16 @@ async function openFile() {
             });
             const file = await handle.getFile();
             const text = await file.text();
-            state.fileHandle = handle;
-            state.currentPath = null;
-            textures.setModRoot(null);
-            openFromText(text, file.name);
+            try {
+                openFromText(text, file.name, {
+                    fileHandle: handle,
+                    currentPath: null,
+                    modRoot: null,
+                });
+            } catch (err) {
+                setStatus(`Failed to open ${file.name}: ${err.message}`);
+                return;
+            }
             setStatus(`Opened ${file.name} (in-place save enabled).`);
             return;
         } catch (err) {
@@ -1668,6 +1900,7 @@ async function openFile() {
 
 async function saveCurrent() {
     if (!state.modDoc) return;
+    if (!applyPendingXmlBeforeSave()) return;
     const out = serializeXml(state.modDoc);
     // Preferred path: write directly through the FileSystemFileHandle.
     if (state.fileHandle && state.fileHandle.createWritable) {
@@ -1686,6 +1919,7 @@ async function saveCurrent() {
             state.pristineSource = out;
             setStatus(`Saved ${state.fileHandle.name} (${out.length} bytes) to disk.`);
             runRoundTripCheck();
+            updateDirtyIndicator();
             return;
         } catch (err) {
             console.warn('[save] direct write failed, falling back to download:', err);
@@ -1696,6 +1930,7 @@ async function saveCurrent() {
 
 async function saveAs() {
     if (!state.modDoc) return;
+    if (!applyPendingXmlBeforeSave()) return;
     const out = serializeXml(state.modDoc);
     if (window.showSaveFilePicker) {
         try {
@@ -1714,6 +1949,7 @@ async function saveAs() {
             state.pristineSource = out;
             setStatus(`Saved as ${handle.name} (${out.length} bytes). In-place save now enabled.`);
             runRoundTripCheck();
+            updateDirtyIndicator();
             return;
         } catch (err) {
             if (err && err.name === 'AbortError') return;
@@ -1734,14 +1970,245 @@ function saveAsDownload(filename, body) {
     a.click();
     URL.revokeObjectURL(url);
     state.currentFileName = filename;
+    state.pristineSource = body;
+    updateDirtyIndicator();
     setStatus(`Downloaded ${filename} (${body.length} bytes). Use Open → in-place save to write directly next time.`);
 }
 
 function runRoundTripCheck() {
-    const r = checkRoundTrip(state.modDoc, state.pristineSource);
-    if (r.ok) setXmlStatus('round-trip: byte-exact ✓');
-    else if (r.error) setXmlStatus('round-trip: ' + r.error.message);
-    else setXmlStatus(`round-trip: differs at offset ${r.diffAt}`);
+    try {
+        const serialized = serializeXml(state.modDoc);
+        // Compare a reparse/re-serialize of the CURRENT document. Comparing to
+        // the originally-opened source merely reports ordinary unsaved edits,
+        // which is a dirty-state question rather than a round-trip failure.
+        const reparsed = parseXml(serialized);
+        const r = checkRoundTrip(reparsed, serialized);
+        const prefix = isDocumentDirty(serialized) ? 'modified' : 'saved';
+        if (r.ok) setXmlStatus(`${prefix} · round-trip stable ✓`);
+        else if (r.error) setXmlStatus(`${prefix} · round-trip: ${r.error.message}`);
+        else setXmlStatus(`${prefix} · round-trip differs at ${r.diffAt}`);
+    } catch (err) {
+        setXmlStatus('round-trip: ' + err.message);
+    }
+}
+
+function isDocumentDirty(serialized = null) {
+    if (!state.modDoc) return false;
+    const current = serialized == null ? serializeXml(state.modDoc) : serialized;
+    const pendingXml = els.xmlText && els.xmlText.value !== current;
+    return pendingXml || current !== state.pristineSource;
+}
+
+function confirmDiscardChanges() {
+    return !isDocumentDirty()
+        || confirm(`Discard unsaved changes to "${state.currentFileName || 'untitled layout'}"?`);
+}
+
+function updateDirtyIndicator(forceDirty = null) {
+    const dirty = forceDirty == null ? isDocumentDirty() : forceDirty;
+    document.title = `${dirty ? '* ' : ''}SC2 UI Editor v${VERSION}`;
+}
+
+// --- support diagnostics -------------------------------------------------
+
+function openDiagnosticsDialog() {
+    if (!els.diagnosticsDialog) return;
+    els.diagnosticsDescription.value = '';
+    els.diagnosticsIncludeLayout.disabled = !state.modDoc;
+    // Layout content can be private mod work, so inclusion requires an
+    // affirmative choice on every export.
+    els.diagnosticsIncludeLayout.checked = false;
+    els.diagnosticsIncludeLogs.checked = true;
+    els.diagnosticsDialog.returnValue = '';
+    els.diagnosticsDialog.showModal();
+    queueMicrotask(() => els.diagnosticsDescription.focus());
+}
+
+async function exportDiagnostics() {
+    const report = await createDiagnosticReport({
+        includeLayoutSource: !!els.diagnosticsIncludeLayout.checked,
+        includeLogs: !!els.diagnosticsIncludeLogs.checked,
+        description: els.diagnosticsDescription.value.trim(),
+    });
+    const base = (state.currentFileName || 'NoLayout')
+        .replace(/\.[^.]+$/, '')
+        .replace(/[^A-Za-z0-9_.-]+/g, '_');
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `SC2UIEditor-Diagnostics-${base}-${stamp}.json`;
+    downloadText(filename, JSON.stringify(report, null, 2) + '\n', 'application/json');
+    setStatus(`Exported diagnostics as ${filename}. Send that file with the bug report.`);
+}
+
+async function createDiagnosticReport({ includeLayoutSource, includeLogs, description }) {
+    const modelSource = state.modDoc ? serializeXml(state.modDoc) : '';
+    const paneSource = state.modDoc ? els.xmlText.value : '';
+    const source = paneSource || modelSource;
+    let parseStatus = { ok: false, error: 'No layout is open.' };
+    if (source) {
+        try {
+            const parsed = parseXml(source);
+            parseStatus = { ok: !!parsed.root, error: parsed.root ? null : 'No root element.' };
+        } catch (err) {
+            parseStatus = { ok: false, error: err.message };
+        }
+    }
+
+    let server = null;
+    try {
+        const response = await fetch('/__diagnostics', { cache: 'no-store' });
+        server = response.ok ? await response.json() : { error: `HTTP ${response.status}` };
+    } catch (err) {
+        server = { error: err.message };
+    }
+
+    const frameStats = collectFrameDiagnostics(state.frames);
+    const selected = state.selected ? {
+        path: state.selected.path,
+        name: state.selected.name,
+        type: state.selected.type,
+        origin: state.selected.origin,
+        synthetic: !!state.selected.synthetic,
+        box: pickBox(state.selected),
+    } : null;
+    const warningSummary = cachedWarnings.map(warning => ({
+        severity: warning.severity,
+        framePath: warning.framePath,
+        message: warning.message,
+    }));
+
+    return buildDiagnosticReport({
+        includeLayoutSource,
+        layoutSource: source || null,
+        userReport: description || null,
+        application: {
+            name: 'SC2 UI Editor',
+            version: VERSION,
+            sessionStartedAt: diagnosticRecorder.startedAt,
+        },
+        environment: {
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            platform: navigator.userAgentData?.platform || navigator.platform || null,
+            devicePixelRatio: window.devicePixelRatio,
+            browserViewport: { width: window.innerWidth, height: window.innerHeight },
+            screen: window.screen ? { width: screen.width, height: screen.height } : null,
+        },
+        configuration: {
+            assetsConfigured: !!state.config?.assets_present,
+            assetsSource: state.config?.assets_source || null,
+            sc2Configured: !!state.config?.sc2_install,
+            sc2InstallSource: state.config?.sc2_install_source || null,
+            frozen: !!state.config?.frozen,
+        },
+        server,
+        layout: {
+            fileName: state.currentFileName || null,
+            pathHint: pathHint(state.currentPath),
+            dirty: isDocumentDirty(),
+            pendingXmlPaneEdits: !!state.modDoc && paneSource !== modelSource,
+            parseStatus,
+            byteLengthUtf8: source ? new TextEncoder().encode(source).length : 0,
+            lineCount: source ? source.split(/\r?\n/).length : 0,
+            sha256: source ? await sha256Text(source) : null,
+        },
+        editor: {
+            viewMode: els.viewMode?.value || null,
+            showStockUi: !!els.toggleStockUi?.checked,
+            showOutlines: !!els.toggleOutlines?.checked,
+            gridSnap: !!els.toggleSnap?.checked,
+            gridSize: Number(els.snapSize?.value) || null,
+            zoom: Number(els.zoom?.value) || null,
+            stage: {
+                width: Number(els.stage?.dataset.viewportW) || 1920,
+                height: Number(els.stage?.dataset.viewportH) || 1080,
+            },
+            selected,
+            activeStates: Object.fromEntries(state.activeStates),
+            undoDepth: undoStack.undo.length,
+            redoDepth: undoStack.redo.length,
+            layoutCycles: state.layoutDiagnostics?.cycles || [],
+        },
+        frames: frameStats,
+        validation: {
+            counts: countBySeverity(cachedWarnings),
+            warnings: warningSummary,
+        },
+        stockRegistry: {
+            loaded: state.stockLoaded,
+            loading: !!state.stockLoading,
+            loadedFileCount: registry.loadedFiles.size,
+            stockConstantCount: registry.constants.size,
+            modConstantCount: registry.modConstants.size,
+            stockTemplateCount: registry.templatesByPath.size,
+            modTemplateCount: registry.modTemplatesByPath.size,
+            errors: registry.errors.slice(0, 100),
+            errorsTruncated: registry.errors.length > 100,
+        },
+        textures: textures.getDiagnostics(),
+        fonts: {
+            constantCount: fontstyles.constants.size,
+            groupCount: fontstyles.fontGroups.size,
+            styleCount: fontstyles.rawStyles.size,
+            resolvedStyleCount: fontstyles.resolved.size,
+            loadedFontCount: fontstyles.fontsLoaded.size,
+        },
+        recentBrowserLogs: includeLogs ? diagnosticRecorder.snapshot() : [],
+    });
+}
+
+function collectFrameDiagnostics(frames) {
+    const result = {
+        total: 0,
+        stock: 0,
+        mod: 0,
+        synthetic: 0,
+        templates: 0,
+        hidden: 0,
+        types: {},
+        nonFiniteBoxes: [],
+    };
+    const visit = (nodes) => {
+        for (const node of nodes || []) {
+            result.total++;
+            if (node.origin === 'stock') result.stock++;
+            else if (node.origin === 'mod') result.mod++;
+            if (node.synthetic) result.synthetic++;
+            if (node.isTemplate) result.templates++;
+            if (node.visible === false) result.hidden++;
+            const type = node.type || '(unknown)';
+            result.types[type] = (result.types[type] || 0) + 1;
+            const box = pickBox(node);
+            if (!Object.values(box).every(Number.isFinite) && result.nonFiniteBoxes.length < 100) {
+                result.nonFiniteBoxes.push({ path: node.path, box });
+            }
+            visit(node.children);
+        }
+    };
+    visit(frames);
+    return result;
+}
+
+function pickBox(node) {
+    return { x: node.x, y: node.y, width: node.w, height: node.h };
+}
+
+async function sha256Text(text) {
+    try {
+        const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+        return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
+    } catch {
+        return null;
+    }
+}
+
+function downloadText(filename, body, type = 'text/plain') {
+    const blob = new Blob([body], { type });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+    URL.revokeObjectURL(url);
 }
 
 // firstDiff + the round-trip implementation moved to doc-controller.js in R4.8.
@@ -1770,20 +2237,22 @@ function runRoundTripCheck() {
  * @param {boolean} [opts.rerenderAfter=true]  call rerender() at the end
  */
 async function resetAssetDependentCaches({ rerenderAfter = true } = {}) {
-    textures.cache.clear();
-    textures.aliasesLoaded = false;
+    textures.reset();
     await textures.loadAssetsTxt().catch(() => {});
     // Reset the registry so stock templates re-load from the new folder.
     registry.constants.clear();
     registry.templatesByPath.clear();
     registry.templatesByName.clear();
+    registry.modTemplatesByPath.clear();
+    registry.modTemplatesByName.clear();
+    registry.modConstants.clear();
     registry.framesByPath.clear();
     registry.loadedFiles.clear();
     registry.errors.length = 0;
     state.stockLoaded = false;
     state.stockLoading = false;
     await loadStockLayouts().catch(() => {});
-    await loadFontStyles().catch(() => {});
+    await loadFontStyles({ reset: true }).catch(() => {});
     // Re-register the current mod's templates + constants (cleared above).
     if (state.modDoc && state.currentFileName) {
         const fileBase = state.currentFileName.replace(/\.[^.]+$/, '').split(/[\\\/]/).pop();

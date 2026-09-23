@@ -23,6 +23,7 @@ import sys
 import time
 import unittest
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -38,7 +39,7 @@ def _free_port() -> int:
     return p
 
 
-def _post(url: str, payload: dict) -> dict:
+def _post(url: str, payload: dict, token: str = "", extra_headers: dict | None = None) -> dict:
     """POST JSON and return the parsed response body.
 
     serve.py returns JSON for both success (200) and validation failures
@@ -46,16 +47,19 @@ def _post(url: str, payload: dict) -> dict:
     so callers can inspect result["error"].
     """
     data = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(url, data=data, method="POST",
-                                 headers={"Content-Type": "application/json"})
+    headers = {"Content-Type": "application/json", "X-SC2UI-Token": token}
+    headers.update(extra_headers or {})
+    req = urllib.request.Request(url, data=data, method="POST", headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=5) as resp:
             return json.loads(resp.read())
     except urllib.error.HTTPError as err:
-        # 413 (oversized body) has no JSON body; surface code via re-raise.
-        if err.code == 413:
-            raise
-        return json.loads(err.read())
+        # HTTPError owns a response socket too; always close it after reading.
+        with err:
+            # 413 (oversized body) has no JSON body; surface code via re-raise.
+            if err.code == 413:
+                raise
+            return json.loads(err.read())
 
 
 def _get(url: str) -> dict:
@@ -142,6 +146,7 @@ class ConfigRoundTripTest(unittest.TestCase):
             self.proc.kill()
             self.fail("serve.py did not come up within ~5s")
         self.base = f"http://127.0.0.1:{self.port}"
+        self.token = _get(f"{self.base}/__config")["session_token"]
 
     def tearDown(self):
         self.proc.terminate()
@@ -157,11 +162,26 @@ class ConfigRoundTripTest(unittest.TestCase):
                     "assets_present", "assets_source", "sc2_install", "sc2_install_source"):
             self.assertIn(key, cfg, f"missing schema key: {key}")
 
+    def test_diagnostics_are_structured_and_redacted(self):
+        private_query = urllib.parse.urlencode({"path": str(HERE)})
+        try:
+            _get(f"{self.base}/__ls?{private_query}")
+        except urllib.error.HTTPError as err:
+            err.close()
+        diagnostics = _get(f"{self.base}/__diagnostics")
+        self.assertEqual(diagnostics["version"], _get(f"{self.base}/__config")["version"])
+        self.assertIn("recent_requests", diagnostics)
+        encoded = json.dumps(diagnostics)
+        self.assertNotIn("session_token", encoded)
+        self.assertNotIn(str(HERE), encoded)
+        for request in diagnostics["recent_requests"]:
+            self.assertNotIn("?", request["path"])
+
     def test_post_assets_root_persists(self):
         # Pick another extant directory and POST it as assets_root.
         new_assets = str(HERE.parent)
         before = _get(f"{self.base}/__config")["assets_root"]
-        result = _post(f"{self.base}/__config", {"assets_root": new_assets})
+        result = _post(f"{self.base}/__config", {"assets_root": new_assets}, self.token)
         self.assertIsNone(result.get("error"), f"POST failed: {result}")
         self.assertEqual(result["assets_root"], new_assets)
         # Re-fetch to confirm persistence in memory.
@@ -176,17 +196,30 @@ class ConfigRoundTripTest(unittest.TestCase):
         self.assertEqual(disk["assets_root"], new_assets)
 
     def test_post_nonexistent_assets_root_rejected(self):
-        result = _post(f"{self.base}/__config", {"assets_root": "/nope/does/not/exist"})
+        result = _post(f"{self.base}/__config", {"assets_root": "/nope/does/not/exist"}, self.token)
         self.assertEqual(result.get("error"), "not_found")
 
     def test_oversized_body_rejected(self):
         # R3.1 caps /__config at 64 KB. A 65 KB body must 413.
         huge = {"junk": "x" * 70000}
         try:
-            _post(f"{self.base}/__config", huge)
+            _post(f"{self.base}/__config", huge, self.token)
             self.fail("expected 413 from oversized body")
         except urllib.error.HTTPError as err:
             self.assertEqual(err.code, 413)
+
+    def test_post_requires_session_token(self):
+        result = _post(f"{self.base}/__config", {"assets_root": str(HERE)})
+        self.assertEqual(result.get("error"), "forbidden")
+
+    def test_post_rejects_foreign_origin(self):
+        result = _post(
+            f"{self.base}/__config",
+            {"assets_root": str(HERE)},
+            self.token,
+            {"Origin": "https://example.invalid"},
+        )
+        self.assertEqual(result.get("error"), "origin_rejected")
 
 
 if __name__ == "__main__":

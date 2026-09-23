@@ -1,7 +1,7 @@
 # SC2 UI Editor
 
 Visual editor for StarCraft 2 `.SC2Layout` files. Open existing layouts, edit
-them in a browser, save them back. Windows only; ships as a single 10 MB exe.
+them in a browser, save them back. Windows only; ships as a single 13 MB exe.
 
 ## Get it
 
@@ -54,12 +54,21 @@ to reparent it, drop above or below for sibling reordering. The Insert menu
 adds new frames (Frame, Image, Label, Button, Tooltip, CheckBox, EditBox,
 ListBox, ProgressBar, StatusBar) with sensible defaults wired up.
 
+For the common "put one button on the HUD" case, select the stock container
+that should own it and use **Insert → Button here…**. Enter a name and caption,
+then drag the result into place. If the selected container comes from a stock
+layout, the editor creates the required `GameUI/...` deep-path override in your
+file automatically. **Help → How to use a layout in SC2…** explains the three
+separate pieces: loading the file, attaching the visual frame, and wiring its
+behavior.
+
 Save writes the original file back in place on Chrome and Edge via the File
 System Access API. Firefox and Safari haven't implemented that API yet, so
 they fall back to a download dialog.
 
 There's a validator that flags dangling template references, missing
-required children for specific frame types, and anchor / size conflicts. The
+required children for specific frame types, anchor / size conflicts, and a
+copied layout whose filename no longer matches its template namespace. The
 Warnings button only appears in the top bar when there's actually something
 to warn about, so it doesn't sit there nagging.
 
@@ -124,11 +133,16 @@ I'll widen the search.
 
 ## Bug reports
 
-If something misbehaves, F12 → Console in the editor's browser tab usually
-has the diagnostic. Most subsystems log with a tag (`[stock]`, `[textures]`,
-`[cascextract]`, `[paint]`) so it's easy to grep. Open an issue with the
-relevant lines, what you were doing, and a copy of the layout file if you
-can share it.
+Use Help → Export diagnostics when something misbehaves. Describe what
+happened, choose whether to include the current XML, and send the resulting
+JSON file with the bug report. It contains editor state, validator warnings,
+failed asset references, and recent logs in a format a developer or coding
+assistant can inspect directly. Local filesystem paths and the localhost
+session token are removed automatically.
+
+The XML checkbox includes exactly what is visible in the XML pane, including
+unapplied or malformed text. Leave it off when the layout cannot be shared.
+Screenshots or short recordings are still useful for visual problems.
 
 ## Building from source
 
@@ -151,13 +165,17 @@ python casc_index.py "C:\Program Files (x86)\StarCraft II"
 Output lands at `editor/data/casc-index.json` and gets baked into the next
 build.
 
-Round-trip tests live alongside the source:
+Run the self-contained test suite from the project folder:
 
 ```
-node test_roundtrip.mjs <file.SC2Layout>...
-node test_drag_math.mjs
-node test_mod_templates.mjs
+python run_tests.py
+python run_tests.py --integration
+python run_tests.py --layouts path\to\a-mod path\to\one.SC2Layout
 ```
+
+The integration mode starts a temporary local server and checks stock layout
+loading plus asset aliases. `--layouts` recursively verifies byte-exact XML
+round trips for every `.SC2Layout` under the supplied files or folders.
 
 ## Credits
 

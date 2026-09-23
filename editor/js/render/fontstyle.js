@@ -49,6 +49,16 @@ export class FontStyleSheet {
         return sheet;
     }
 
+    /** Clear all parsed and resolved data before loading a different root. */
+    reset() {
+        this.constants.clear();
+        this.fontGroups.clear();
+        this.rawStyles.clear();
+        this.resolved.clear();
+        this.fontFamilyByPath.clear();
+        this.fontsLoaded.clear();
+    }
+
     ingest(text) {
         const doc = parseXml(text);
         const root = doc.children.find(c => c.type === 'element');

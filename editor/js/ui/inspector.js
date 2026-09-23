@@ -439,15 +439,31 @@ export class Inspector {
             Texture: this.suggesters.texture,
             Style:   this.suggesters.style,
         };
+        // Button captions and primary textures live in DescInternal child
+        // frames, not directly on the Button. Route the friendly Content
+        // fields to those children so a new user can edit a generated button
+        // without finding Label/Text or NormalImage/Texture in raw XML.
+        const buttonLabel = frame.type === 'Button'
+            ? findFrameChildByName(source, 'Label')
+            : null;
+        const buttonNormalImage = frame.type === 'Button'
+            ? findFrameChildByName(source, 'NormalImage')
+            : null;
+        const propertySource = (tag) => {
+            if ((tag === 'Text' || tag === 'Style') && buttonLabel) return buttonLabel;
+            if (tag === 'Texture' && buttonNormalImage) return buttonNormalImage;
+            return source;
+        };
         for (const tag of fields) {
-            const el = findChild(source, tag);
+            const owner = propertySource(tag);
+            const el = findChild(owner, tag);
             const value = el ? attrVal(el, 'val') : '';
             if (colorFields.has(tag)) {
                 this._colorRow(tag, value,
-                    (v) => this._writeSizedChild(source, tag, v, 'val'));
+                    (v) => this._writeSizedChild(owner, tag, v, 'val'));
             } else {
                 this._textPropRow(tag, value,
-                    (v) => this._writeSizedChild(source, tag, v, 'val'),
+                    (v) => this._writeSizedChild(owner, tag, v, 'val'),
                     suggesterByTag[tag]);
             }
         }
@@ -459,17 +475,18 @@ export class Inspector {
         //   Normal | Border | HorizontalBorder | EndCap | NineSlice
         // Default when omitted = Normal.
         if (wants.Texture) {
-            this._textureTypeRow(source);
+            const textureOwner = propertySource('Texture');
+            this._textureTypeRow(textureOwner);
             // Tiled repeats the texture instead of stretching it.
-            this._boolRow('Tiled', source, 'Tiled',
+            this._boolRow('Tiled', textureOwner, 'Tiled',
                 'Repeat the texture to fill the frame instead of stretching.');
             // TextureCoords: the slice insets (and the source sub-rect for
             // Normal). Essential for configuring Border / NineSlice.
-            this._textureCoordsRow(source);
+            this._textureCoordsRow(textureOwner);
             // Color multiply-tints the texture (white = unchanged).
-            const colorEl = findChild(source, 'Color');
+            const colorEl = findChild(textureOwner, 'Color');
             this._colorRow('Color (tint)', colorEl ? attrVal(colorEl, 'val') : '',
-                (v) => this._writeSizedChild(source, 'Color', v, 'val'));
+                (v) => this._writeSizedChild(textureOwner, 'Color', v, 'val'));
         }
         // (Issue #4: removed HAlign/VAlign inputs. SC2 doesn't recognise
         // those as per-frame XML elements - text alignment is dictated by
@@ -922,6 +939,15 @@ export class Inspector {
     }
 }
 
+function findFrameChildByName(source, name) {
+    for (const child of source?.children || []) {
+        if (child.type !== 'element') continue;
+        if (child.tag !== 'Frame') continue;
+        if (attrVal(child, 'name') === name) return child;
+    }
+    return null;
+}
+
 // ------- XML helpers ------- (attrMap/attrVal/findChild/hasChild/
 // findAnchorChild live in xml/helpers.js since R4.1)
 
@@ -969,6 +995,17 @@ function removeFromParent(el) {
 function duplicateSibling(el) {
     if (!el || !el._parent) return false;
     const copy = deepCloneElement(el);
+    const originalName = attrVal(el, 'name') || el.tag || 'Frame';
+    const siblingNames = new Set(
+        el._parent.children
+            .filter(c => c.type === 'element')
+            .map(c => attrVal(c, 'name'))
+            .filter(Boolean));
+    let suffix = 'Copy';
+    let candidate = originalName + suffix;
+    let n = 2;
+    while (siblingNames.has(candidate)) candidate = originalName + suffix + n++;
+    setAttr(copy, 'name', candidate);
     // Insert immediately after the original.
     const kids = el._parent.children;
     const idx = kids.indexOf(el);

@@ -36,12 +36,21 @@ export function inferChildIndent(parent) {
             break;
         }
     }
-    // Fallback: any trailing-ws text node (covers element-less parents).
+    // Fallback: an element-less parent's trailing whitespace describes the
+    // closing-tag indent, so a new child belongs one indentation level deeper.
     for (let i = kids.length - 1; i >= 0; i--) {
         const k = kids[i];
         if (k.type === 'text' && /\n[ \t]*$/.test(k.raw)) {
             const m = k.raw.match(/\n([ \t]*)$/);
-            if (m) return '\n' + m[1];
+            if (m) {
+                const ws = m[1];
+                if (ws.endsWith('\t')) return `\n${ws}\t`;
+                const unit = ws.length === 0 ? 4
+                    : ws.length % 4 === 0 ? 4
+                    : ws.length % 2 === 0 ? 2
+                    : 1;
+                return `\n${ws}${' '.repeat(unit)}`;
+            }
         }
     }
     return '\n    ';

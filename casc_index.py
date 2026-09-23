@@ -6,7 +6,7 @@ Run once against a local SC2 install:
 
 Produces a JSON map of every UI-relevant file in the CASC archive:
     {
-      "version": "0.5.0",
+      "version": "0.8.0",
       "scanned_at": "...",
       "sc2_build": "5.0.15.96883",
       "files": {

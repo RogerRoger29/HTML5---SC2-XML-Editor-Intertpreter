@@ -367,7 +367,11 @@ class CascStorage:
     def __init__(self, install_path):
         self.install_path = Path(install_path)
         self._handle = None
-        self._lock = threading.Lock()
+        # extract_batch() takes the lock and then calls open(); reentrancy lets
+        # open() keep its own public-method locking while the batch closes the
+        # small race where another request could close the handle immediately
+        # after open() returned.
+        self._lock = threading.RLock()
 
     def is_open(self):
         return self._handle is not None and bool(self._handle)
@@ -400,48 +404,38 @@ class CascStorage:
         """Extract many files; reuses the long-lived handle so calls are
         fast after the initial open. Returns same shape as extract_files().
 
-        Lock granularity: holds self._lock for ONE file at a time, not for
-        the whole batch. A 500-file batch at ~50ms/file used to block every
-        other request to /__cascextract / /__config for ~25 s; now they
-        only block for whatever single-file extraction is in progress at
-        the moment they arrive.
-
-        Note: CascLib itself isn't documented as thread-safe per-handle,
-        so we keep concurrent operations on this storage handle serialized.
-        Allowing true parallelism would need a pool of independent handles.
+        Holds self._lock for the batch. CascLib is not documented as
+        thread-safe per handle, and close() must not retire the handle between
+        two files when another request changes the configured SC2 install.
+        /__config remains responsive because it does not acquire this lock.
         """
-        self.open()
-        dll = _load_dll()
         out_dir = Path(out_dir).resolve()
         out_dir.mkdir(parents=True, exist_ok=True)
         extracted, skipped, failed = [], [], []
         total_bytes = 0
-        for raw in file_list:
-            casc_name = raw.replace("/", "\\").lstrip("\\")
-            # SC2's CASC namespaces everything under "Mods\<mod>\..." or
-            # "Campaigns\<campaign>\...". The editor's URL routing expects
-            # the assets folder root to contain those mod folders DIRECTLY
-            # (mirrors a typical CASCExplorer extraction's flat layout),
-            # so strip the SC2-internal namespace prefix before saving.
-            rel_path = _strip_casc_namespace(casc_name)
-            local = (out_dir / rel_path.replace("\\", "/"))
-            # Path-safety: verify the resolved destination stays under
-            # out_dir. Defends against a CASC path containing ".." or
-            # weird drive prefixes from escaping our extraction tree.
-            try:
-                local_resolved = local.resolve(strict=False)
-                if not local_resolved.is_relative_to(out_dir):
-                    failed.append({"file": raw, "error": "path_escape", "code": 0})
+        with self._lock:
+            self.open()
+            dll = _load_dll()
+            for raw in file_list:
+                casc_name = raw.replace("/", "\\").lstrip("\\")
+                # SC2's CASC namespaces everything under "Mods\<mod>\..." or
+                # "Campaigns\<campaign>\...". The editor's URL routing expects
+                # the assets folder root to contain those mod folders DIRECTLY.
+                rel_path = _strip_casc_namespace(casc_name)
+                local = (out_dir / rel_path.replace("\\", "/"))
+                # Path-safety: verify the resolved destination stays under
+                # out_dir. Defends against traversal and drive-prefix escapes.
+                try:
+                    local_resolved = local.resolve(strict=False)
+                    if not local_resolved.is_relative_to(out_dir):
+                        failed.append({"file": raw, "error": "path_escape", "code": 0})
+                        continue
+                except (OSError, ValueError):
+                    failed.append({"file": raw, "error": "path_invalid", "code": 0})
                     continue
-            except (OSError, ValueError):
-                failed.append({"file": raw, "error": "path_invalid", "code": 0})
-                continue
-            if local.exists() and local.stat().st_size > 0:
-                skipped.append(raw)
-                continue
-            # Acquire the lock per-file so other endpoints don't queue
-            # behind the entire batch.
-            with self._lock:
+                if local.exists() and local.stat().st_size > 0:
+                    skipped.append(raw)
+                    continue
                 try:
                     local.parent.mkdir(parents=True, exist_ok=True)
                     _extract_one(dll, self._handle, casc_name, local)

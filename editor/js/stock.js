@@ -27,6 +27,12 @@ export class StockRegistry {
         this.modConstants = new Map();     // the OPEN mod doc's <Constant> defs (replaced per open)
         this.templatesByPath = new Map();  // "StandardTemplates/StandardButtonTemplate" -> el
         this.templatesByName = new Map();  // "StandardButtonTemplate" -> el (last write wins)
+        // Templates from the currently-open document live in an overlay rather
+        // than the stock maps. This lets opening/undoing a document replace the
+        // entire mod layer without leaving stale templates behind or permanently
+        // shadowing a stock template with the same bare name.
+        this.modTemplatesByPath = new Map();
+        this.modTemplatesByName = new Map();
         this.framesByPath = new Map();     // "GameUI/UIContainer/.../HeroPanel" -> { el, sources: [] }
         this.loadedFiles = new Set();
         this.errors = [];
@@ -125,6 +131,8 @@ export class StockRegistry {
      // elsewhere) can resolve template="FileBase/Name" or template="Name".
      // Pass the mod doc's <Desc> root and the file's basename (no extension).
     addModTemplates(docRoot, fileBase) {
+        this.modTemplatesByPath.clear();
+        this.modTemplatesByName.clear();
         if (!docRoot || !docRoot.children) return 0;
         let count = 0;
         const FRAME_LIKE = /(Frame|Panel|Image|Label|Button|Bar|Box|Tooltip)$/;
@@ -137,8 +145,8 @@ export class StockRegistry {
             // Skip path-named overrides (`name="GameUI/.../X"`); those go through
             // the merger as frame placements, not templates.
             if (name.includes('/')) continue;
-            this.templatesByPath.set(`${fileBase}/${name}`, child);
-            this.templatesByName.set(name, child);
+            this.modTemplatesByPath.set(`${fileBase}/${name}`, child);
+            this.modTemplatesByName.set(name, child);
             count++;
         }
         return count;
@@ -213,11 +221,14 @@ export class StockRegistry {
     // a known file.
     findTemplate(ref) {
         if (!ref) return null;
+        if (this.modTemplatesByPath.has(ref)) return this.modTemplatesByPath.get(ref);
+        if (this.modTemplatesByName.has(ref)) return this.modTemplatesByName.get(ref);
         if (this.templatesByPath.has(ref)) return this.templatesByPath.get(ref);
         if (this.templatesByName.has(ref)) return this.templatesByName.get(ref);
         // Path like "FileName/SubName" where FileName may not be in our path map:
         // try the bare last segment.
         const last = ref.split('/').pop();
+        if (this.modTemplatesByName.has(last)) return this.modTemplatesByName.get(last);
         if (this.templatesByName.has(last)) return this.templatesByName.get(last);
         return null;
     }

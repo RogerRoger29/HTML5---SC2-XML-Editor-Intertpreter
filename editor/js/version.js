@@ -1,6 +1,47 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.8.0 - Guided authoring and stock-frame insertion:
+//   * Insert -> Button here opens a compact form for name, caption, size,
+//     and starting offsets, then selects the new button for drag placement.
+//   * Adding any frame under a selected stock-only node now creates the
+//     required deep-path mod override automatically. Previously the frame was
+//     silently inserted at the document root and would not attach there in SC2.
+//   * Button Text, Style, and primary Texture fields now edit the internal
+//     Label and NormalImage children that SC2 actually reads.
+//   * Help includes the three-part in-game setup checklist: load the layout,
+//     attach visual frames to GameUI, and wire interactive behavior.
+//   * Validator warns when a copied/renamed file still uses a self-template
+//     namespace derived from a different filename.
+// 0.7.1 - Exportable support diagnostics:
+//   * Help -> Export diagnostics creates privacy-aware, machine-readable JSON
+//     with reproduction notes, environment, editor state, validator output,
+//     frame/layout statistics, asset failures, and bounded runtime logs.
+//   * Including the exact XML is an explicit option. When selected, unapplied
+//     or malformed XML from the editor pane is preserved for repair.
+//   * Local paths and session tokens are redacted. The server exposes a safe
+//     runtime snapshot and keeps a structured, query-free request ring.
+//   * Texture loading now records loaded/missing/decode/transient outcomes so
+//     a support report identifies magenta-placeholder causes directly.
+// 0.7.0 - Correctness, document safety, and maintainability pass:
+//   * File opens now replace their path/write context atomically, so a file
+//     opened by drag/drop or project URL can never save through a stale file
+//     handle. Unsaved document and XML-pane changes are guarded on close/open.
+//   * Apply XML is an undoable edit that preserves the open file context;
+//     Save commits valid pending XML and blocks invalid pending XML.
+//   * Layout anchors resolve by dependency rather than declaration order.
+//     Forward sibling references work, and cycles fall back to finite boxes.
+//   * Undo/redo rebuilds parent links, templates, and constants. Mod templates
+//     are a replaceable per-document overlay, preventing cross-file leakage.
+//   * StateGroup preview shares one active-state map with the renderer;
+//     delete, duplicate naming, nested add selection, and asset cache resets
+//     now update every dependent UI/model correctly.
+//   * Local write endpoints require a per-process token, JSON content type,
+//     and same-origin browser requests. CASC batch extraction holds one stable
+//     storage handle for the whole batch.
+//   * Parser rejects stray document-level closing tags instead of truncating
+//     silently. The self-contained suite gained regression coverage plus one
+//     runner for offline, integration, and real-layout round-trip checks.
 // 0.6.2 - Validator: unresolved constant references:
 //   * New rule flags a Width / Height / anchor-offset that references a
 //     "#Constant" the registry can't resolve (typo'd or undefined) — in
@@ -172,4 +213,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.6.2';
+export const VERSION = '0.8.0';

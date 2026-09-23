@@ -16,11 +16,57 @@ import { attrMap, attrVal, findChild as findElementChild } from './xml/helpers.j
 
 const FRAME_TAGS = /^(Frame|Panel|Image|Label|Button|Bar|Box|Tooltip|HeroPanel|HeroFrame|CommandPanel|MinimapPanel|ResourcePanel|CheckBox|EditBox|ListBox|ProgressBar|StatusBar|ScrollBar|Slider|TextureSelectFrame|InfoPanel)$/;
 
-export function validate(modDoc, registry) {
+export function validate(modDoc, registry, options = {}) {
     const out = [];
     if (!modDoc || !modDoc.root) return out;
+    checkDocument(modDoc.root, out, options);
     walk(modDoc.root, [], out, registry);
     return out;
+}
+
+function checkDocument(root, out, options) {
+    const fileName = String(options.fileName || '').split(/[\\/]/).pop();
+    const fileBase = fileName.replace(/\.sc2layout$/i, '');
+    if (!fileBase) return;
+
+    // SC2 namespaces templates by layout filename. A very common failure is
+    // copying a stock layout under a shorter name while leaving its internal
+    // "OriginalFile/Template" references unchanged. The preview can still
+    // appear plausible when the original stock file is loaded, but the user's
+    // replacement template is registered under a different namespace.
+    const localTemplateNames = new Set();
+    for (const child of root.children || []) {
+        if (child.type !== 'element') continue;
+        if (child.tag !== 'Frame' && !FRAME_TAGS.test(child.tag)) continue;
+        const name = attrVal(child, 'name');
+        if (name && !name.includes('/')) localTemplateNames.add(name);
+    }
+    const mismatches = new Map();
+    const visit = (node) => {
+        if (!node || node.type !== 'element') return;
+        const template = attrVal(node, 'template');
+        if (template) {
+            const slash = template.indexOf('/');
+            if (slash > 0) {
+                const namespace = template.slice(0, slash);
+                const templateName = template.slice(slash + 1);
+                if (localTemplateNames.has(templateName)
+                    && namespace.toLowerCase() !== fileBase.toLowerCase()) {
+                    mismatches.set(namespace, (mismatches.get(namespace) || 0) + 1);
+                }
+            }
+        }
+        for (const child of node.children || []) visit(child);
+    };
+    visit(root);
+    for (const [namespace, count] of mismatches) {
+        out.push({
+            severity: 'warning',
+            framePath: '(document)',
+            element: root,
+            message: `This file is named "${fileBase}.SC2Layout", but ${count} reference${count === 1 ? '' : 's'} use the template namespace "${namespace}/..." for templates also defined in this file. SC2 namespaces templates by layout filename. If this is meant to replace or extend that layout, rename the file to "${namespace}.SC2Layout" or update those references.`,
+        });
+    }
 }
 
 function walk(el, ancestors, out, registry) {
@@ -61,11 +107,9 @@ function checkFrame(el, ancestors, out, registry) {
     // 1. Dangling template reference.
     if (attrs.template && registry) {
         const tpl = attrs.template;
-        const last = tpl.split('/').pop();
-        const found =
-            (registry.templatesByPath && registry.templatesByPath.has(tpl)) ||
-            (registry.templatesByName && registry.templatesByName.has(tpl)) ||
-            (registry.templatesByName && registry.templatesByName.has(last));
+        const found = typeof registry.findTemplate === 'function'
+            ? registry.findTemplate(tpl)
+            : null;
         if (!found) {
             add('error', `Template "${tpl}" not found in any loaded layout. Frame will lack template-inherited children.`);
         }

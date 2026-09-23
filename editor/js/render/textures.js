@@ -40,6 +40,9 @@ export class TextureLoader {
         // (mirrors SC2's mod load order).
         this.aliases = new Map();
         this.aliasesLoaded = false;
+        // Structured outcomes for support reports. Values never contain local
+        // paths or response bodies, only the SC2 reference and result class.
+        this.results = new Map();
         // Currently-loaded file's mod folder. We search it FIRST so a mod's
         // own Base.SC2Assets/Assets/Textures/foo.dds takes precedence over a
         // stock file with the same name. E.g. when the user opens
@@ -54,10 +57,19 @@ export class TextureLoader {
         if (this.modRoot === url) return;
         this.modRoot = url;
         this.cache.clear();
+        this.results.clear();
     }
 
     setModOrder(mods) {
         this.modOrder = mods.slice();
+    }
+
+    /** Drop every value derived from the active assets root. */
+    reset() {
+        this.cache.clear();
+        this.aliases.clear();
+        this.aliasesLoaded = false;
+        this.results.clear();
     }
 
     addAlias(name, path) {
@@ -134,6 +146,7 @@ export class TextureLoader {
     load(ref) {
         if (!ref) return Promise.resolve(null);
         if (this.cache.has(ref)) return this.cache.get(ref);
+        this.results.set(ref, { status: 'loading' });
         const p = this._load(ref);
         this.cache.set(ref, p);
         // A TRANSIENT failure (a candidate fetch threw - server hiccup /
@@ -143,7 +156,13 @@ export class TextureLoader {
         // cached, so missing textures don't re-fetch on every rerender.
         // (After the user extracts a missing asset, resetAssetDependentCaches
         // clears the whole cache, so that path retries too.)
-        p.catch(() => this.cache.delete(ref));
+        p.catch((err) => {
+            this.cache.delete(ref);
+            this.results.set(ref, {
+                status: 'transient_error',
+                error: err && err.message ? err.message : String(err),
+            });
+        });
         return p;
     }
 
@@ -162,10 +181,12 @@ export class TextureLoader {
                 const buf = await resp.arrayBuffer();
                 if (url.toLowerCase().endsWith('.dds')) {
                     const canvas = ddsToCanvas(buf);
+                    this.results.set(ref, { status: 'loaded', width: canvas.width, height: canvas.height });
                     console.info(`[textures] OK  ${ref}  (${canvas.width}x${canvas.height})  <- ${url.replace(/^\/assets\//, '')}`);
                     return canvas;
                 }
                 const canvas = await loadImageBlob(buf);
+                this.results.set(ref, { status: 'loaded', width: canvas.width, height: canvas.height });
                 console.info(`[textures] OK  ${ref}  (${canvas.width}x${canvas.height})  <- ${url.replace(/^\/assets\//, '')}`);
                 return canvas;
             } catch (err) {
@@ -173,15 +194,39 @@ export class TextureLoader {
             }
         }
         if (decodeErrors.length) {
+            this.results.set(ref, {
+                status: 'decode_failed',
+                errors: decodeErrors.map(item => item.error),
+            });
             console.warn(`[textures] decode FAILED for ${ref}:`, decodeErrors);
         } else if (fetchThrew) {
             // No candidate was reachable AND at least one fetch threw: treat as
             // transient and reject so the cache entry is evicted (see load()).
             throw new Error(`transient fetch failure for ${ref}`);
         } else {
+            this.results.set(ref, { status: 'not_found' });
             console.warn('[textures] not found:', ref);
         }
         return null;
+    }
+
+    getDiagnostics() {
+        const counts = { loading: 0, loaded: 0, not_found: 0, decode_failed: 0, transient_error: 0 };
+        const problems = [];
+        for (const [ref, result] of this.results) {
+            if (Object.prototype.hasOwnProperty.call(counts, result.status)) counts[result.status]++;
+            if (result.status !== 'loaded' && result.status !== 'loading') {
+                problems.push({ ref, ...result });
+            }
+        }
+        return {
+            aliasesLoaded: this.aliasesLoaded,
+            aliasCount: this.aliases.size,
+            cachedReferenceCount: this.cache.size,
+            counts,
+            problems: problems.slice(0, 200),
+            problemsTruncated: problems.length > 200,
+        };
     }
 }
 

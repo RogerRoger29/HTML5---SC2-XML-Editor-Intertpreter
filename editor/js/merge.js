@@ -321,7 +321,7 @@ function materialize(node, registry, opts, depth = 0) {
     // size). This makes overrides land in approximately the right place even
     // without SC2's hardcoded GameUI knowledge.
     if (node.synthetic && anchors.length === 0 && width == null && height == null) {
-        const tmpl = registry.templatesByName.get(node.name);
+        const tmpl = registry.findTemplate(node.name);
         if (tmpl) {
             for (const c of tmpl.children) {
                 if (c.type !== 'element') continue;

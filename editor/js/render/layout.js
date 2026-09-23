@@ -21,14 +21,49 @@
 export function layoutFrames(nodes, stageW, stageH) {
     const stage = { x: 0, y: 0, w: stageW, h: stageH, parent: null, children: nodes };
     for (const n of nodes) n.parent = stage;
-    walk(nodes);
-}
+    const resolved = new Set([stage]);
+    const resolving = [];
+    const cycles = [];
 
-function walk(nodes) {
-    for (const node of nodes) {
+    // Resolve anchor dependencies on demand instead of relying on XML order.
+    // SC2 layouts routinely anchor a frame to a sibling declared later. A
+    // single depth-first pass reads that sibling before it has a box and
+    // produces NaN coordinates. DFS gives us a topological order while the
+    // resolving stack provides deterministic cycle detection.
+    const ensureResolved = (node) => {
+        if (!node || resolved.has(node)) return true;
+        const cycleAt = resolving.indexOf(node);
+        if (cycleAt !== -1) {
+            const cycle = resolving.slice(cycleAt).concat(node).map(n => n.path || n.name);
+            cycles.push(cycle);
+            return false;
+        }
+        resolving.push(node);
+        if (node.parent && node.parent !== stage) ensureResolved(node.parent);
+        for (const a of node.anchors || []) {
+            const ref = resolveRelative(node, a.relative);
+            if (ref && ref !== node && ref !== node.parent && ref !== stage) {
+                ensureResolved(ref);
+            }
+        }
         resolveBox(node);
-        if (node.children.length) walk(node.children);
+        resolved.add(node);
+        resolving.pop();
+        return true;
+    };
+
+    const visit = (list) => {
+        for (const node of list) {
+            ensureResolved(node);
+            if (node.children && node.children.length) visit(node.children);
+        }
+    };
+    visit(nodes);
+    if (cycles.length) {
+        const unique = [...new Set(cycles.map(c => c.join(' -> ')))];
+        console.warn('[layout] cyclic anchor dependencies; parent-relative fallback used:', unique);
     }
+    return { cycles };
 }
 
 function resolveBox(node) {
@@ -38,7 +73,11 @@ function resolveBox(node) {
     let fillOff = null;
     for (const a of node.anchors) {
         if (!a.side) { fillOff = a.offset || 0; continue; }
-        const ref = resolveRelative(node, a.relative) || parentBox;
+        const candidate = resolveRelative(node, a.relative);
+        // Cycles and dangling references fall back to the parent box. This is
+        // preferable to emitting NaNpx, which makes the browser retain stale
+        // CSS positioning and obscures the real problem.
+        const ref = isFiniteBox(candidate) ? candidate : parentBox;
         if (a.side === 'Top' || a.side === 'Bottom') {
             const y = refPos(ref, a.pos, 'v') + a.offset;
             if (a.side === 'Top') ver.min = y; else ver.max = y;
@@ -81,13 +120,32 @@ function refPos(ref, pos, axis) {
     return ref.y + ref.h / 2;
 }
 
+function isFiniteBox(box) {
+    return !!box
+        && Number.isFinite(box.x)
+        && Number.isFinite(box.y)
+        && Number.isFinite(box.w)
+        && Number.isFinite(box.h);
+}
+
 function resolveRelative(node, ref) {
     if (!ref || ref === '$parent') return node.parent;
     if (ref === '$this') return node;
-    if (ref === '$root' || ref.startsWith('$ancestor')) {
+    if (ref === '$root') {
         let n = node;
         while (n.parent && n.parent.children) n = n.parent;
         return n;
+    }
+    if (ref.startsWith('$ancestor')) {
+        const typeMatch = /(?:@?type)=([A-Za-z0-9_]+)/.exec(ref);
+        const nameMatch = /(?:@?name)=([A-Za-z0-9_.-]+)/.exec(ref);
+        let top = node.parent;
+        for (let n = node.parent; n; n = n.parent) {
+            top = n;
+            if ((!typeMatch || n.type === typeMatch[1])
+                && (!nameMatch || n.name === nameMatch[1])) return n;
+        }
+        return top;
     }
     // A path ref (`$parent/Foo/Bar` or a bare `Sibling`) resolves relative to
     // the parent's children. (Both forms start from node.parent; the leading

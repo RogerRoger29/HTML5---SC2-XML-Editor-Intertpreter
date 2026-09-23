@@ -26,9 +26,12 @@ Asset path resolution (first hit wins):
 from __future__ import annotations
 
 import argparse
+from collections import deque
+from datetime import datetime, timezone
 import http.server
 import json
 import os
+import secrets
 import socketserver
 import sys
 import threading
@@ -174,6 +177,13 @@ class Router(http.server.SimpleHTTPRequestHandler):
     # lifetime so the first CASC open (~30s) only happens once per session.
     casc_storage = None     # type: 'casc.CascStorage | None'
     casc_index = None       # type: 'casc.CascIndex | None'
+    # A fresh unguessable token is exposed only through same-origin /__config
+    # and required on every write request. Cross-origin pages can send blind
+    # requests to localhost, but the browser's same-origin policy prevents
+    # them from reading this token.
+    session_token = secrets.token_urlsafe(32)
+    started_at = datetime.now(timezone.utc).isoformat()
+    request_log = deque(maxlen=200)
 
     def translate_path(self, path: str) -> str:
         parsed = urllib.parse.urlsplit(path)
@@ -224,8 +234,9 @@ class Router(http.server.SimpleHTTPRequestHandler):
     # exactly. The handler is a Router-method NAME (string) so subclasses
     # can override individual endpoints without re-touching the table.
     _GET_ROUTES = {
-        "/__config":  "_send_config",
-        "/__ls/":     "_send_ls",   # prefix match (handler reads ?path=)
+        "/__config":      "_send_config",
+        "/__diagnostics": "_send_diagnostics",
+        "/__ls/":         "_send_ls",   # prefix match (handler reads ?path=)
     }
     _POST_ROUTES = {
         "/__config":      "_receive_config",
@@ -258,8 +269,32 @@ class Router(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):  # noqa: N802
         handler = self._dispatch(self._POST_ROUTES)
         if handler:
+            if not self._authorize_post():
+                return
             return handler()
         self.send_error(404, "Not Found")
+
+    def _authorize_post(self) -> bool:
+        """Reject cross-origin or unauthenticated localhost mutations."""
+        content_type = (self.headers.get("Content-Type") or "").split(";", 1)[0].strip().lower()
+        if content_type != "application/json":
+            self._send_json({"error": "unsupported_media_type"}, status=415)
+            return False
+        supplied = self.headers.get("X-SC2UI-Token") or ""
+        if not secrets.compare_digest(supplied, Router.session_token):
+            self._send_json({"error": "forbidden"}, status=403)
+            return False
+        origin = self.headers.get("Origin")
+        if origin:
+            expected = f"http://{self.headers.get('Host', '')}"
+            if origin.rstrip("/") != expected.rstrip("/"):
+                self._send_json({"error": "origin_rejected"}, status=403)
+                return False
+        fetch_site = (self.headers.get("Sec-Fetch-Site") or "").lower()
+        if fetch_site and fetch_site not in ("same-origin", "none"):
+            self._send_json({"error": "cross_site_rejected"}, status=403)
+            return False
+        return True
 
     # -- CASC extraction ---------------------------------------------------
     # POST /__cascextract  body keys (any combination):
@@ -502,7 +537,7 @@ class Router(http.server.SimpleHTTPRequestHandler):
             target.parent.mkdir(parents=True, exist_ok=True)
             url = base_url + rel
             try:
-                req = urllib.request.Request(url, headers={"User-Agent": f"sc2-ui-editor/0.5"})
+                req = urllib.request.Request(url, headers={"User-Agent": f"sc2-ui-editor/{VERSION}"})
                 with urllib.request.urlopen(req, timeout=30) as resp:
                     data = resp.read()
                 target.write_bytes(data)
@@ -551,6 +586,7 @@ class Router(http.server.SimpleHTTPRequestHandler):
                 sc2_source = f"detect failed: {err}"
         self._send_json({
             "version": VERSION,
+            "session_token": Router.session_token,
             "frozen": _is_frozen(),
             "exe_dir": str(EXE_DIR),
             "project_root": str(Router.project_root),
@@ -560,6 +596,34 @@ class Router(http.server.SimpleHTTPRequestHandler):
             "sc2_install": str(sc2_install) if sc2_install else None,
             "sc2_install_source": sc2_source,
         })
+
+    def _send_diagnostics(self) -> None:
+        """Return a support-safe server snapshot without secrets or full paths."""
+        with _STATE_LOCK:
+            recent_requests = list(Router.request_log)
+            assets_root = Router.assets_root
+            project_root = Router.project_root
+            storage = Router.casc_storage
+            index = Router.casc_index
+            payload = {
+                "version": VERSION,
+                "frozen": _is_frozen(),
+                "started_at": Router.started_at,
+                "assets": {
+                    "configured": bool(assets_root),
+                    "folder_name": assets_root.name if assets_root else None,
+                    "source": Router.assets_source,
+                },
+                "project": {
+                    "folder_name": project_root.name if project_root else None,
+                },
+                "casc": {
+                    "storage_open": bool(storage and storage.is_open()),
+                    "index_entries": len(index.files) if index else 0,
+                },
+                "recent_requests": recent_requests,
+            }
+        self._send_json(payload)
 
     def _receive_config(self) -> None:
         try:
@@ -614,9 +678,32 @@ class Router(http.server.SimpleHTTPRequestHandler):
             return self._send_json({"error": "permission_denied", "path": str(fs_path)}, status=403)
         self._send_json({"path": str(fs_path), "entries": entries})
 
+    def log_request(self, code="-", size="-") -> None:
+        # Store structured request facts without query strings. /__ls queries
+        # can contain personal filesystem paths, and diagnostics must never
+        # collect those by accident.
+        try:
+            numeric_code = int(code)
+        except (TypeError, ValueError):
+            numeric_code = str(code)
+        entry = {
+            "at": datetime.now(timezone.utc).isoformat(),
+            "method": self.command,
+            "path": self.path.split("?", 1)[0],
+            "status": numeric_code,
+            "bytes": None if size in (None, "-") else str(size),
+        }
+        with _STATE_LOCK:
+            Router.request_log.append(entry)
+        if not _is_frozen():
+            sys.stderr.write(
+                f'[serve] {self.address_string()} - "{self.command} {entry["path"]}" '
+                f'{numeric_code} {entry["bytes"] or "-"}\n'
+            )
+
     def log_message(self, fmt: str, *args) -> None:
         # In frozen (no-console) mode there is no stderr to write to; silence
-        # default chatter. Errors still surface via send_error if needed.
+        # non-request chatter. Request facts are captured by log_request().
         if _is_frozen():
             return
         sys.stderr.write("[serve] %s - %s\n" % (self.address_string(), fmt % args))

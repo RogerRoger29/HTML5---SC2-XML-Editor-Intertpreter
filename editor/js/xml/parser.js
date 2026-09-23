@@ -48,7 +48,12 @@ export function parseXml(source) {
     while (ctx.pos < source.length) {
         const node = parseNode(ctx);
         if (node) children.push(node);
-        else break;
+        else {
+            // parseNode only returns null for a close tag. At document scope
+            // there is no parent waiting to consume it, so accepting it would
+            // silently truncate the source during serialization.
+            throw new XmlParseError('unexpected close tag', ctx.pos, source);
+        }
     }
     return {
         type: 'document',

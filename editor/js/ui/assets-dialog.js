@@ -44,10 +44,13 @@ const PROMPT_ASSETS_PATH =
     'Enter the path to your extracted SC2 mods folder ' +
     '(the one containing core.sc2mod, liberty.sc2mod, etc.):';
 
-async function postJson(url, payload) {
+async function postJson(url, payload, sessionToken) {
     const resp = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'X-SC2UI-Token': sessionToken || '',
+        },
         body: JSON.stringify(payload),
     });
     return resp.json();
@@ -73,6 +76,7 @@ export class AssetsUi {
         this.setStatus = opts.setStatus || (() => {});
         this.refresh = opts.refresh || (async () => {});
         this.onConfigChanged = opts.onConfigChanged || (() => {});
+        this.sessionToken = opts.sessionToken || '';
     }
 
     // -- Action handlers (shared between banner + dialog) -------------------
@@ -81,7 +85,7 @@ export class AssetsUi {
         if (!confirm(CONFIRM_CASC_EXTRACT(sc2Path))) return false;
         showStatus('Opening CASC archive (this can take ~30s)…');
         try {
-            const r = await postJson('/__cascextract', { all_textures: true, include_fonts: true });
+            const r = await postJson('/__cascextract', { all_textures: true, include_fonts: true }, this.sessionToken);
             if (r.error) {
                 showStatus(`Failed: ${r.error}${r.detail ? ' - ' + r.detail : ''}`);
                 console.warn('[cascextract] failed:', r);
@@ -102,12 +106,13 @@ export class AssetsUi {
     async setSc2Path(currentPath) {
         const path = prompt(PROMPT_SC2_PATH, currentPath || '');
         if (!path) return false;
-        const r = await postJson('/__config', { sc2_install: path });
+        const r = await postJson('/__config', { sc2_install: path }, this.sessionToken);
         if (r.error) {
             alert(`Could not set SC2 install path: ${r.error}\n${r.path || ''}\n\nMake sure the folder contains 'StarCraft II.exe'.`);
             return false;
         }
         const cfg = await fetchConfig();
+        this.sessionToken = cfg.session_token || this.sessionToken;
         this.onConfigChanged(cfg);
         this.setStatus(`SC2 install set: ${cfg.sc2_install}`);
         return true;
@@ -116,12 +121,13 @@ export class AssetsUi {
     async setAssetsFolder(currentPath) {
         const path = prompt(PROMPT_ASSETS_PATH, currentPath || '');
         if (!path) return false;
-        const r = await postJson('/__config', { assets_root: path });
+        const r = await postJson('/__config', { assets_root: path }, this.sessionToken);
         if (r.error) {
             alert(`Could not set assets folder: ${r.error}\n${r.path || r.detail || ''}`);
             return false;
         }
         const cfg = await fetchConfig();
+        this.sessionToken = cfg.session_token || this.sessionToken;
         this.onConfigChanged(cfg);
         this.setStatus(`Assets folder: ${cfg.assets_root}`);
         await this.refresh();
@@ -132,7 +138,7 @@ export class AssetsUi {
         if (!skipConfirm && !confirm(CONFIRM_DOWNLOAD_STOCK)) return false;
         showStatus('Downloading stock essentials from github.com/SC2Mapster/SC2GameData…');
         try {
-            const r = await postJson('/__download', {});
+            const r = await postJson('/__download', {}, this.sessionToken);
             if (r.error) {
                 showStatus(`Failed: ${r.error}`);
                 return false;
@@ -238,6 +244,7 @@ export class AssetsUi {
             body.innerHTML = `<p>Could not contact server: ${err.message}</p>`;
             return;
         }
+        this.sessionToken = cfg.session_token || this.sessionToken;
         body.innerHTML = `
             <table class="assets-table">
                 <tr><th>Editor version</th><td>${cfg.version || '?'}</td></tr>

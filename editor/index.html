@@ -36,6 +36,8 @@
             <div class="menu" data-menu="insert">
                 <button class="menu-button" type="button">Insert</button>
                 <div class="menu-dropdown" id="insert-menu">
+                    <button type="button" data-action="quick-button">Button here&hellip;</button>
+                    <hr>
                     <button type="button" data-action="add-frame" data-type="Frame">Frame (container)</button>
                     <button type="button" data-action="add-frame" data-type="Image">Image</button>
                     <button type="button" data-action="add-frame" data-type="Label">Label</button>
@@ -53,6 +55,9 @@
                 <button class="menu-button" type="button">Help</button>
                 <div class="menu-dropdown">
                     <button type="button" data-action="welcome-tour">Show welcome tour</button>
+                    <button type="button" data-action="game-setup-help">How to use a layout in SC2&hellip;</button>
+                    <button type="button" data-action="export-diagnostics">Export diagnostics&hellip;</button>
+                    <hr>
                     <button type="button" data-action="about">About</button>
                 </div>
             </div>
@@ -229,16 +234,77 @@
         </form>
     </dialog>
 
+    <dialog id="diagnostics-dialog">
+        <form method="dialog">
+            <h3>Export diagnostics</h3>
+            <p class="hint">Creates a machine-readable support report with editor state, warnings, failed assets, and redacted runtime logs.</p>
+            <label for="diagnostics-description">What happened and how can it be reproduced?</label>
+            <textarea id="diagnostics-description" rows="5" placeholder="Example: Open the layout, select GameUI/Panel/Button, then change its Right anchor to -20. The frame disappears."></textarea>
+            <label class="diagnostics-checkbox">
+                <input id="diagnostics-include-layout" type="checkbox">
+                <span><strong>Include the current XML</strong><small>Needed if you want the recipient or a coding assistant to repair the layout. The complete layout text will be inside the report.</small></span>
+            </label>
+            <label class="diagnostics-checkbox">
+                <input id="diagnostics-include-logs" type="checkbox" checked>
+                <span><strong>Include recent browser logs</strong><small>Up to 250 messages. Session tokens and Windows paths are redacted automatically.</small></span>
+            </label>
+            <p class="diagnostics-privacy">The report never includes the localhost session token. Full assets, project, and SC2 installation paths are reduced to folder names.</p>
+            <menu>
+                <button value="cancel" type="submit">Cancel</button>
+                <button value="export" type="submit">Export report</button>
+            </menu>
+        </form>
+    </dialog>
+
     <dialog id="open-dialog">
         <form method="dialog">
             <h3>Open .SC2Layout</h3>
             <p>Path under <code>/project/</code> or <code>/assets/</code>:</p>
             <input id="open-path" type="text" size="80"
-                   value="/project/UpgradeSlotSystem/UpgradeSlotSystem.SC2Mod/Base.SC2Data/UI/Layout/UpgradeSlotPanel.SC2Layout">
+                   placeholder="/project/MyMod.SC2Mod/Base.SC2Data/UI/Layout/MyLayout.SC2Layout">
             <menu>
                 <button value="cancel">Cancel</button>
                 <button id="open-confirm" value="confirm" type="submit">Open</button>
             </menu>
+        </form>
+    </dialog>
+
+    <dialog id="quick-button-dialog">
+        <form method="dialog">
+            <h3>Add a button</h3>
+            <p class="hint">The button will be added inside the selected frame. Select the top-bar container first, then use this command.</p>
+            <div class="quick-target"><strong>Target:</strong> <span id="quick-button-target"></span></div>
+            <label>Name
+                <input id="quick-button-name" type="text" required pattern="[A-Za-z_][A-Za-z0-9_]*" autocomplete="off">
+                <small>Used by layout XML and triggers. Letters, numbers, and underscores only.</small>
+            </label>
+            <label>Button text
+                <input id="quick-button-text" type="text" value="New Button" autocomplete="off">
+            </label>
+            <div class="quick-button-grid">
+                <label>Width <input id="quick-button-width" type="number" min="1" max="4000" value="120"></label>
+                <label>Height <input id="quick-button-height" type="number" min="1" max="4000" value="48"></label>
+                <label>Top offset <input id="quick-button-top" type="number" min="-4000" max="4000" value="0"></label>
+                <label>Left offset <input id="quick-button-left" type="number" min="-4000" max="4000" value="0"></label>
+            </div>
+            <p class="hint">This creates the visual control. Use <strong>File &rarr; Export Triggers XML</strong> if the button also needs click behavior.</p>
+            <menu>
+                <button value="cancel" type="submit">Cancel</button>
+                <button value="insert" type="submit">Add button</button>
+            </menu>
+        </form>
+    </dialog>
+
+    <dialog id="game-setup-dialog">
+        <form method="dialog">
+            <h3>Using a layout in StarCraft II</h3>
+            <ol class="game-setup-steps">
+                <li><strong>Load the file.</strong> Add it to your mod's <code>Base.SC2Data/UI/Layout/DescIndex.SC2Layout</code>, or load it from triggers.</li>
+                <li><strong>Attach visual frames.</strong> Put new controls inside an existing path such as <code>GameUI/...</code>. Select a stock container in this editor before inserting, and the editor will create the required override.</li>
+                <li><strong>Wire behavior.</strong> A visible Button does nothing by itself. Use <strong>File &rarr; Export Triggers XML</strong>, or connect the frame in your existing Galaxy/trigger code.</li>
+            </ol>
+            <p class="hint">The preview checks layout structure and placement. It cannot simulate campaign data, trigger arrays, or Galaxy code that expects a fixed number of frames.</p>
+            <menu><button value="close" type="submit">Close</button></menu>
         </form>
     </dialog>
 
