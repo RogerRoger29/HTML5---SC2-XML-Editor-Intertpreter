@@ -26,17 +26,38 @@ This package contains a complete SC2 global-caster top bar with:
 
 ## Runtime contract
 
-Create `Tyrador_TopBar/TyradorTopBar` inside
-`UIContainer/FullscreenUpperContainer`. Hook `TyradorGlobalCommandPanel` to
-the global caster unit group. Hook `EnergySegment00` through
-`EnergySegment09` as progress bars and `EnergyValueLabel` as a label.
+The package adds an `AMTTopBarTemplate` user-data instance named `Tyrador`.
+It points AMT at `Tyrador_TopBar/TyradorTopBar`,
+`TyradorGlobalCommandPanel`, `EnergyProgressBar`, and `KoEGlobalCaster`.
+It also carries KoE's Bio-Plague Strike, Shattered Reality, and Temporal
+Field extended-ability registrations into AMT's targeting system.
 
-Every milestone represents ten percent of the caster's maximum energy. A
-partial milestone receives a value between 0 and 100, which gives smooth
-lighting while retaining the ten-step visual language. The number label
-always displays the caster's real current energy rather than its percent.
+After adding AMT, KoE, and `TyradorTopBar.SC2Mod` as dependencies, change the
+KoE setup call from:
+
+```galaxy
+libB513D0A0_gf_InitTopBarForPlayer(1, "SpearOfAdun");
+```
+
+to:
+
+```galaxy
+libB513D0A0_gf_InitTopBarForPlayer(1, "Tyrador");
+```
+
+Run the normal KoE bank/perk setup before or immediately after that call.
+AMT accepts one top-bar template per player, so do not call both template
+names for the same player.
+
+Every milestone represents ten percent of the caster's maximum energy and
+turns on when that threshold is reached. AMT writes the caster's current and
+maximum energy into the hidden `EnergyProgressBar`; the layout derives the ten
+lights and exact number directly from it. No polling trigger is required.
 
 The command card provides the icons, cooldowns, costs, disabled states,
-tooltips, and clicks. The layout does not invent ability logic. Put the four
-active buttons in command-card columns 0 through 3 and the two passive
-buttons in columns 4 and 5 on the unit used as the global caster.
+tooltips, and clicks. The layout does not invent ability logic. KoE's current
+caster defines two active choice cells and one passive choice cell, so the
+other wells correctly remain empty. Future catalog work can use columns 2 and
+3 for two more active groups and row 1, column 0 for a second passive group.
+Do not populate that second passive well with a stock SoA choice unless KoE's
+caster and campaign-perk data explicitly add that choice group.

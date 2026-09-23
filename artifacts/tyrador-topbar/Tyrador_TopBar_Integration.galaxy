@@ -1,69 +1,14 @@
-// Tyrador top bar runtime integration reference.
+// Knights of Tyrador top bar integration reference for KoE + AMT.
 //
-// Call TyradorTopBarCreate(player, caster) after the global caster exists.
-// Call TyradorTopBarUpdate(player) whenever the caster's energy changes, or
-// from a short periodic trigger if an event-driven hookup is inconvenient.
+// TyradorTopBar.SC2Mod contributes the AMTTopBarTemplate user-data instance
+// named "Tyrador". AMT still owns creation, the command-panel binding, caster
+// storage, targeting UI, cinematic handling, and energy updates.
 
-int[17] gv_tyradorTopBarPanel;
-int[17] gv_tyradorTopBarCommandPanel;
-int[17] gv_tyradorEnergyLabel;
-int[10][17] gv_tyradorEnergySegment;
-unit[17] gv_tyradorCaster;
-unitgroup[17] gv_tyradorCasterGroup;
-
-void TyradorTopBarUpdate (int player) {
-    fixed energy;
-    fixed energyPercent;
-    fixed segmentValue;
-    int index;
-    playergroup viewers;
-
-    if ((gv_tyradorCaster[player] == null) || (gv_tyradorTopBarPanel[player] == c_invalidDialogControlId)) {
-        return;
-    }
-
-    viewers = PlayerGroupSingle(player);
-    energy = MaxF(0.0, UnitGetPropertyFixed(gv_tyradorCaster[player], c_unitPropEnergy, c_unitPropCurrent));
-    energyPercent = MaxF(0.0, MinF(100.0, UnitGetPropertyFixed(gv_tyradorCaster[player], c_unitPropEnergyPercent, c_unitPropCurrent)));
-
-    index = 0;
-    while ((index < 10)) {
-        segmentValue = MaxF(0.0, MinF(100.0, (energyPercent - IntToFixed(index * 10)) * 10.0));
-        libNtve_gf_SetDialogItemCurrentValue(gv_tyradorEnergySegment[index][player], segmentValue, viewers);
-        index += 1;
-    }
-
-    libNtve_gf_SetDialogItemText(gv_tyradorEnergyLabel[player], IntToText(FixedToInt(Floor(energy))), viewers);
-}
-
-void TyradorTopBarCreate (int player, unit caster) {
-    int holder;
-    int index;
-    playergroup viewers;
-
-    viewers = PlayerGroupSingle(player);
-    gv_tyradorCaster[player] = caster;
-    gv_tyradorCasterGroup[player] = UnitGroupEmpty();
-    UnitGroupAdd(gv_tyradorCasterGroup[player], caster);
-
-    DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer");
-    holder = DialogControlLastCreated();
-    DialogControlCreateInPanelFromTemplate(holder, c_triggerControlTypePanel, "Tyrador_TopBar/TyradorTopBar");
-    gv_tyradorTopBarPanel[player] = DialogControlLastCreated();
-
-    DialogControlHookup(gv_tyradorTopBarPanel[player], c_triggerControlTypeCommandPanel, "TyradorGlobalCommandPanel");
-    gv_tyradorTopBarCommandPanel[player] = DialogControlLastCreated();
-    libNtve_gf_SetDialogItemUnitGroup(gv_tyradorTopBarCommandPanel[player], gv_tyradorCasterGroup[player], viewers);
-
-    index = 0;
-    while ((index < 10)) {
-        DialogControlHookup(gv_tyradorTopBarPanel[player], c_triggerControlTypeProgressBar, "EnergySegments/EnergySegment0" + IntToString(index));
-        gv_tyradorEnergySegment[index][player] = DialogControlLastCreated();
-        index += 1;
-    }
-
-    DialogControlHookup(gv_tyradorTopBarPanel[player], c_triggerControlTypeLabel, "EnergyValueLabel");
-    gv_tyradorEnergyLabel[player] = DialogControlLastCreated();
-    DialogControlSetVisible(gv_tyradorTopBarPanel[player], viewers, true);
-    TyradorTopBarUpdate(player);
+void TyradorTopBarInitializeForPlayer (int player) {
+    // This is the only top-bar creation call. Do not also initialize
+    // "SpearOfAdun" for the same player because AMT intentionally accepts the
+    // first template once and ignores later initialization calls.
+    // KoE's normal bank/perk setup remains authoritative for which overlapping
+    // command-card choices become visible.
+    libB513D0A0_gf_InitTopBarForPlayer(player, "Tyrador");
 }

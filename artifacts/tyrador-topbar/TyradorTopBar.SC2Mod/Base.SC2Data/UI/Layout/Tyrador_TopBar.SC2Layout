@@ -4,13 +4,15 @@
         Knights of Tyrador global-caster top bar.
 
         Command card contract:
-          Column 0-3: four active commander abilities.
-          Column 4-5: two passive information buttons.
+          CommandButton00-03: four active commander abilities (catalog row 0, columns 0-3).
+          CommandButton04: one of the three tier-3 passive choices (catalog row 0, column 4).
+          CommandButton05: one of the three tier-5 passive choices (catalog row 1, column 0).
 
         Runtime contract:
-          Hook TyradorGlobalCommandPanel to the global caster unit group.
-          Hook EnergySegment00 through EnergySegment09 as ProgressBar controls.
-          Hook EnergyValueLabel as a Label control.
+          AMTTopBarTemplate/Tyrador creates this frame and hooks
+          TyradorGlobalCommandPanel to KoEGlobalCaster.
+          AMT writes the caster energy to EnergyProgressBar. The layout derives
+          all ten milestone lights and the exact number from that one control.
     -->
 
     <Constant name="TyradorTopBarWidth" val="900"/>
@@ -132,7 +134,7 @@
 
     </Frame>
 
-    <Frame type="CommandPanel" name="TyradorGlobalCommandPanelTemplate" template="CommandPanel/CommandPanelTemplate">
+    <Frame type="CommandPanel" name="TyradorGlobalCommandPanelTemplate" template="AMT_TopBarTemplate/TopBarCommandPanelTemplate">
         <Width val="#TyradorTopBarWidth"/>
         <Height val="#TyradorTopBarHeight"/>
         <Anchor relative="$parent"/>
@@ -175,14 +177,22 @@
 
         <Frame type="CommandButton" name="CommandButton04" template="Tyrador_TopBar/TyradorPassiveButtonTemplate">
             <Anchor side="Top" relative="$parent" pos="Min" offset="44"/>
-            <Anchor side="Left" relative="$parent" pos="Mid" offset="-431"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="-397"/>
+            <Width val="36"/>
+            <Height val="34"/>
             <TooltipFrame val="TyradorCommandTooltip"/>
+            <!-- AMT's SoA panel explicitly exposes passive controls so catalog
+                 requirement changes can paint them after the panel is hooked. -->
+            <Visible val="true"/>
         </Frame>
 
         <Frame type="CommandButton" name="CommandButton05" template="Tyrador_TopBar/TyradorPassiveButtonTemplate">
             <Anchor side="Top" relative="$parent/CommandButton04" pos="Min" offset="0"/>
-            <Anchor side="Left" relative="$parent" pos="Mid" offset="396"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="361"/>
+            <Width val="36"/>
+            <Height val="34"/>
             <TooltipFrame val="TyradorCommandTooltip"/>
+            <Visible val="true"/>
         </Frame>
 
         <Frame type="CommandButton" name="CommandButton06" template="Tyrador_TopBar/TyradorAbilityButtonTemplate"><Visible val="false"/></Frame>
@@ -255,6 +265,20 @@
             </Animation>
         </Frame>
 
+        <!-- AMT's native energy target. It stays invisible and drives every visual below. -->
+        <Frame type="ProgressBar" name="EnergyProgressBar">
+            <MinValue val="0"/>
+            <MaxValue val="300"/>
+            <Value val="225"/>
+            <Visible val="false"/>
+        </Frame>
+
+        <Frame type="MathFrame" name="EnergyRatio">
+            <A val="{$parent/EnergyProgressBar/@Value}"/>
+            <B val="{$parent/EnergyProgressBar/@MaxValue}"/>
+            <Operator val="Divide"/>
+        </Frame>
+
         <Frame type="Frame" name="EnergySegments">
             <Width val="190"/>
             <Height val="#TyradorEnergySegmentHeight"/>
@@ -264,45 +288,95 @@
             <Frame type="ProgressBar" name="EnergySegment00" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
                 <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
                 <Anchor side="Left" relative="$parent" pos="Min" offset="0"/>
+                <StateGroup name="MilestoneState">
+                    <DefaultState val="Empty"/>
+                    <State name="Filled">
+                        <When type="Property" frame="$parent/$parent/EnergyRatio" operator="GreaterThanOrEqual" Result="0.1"/>
+                        <Action type="SetProperty" frame="$this" Value="100"/>
+                    </State>
+                    <State name="Empty"><Action type="SetProperty" frame="$this" Value="0"/></State>
+                </StateGroup>
             </Frame>
             <Frame type="ProgressBar" name="EnergySegment01" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
                 <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
                 <Anchor side="Left" relative="$parent" pos="Min" offset="20"/>
+                <StateGroup name="MilestoneState">
+                    <DefaultState val="Empty"/>
+                    <State name="Filled"><When type="Property" frame="$parent/$parent/EnergyRatio" operator="GreaterThanOrEqual" Result="0.2"/><Action type="SetProperty" frame="$this" Value="100"/></State>
+                    <State name="Empty"><Action type="SetProperty" frame="$this" Value="0"/></State>
+                </StateGroup>
             </Frame>
             <Frame type="ProgressBar" name="EnergySegment02" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
                 <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
                 <Anchor side="Left" relative="$parent" pos="Min" offset="40"/>
+                <StateGroup name="MilestoneState">
+                    <DefaultState val="Empty"/>
+                    <State name="Filled"><When type="Property" frame="$parent/$parent/EnergyRatio" operator="GreaterThanOrEqual" Result="0.3"/><Action type="SetProperty" frame="$this" Value="100"/></State>
+                    <State name="Empty"><Action type="SetProperty" frame="$this" Value="0"/></State>
+                </StateGroup>
             </Frame>
             <Frame type="ProgressBar" name="EnergySegment03" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
                 <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
                 <Anchor side="Left" relative="$parent" pos="Min" offset="58"/>
+                <StateGroup name="MilestoneState">
+                    <DefaultState val="Empty"/>
+                    <State name="Filled"><When type="Property" frame="$parent/$parent/EnergyRatio" operator="GreaterThanOrEqual" Result="0.4"/><Action type="SetProperty" frame="$this" Value="100"/></State>
+                    <State name="Empty"><Action type="SetProperty" frame="$this" Value="0"/></State>
+                </StateGroup>
             </Frame>
             <Frame type="ProgressBar" name="EnergySegment04" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
                 <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
                 <Anchor side="Left" relative="$parent" pos="Min" offset="78"/>
+                <StateGroup name="MilestoneState">
+                    <DefaultState val="Empty"/>
+                    <State name="Filled"><When type="Property" frame="$parent/$parent/EnergyRatio" operator="GreaterThanOrEqual" Result="0.5"/><Action type="SetProperty" frame="$this" Value="100"/></State>
+                    <State name="Empty"><Action type="SetProperty" frame="$this" Value="0"/></State>
+                </StateGroup>
             </Frame>
             <Frame type="ProgressBar" name="EnergySegment05" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
                 <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
                 <Anchor side="Left" relative="$parent" pos="Min" offset="96"/>
+                <StateGroup name="MilestoneState">
+                    <DefaultState val="Empty"/>
+                    <State name="Filled"><When type="Property" frame="$parent/$parent/EnergyRatio" operator="GreaterThanOrEqual" Result="0.6"/><Action type="SetProperty" frame="$this" Value="100"/></State>
+                    <State name="Empty"><Action type="SetProperty" frame="$this" Value="0"/></State>
+                </StateGroup>
             </Frame>
             <Frame type="ProgressBar" name="EnergySegment06" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
                 <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
                 <Anchor side="Left" relative="$parent" pos="Min" offset="116"/>
+                <StateGroup name="MilestoneState">
+                    <DefaultState val="Empty"/>
+                    <State name="Filled"><When type="Property" frame="$parent/$parent/EnergyRatio" operator="GreaterThanOrEqual" Result="0.7"/><Action type="SetProperty" frame="$this" Value="100"/></State>
+                    <State name="Empty"><Action type="SetProperty" frame="$this" Value="0"/></State>
+                </StateGroup>
             </Frame>
             <Frame type="ProgressBar" name="EnergySegment07" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
                 <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
                 <Anchor side="Left" relative="$parent" pos="Min" offset="135"/>
-                <Value val="50"/>
+                <StateGroup name="MilestoneState">
+                    <DefaultState val="Empty"/>
+                    <State name="Filled"><When type="Property" frame="$parent/$parent/EnergyRatio" operator="GreaterThanOrEqual" Result="0.8"/><Action type="SetProperty" frame="$this" Value="100"/></State>
+                    <State name="Empty"><Action type="SetProperty" frame="$this" Value="0"/></State>
+                </StateGroup>
             </Frame>
             <Frame type="ProgressBar" name="EnergySegment08" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
                 <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
                 <Anchor side="Left" relative="$parent" pos="Min" offset="155"/>
-                <Value val="0"/>
+                <StateGroup name="MilestoneState">
+                    <DefaultState val="Empty"/>
+                    <State name="Filled"><When type="Property" frame="$parent/$parent/EnergyRatio" operator="GreaterThanOrEqual" Result="0.9"/><Action type="SetProperty" frame="$this" Value="100"/></State>
+                    <State name="Empty"><Action type="SetProperty" frame="$this" Value="0"/></State>
+                </StateGroup>
             </Frame>
             <Frame type="ProgressBar" name="EnergySegment09" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
                 <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
                 <Anchor side="Left" relative="$parent" pos="Min" offset="175"/>
-                <Value val="0"/>
+                <StateGroup name="MilestoneState">
+                    <DefaultState val="Empty"/>
+                    <State name="Filled"><When type="Property" frame="$parent/$parent/EnergyRatio" operator="GreaterThanOrEqual" Result="1.0"/><Action type="SetProperty" frame="$this" Value="100"/></State>
+                    <State name="Empty"><Action type="SetProperty" frame="$this" Value="0"/></State>
+                </StateGroup>
 
                 <StateGroup name="EnergyFullState">
                     <DefaultState val="NotFull"/>
@@ -318,11 +392,13 @@
 
         <Frame type="Label" name="EnergyValueLabel">
             <Anchor side="Top" relative="$parent" pos="Min" offset="39"/>
-            <Anchor side="Left" relative="$parent" pos="Mid" offset="79"/>
-            <Width val="40"/>
+            <!-- Keep the same visual center while leaving room for all 0-300 values in SC2. -->
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="64"/>
+            <Width val="70"/>
             <Height val="31"/>
-            <Text val="225"/>
-            <Style val="@Coop_TopBar_Mengsk_Energy"/>
+            <Text val="{$parent/EnergyProgressBar/@Value}"/>
+            <!-- The Mengsk 27px style ellipsizes three-digit values at lower UI scales. -->
+            <Style val="@StandardDialogMessage"/>
             <Color val="215,167,255"/>
             <RenderPriority val="517"/>
         </Frame>

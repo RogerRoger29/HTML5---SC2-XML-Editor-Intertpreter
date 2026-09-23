@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <!--
+        AMT owns the schema and runtime builder. This instance only supplies the
+        Tyrador layout, KoE caster, and KoE targeting extensions.
+    -->
+    <CUser id="AMTTopBarTemplate">
+        <Instances Id="Tyrador">
+            <Int Int="6">
+                <Field Id="SlotCount"/>
+            </Int>
+            <Int Int="1">
+                <Field Id="PauseInCinematic"/>
+            </Int>
+            <String String="Tyrador_TopBar/TyradorTopBar">
+                <Field Id="LayoutTemplatePath"/>
+            </String>
+            <String String="TyradorGlobalCommandPanel">
+                <Field Id="CommandCardInternalPath"/>
+            </String>
+            <String String="EnergyProgressBar">
+                <Field Id="EnergyProgressBarPath"/>
+            </String>
+            <GameLink GameLink="KoEGlobalCaster">
+                <Field Id="GlobalCasterType"/>
+            </GameLink>
+            <User Type="AMTTopBarTargetingUI" Instance="SpearOfAdun">
+                <Field Id="TargetingUI"/>
+            </User>
+            <User Type="AMTTopBarExtendedAbilty" Instance="Bio-Plague Strike">
+                <Field Id="Abilities"/>
+            </User>
+            <User Type="AMTTopBarExtendedAbilty" Instance="Shattered Reality">
+                <Field Id="Abilities" Index="1"/>
+            </User>
+            <User Type="AMTTopBarExtendedAbilty" Instance="Temporal Field">
+                <Field Id="Abilities" Index="2"/>
+            </User>
+        </Instances>
+    </CUser>
+</Catalog>

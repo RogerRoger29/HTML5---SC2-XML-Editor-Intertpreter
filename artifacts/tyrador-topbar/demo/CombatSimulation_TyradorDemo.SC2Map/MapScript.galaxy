@@ -2109,7 +2109,9 @@ bool gt_AuthorInitializeAMTTopbar_Func (bool testConds, bool runActions) {
         return true;
     }
 
-    libB513D0A0_gf_InitTopBarForPlayer(1, "SpearOfAdun");
+    // KoE's normal bank/perk setup remains authoritative for the abilities.
+    libB513D0A0_gf_InitTopBarForPlayer(1, "Tyrador");
+    libB513D0A0_gf_SetTopBarGlobalCasterEnergyForPlayer(1, 225.0, libB513D0A0_ge_EnergyType_Absolute);
     return true;
 }
 
@@ -2894,60 +2896,22 @@ void gt_MSCShoulderSalvoFired_Init () {
 // Tyrador top bar demonstration
 //--------------------------------------------------------------------------------------------------
 bool gt_TyradorTopBarCreate_Func (bool testConds, bool runActions) {
-    int lv_holder;
-    int lv_index;
-    int lv_validSegments;
-
     if (!runActions) {
         return true;
     }
 
-    gv_tyradorCaster = gf_TyradorTopBarFindCaster();
-    if ((gv_tyradorCaster == null)) {
-        UnitCreate(1, "KoEGlobalCaster", c_unitCreateIgnorePlacement, 1, Point(0.0, 0.0), 0.0);
-        gv_tyradorCaster = UnitLastCreated();
-        if ((gv_tyradorCaster == null)) {
-            return true;
-        }
-        UnitSetPropertyFixed(gv_tyradorCaster, c_unitPropEnergyPercent, 75.0);
-        TriggerDebugOutput(7, StringToText("Created a player-1 KoEGlobalCaster for this standalone demo."), false);
-    }
-
-    DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer");
-    lv_holder = DialogControlLastCreated();
-    DialogControlCreateInPanelFromTemplate(lv_holder, c_triggerControlTypePanel, "Tyrador_TopBar/TyradorTopBar");
-    gv_tyradorTopBarPanel = DialogControlLastCreated();
-
-    DialogControlHookup(gv_tyradorTopBarPanel, c_triggerControlTypeCommandPanel, "TyradorGlobalCommandPanel");
-    gv_tyradorTopBarCommandPanel = DialogControlLastCreated();
-    UnitGroupAdd(gv_tyradorCasterGroup, gv_tyradorCaster);
-    libNtve_gf_SetDialogItemUnitGroup(gv_tyradorTopBarCommandPanel, gv_tyradorCasterGroup, PlayerGroupSingle(1));
-
-    lv_index = 0;
-    lv_validSegments = 0;
-    while ((lv_index < 10)) {
-        DialogControlHookup(gv_tyradorTopBarPanel, c_triggerControlTypeProgressBar, "EnergySegments/EnergySegment0" + IntToString(lv_index));
-        gv_tyradorEnergySegments[lv_index] = DialogControlLastCreated();
-        if ((gv_tyradorEnergySegments[lv_index] != c_invalidDialogControlId)) {
-            lv_validSegments += 1;
-        }
-        lv_index += 1;
-    }
-    DialogControlHookup(gv_tyradorTopBarPanel, c_triggerControlTypeLabel, "EnergyValueLabel");
-    gv_tyradorEnergyLabel = DialogControlLastCreated();
-
-    DialogControlSetVisible(gv_tyradorTopBarPanel, PlayerGroupSingle(1), true);
-    TriggerEnable(gt_TyradorTopBarCreate, false);
-    gf_TyradorTopBarUpdate();
-    TriggerDebugOutput(7, StringToText("Created panel=" + IntToString(gv_tyradorTopBarPanel) +
-        " commandPanel=" + IntToString(gv_tyradorTopBarCommandPanel) +
-        " energyLabel=" + IntToString(gv_tyradorEnergyLabel) +
-        " validSegments=" + IntToString(lv_validSegments) + "/10" +
-        " segment00=" + IntToString(gv_tyradorEnergySegments[0]) +
-        " segment09=" + IntToString(gv_tyradorEnergySegments[9]) +
-        " caster=" + UnitGetType(gv_tyradorCaster) +
-        " energy=" + FixedToString(UnitGetPropertyFixed(gv_tyradorCaster, c_unitPropEnergy, c_unitPropCurrent), 2)), false);
-    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Tyrador top bar demo loaded. The center milestones are bound to KoEGlobalCaster energy."));
+    // The Combat Simulation bank can legitimately have no tier-3 passive
+    // selected. Give the visual demo one real KoE passive after bank loading;
+    // the production integration continues to use the player's bank choice.
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "BattlefieldAdaptation", 0);
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "EnhancedLogisticalProtocols", 0);
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "FrontlineProtocolUpgrade", 1);
+    libNtve_gf_SetDialogItemUnitGroup(
+        libB513D0A0_gv_aMTTopBarTopBarCommandCard[1],
+        libB513D0A0_gv_aMTTopBarGlobalCasterGroup[1],
+        PlayerGroupSingle(1)
+    );
+    libB513D0A0_gf_SetTopBarGlobalCasterEnergyForPlayer(1, 225.0, libB513D0A0_ge_EnergyType_Absolute);
     return true;
 }
 
@@ -2958,7 +2922,7 @@ void gt_TyradorTopBarCreate_Init () {
     TriggerDebugSetTypeFile(7, "TyradorTopBarDemo.txt");
     TriggerDebugOutput(7, StringToText("Create trigger armed; waiting for KoEGlobalCaster."), false);
     gt_TyradorTopBarCreate = TriggerCreate("gt_TyradorTopBarCreate_Func");
-    TriggerAddEventTimePeriodic(gt_TyradorTopBarCreate, 0.25, c_timeReal);
+    TriggerAddEventTimeElapsed(gt_TyradorTopBarCreate, 2.0, c_timeGame);
 }
 
 bool gt_TyradorTopBarUpdate_Func (bool testConds, bool runActions) {
@@ -3024,7 +2988,6 @@ void InitTriggers () {
     gt_DFAReclamationCasualty_Init();
     gt_MSCShoulderSalvoFired_Init();
     gt_TyradorTopBarCreate_Init();
-    gt_TyradorTopBarUpdate_Init();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -3034,5 +2997,5 @@ void InitMap () {
     InitLibs();
     InitGlobals();
     InitTriggers();
-    gt_TyradorTopBarCreate_Func(false, true);
+    gt_AuthorInitializeAMTTopbar_Func(false, true);
 }

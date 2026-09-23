@@ -33,6 +33,27 @@
             <LayoutButtons Face="CalltoArms" Type="AbilCmd" AbilCmd="CalltoArms,Build1" Row="1" Column="0" />
         </CardLayouts>
     </CUnit>
+    <!-- Deterministic visual fixture made only from genuine KoE choices. The
+         production mod keeps its normal overlapping bank-selected card. -->
+    <CUnit id="KoEGlobalCaster">
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="SolaceAmongRuin" Type="AbilCmd" AbilCmd="SolaceAmongRuin,Build1" Requirements="" Row="0" Column="0" />
+            <LayoutButtons index="1" Face="ShatteredReality" Type="AbilCmd" AbilCmd="ShatteredRealityActivate,On" Requirements="" Row="0" Column="1" />
+            <LayoutButtons index="2" removed="1" />
+            <LayoutButtons index="3" removed="1" />
+            <LayoutButtons index="4" Face="FrontlineProtocol" Type="Passive" AbilCmd="" Requirements="" Row="0" Column="4" />
+            <LayoutButtons index="5" removed="1" />
+            <LayoutButtons index="6" removed="1" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+        </CardLayouts>
+    </CUnit>
     <CUnit id="DFAConstructionVehicle" parent="SCV">
         <Name value="Unit/Name/DFAConstructionVehicle" />
         <Description value="Unit/Description/DFAConstructionVehicle" />
