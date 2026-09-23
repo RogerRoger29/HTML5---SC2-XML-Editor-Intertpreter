@@ -36,6 +36,9 @@
             <div class="menu" data-menu="insert">
                 <button class="menu-button" type="button">Insert</button>
                 <div class="menu-dropdown" id="insert-menu">
+                    <button type="button" data-action="guided-tools"><strong>Guided tools&hellip;</strong></button>
+                    <button type="button" data-action="add-matching-button">Add matching button beside selected</button>
+                    <hr>
                     <button type="button" data-action="quick-button">Button here&hellip;</button>
                     <hr>
                     <button type="button" data-action="add-frame" data-type="Frame">Frame (container)</button>
@@ -56,7 +59,9 @@
                 <div class="menu-dropdown">
                     <button type="button" data-action="welcome-tour">Show welcome tour</button>
                     <button type="button" data-action="game-setup-help">How to use a layout in SC2&hellip;</button>
+                    <button type="button" data-action="readiness-check">Run SC2 readiness check&hellip;</button>
                     <button type="button" data-action="export-diagnostics">Export diagnostics&hellip;</button>
+                    <button type="button" data-action="export-support-bundle">Export support bundle&hellip;</button>
                     <hr>
                     <button type="button" data-action="about">About</button>
                 </div>
@@ -84,6 +89,10 @@
                         <input id="toggle-backdrop" type="checkbox" checked>
                         Backdrop <span class="menu-kbd">B</span>
                     </label>
+                    <label class="menu-row" title="Show task-based controls and hide the raw XML pane">
+                        <input id="toggle-simple-mode" type="checkbox">
+                        Simple mode
+                    </label>
                     <button type="button" data-action="set-backdrop">Set backdrop image&hellip;</button>
                     <hr>
                     <label class="menu-row" title="Snap drags/resizes to grid multiples">
@@ -105,6 +114,7 @@
             <button id="btn-warnings" type="button" title="Layout validator: dangling templates, missing children, malformed values" hidden>
                 Warnings <span id="warnings-count" class="badge">0</span>
             </button>
+            <button id="btn-guided" type="button" title="Task-based tools for adding controls and checking a layout">Guided tools&hellip;</button>
             <button id="btn-assets" type="button" title="Manage SC2 assets (download, extract from SC2 install, set path)">Assets&hellip;</button>
             <span id="status">Ready.</span>
         </div>
@@ -138,6 +148,14 @@
                     <span id="zoom-pct">50%</span>
                 </label>
                 <button id="btn-fit" type="button" title="Fit canvas to the available area">Fit</button>
+            </div>
+            <div id="beginner-bar" hidden>
+                <span><strong>Simple mode:</strong> Select an existing control, then choose what you want to do.</span>
+                <button id="beginner-add-inside" type="button">Add something</button>
+                <button id="beginner-edit" type="button">Edit selected</button>
+                <button id="beginner-add-matching" type="button">Copy a pattern</button>
+                <button id="beginner-check" type="button">Check for SC2 problems</button>
+                <button id="beginner-exit" type="button" title="Show the XML pane and advanced controls">Exit simple mode</button>
             </div>
             <div id="canvas-scroll">
                 <div id="canvas-root">
@@ -201,7 +219,7 @@
     <dialog id="triggers-export-dialog">
         <form method="dialog">
             <h3>Export Triggers XML</h3>
-            <p class="hint">Generates a Library-wrapped Triggers fragment that loads this layout at map init and binds each opted-in frame to a Variable. Paste it into your mod's <code>Triggers</code> file or save it as a new one.</p>
+            <p class="hint">Generates a self-contained trigger library that hooks selected layout frames to dialog-control variables. For an existing <code>Triggers</code> file, copy the generated <code>&lt;Library&gt;</code> block inside its <code>&lt;TriggerData&gt;</code> root. Use the complete download only when creating a new <code>Triggers</code> file.</p>
             <div id="triggers-export-body"></div>
             <menu>
                 <button value="cancel" type="submit">Cancel</button>
@@ -291,6 +309,82 @@
             <menu>
                 <button value="cancel" type="submit">Cancel</button>
                 <button value="insert" type="submit">Add button</button>
+            </menu>
+        </form>
+    </dialog>
+
+    <dialog id="guided-dialog">
+        <form method="dialog">
+            <h3>Guided layout tools</h3>
+            <p class="hint">Select something in the hierarchy or preview. The editor will copy the existing pattern, choose safe names, and keep the change undoable.</p>
+            <div class="guided-selection"><strong>Selected:</strong> <span id="guided-selection"></span></div>
+            <div id="guided-analysis" class="guided-analysis"></div>
+            <fieldset>
+                <legend>Add something inside the selection</legend>
+                <p>Choose what you want to add. The editor creates a valid SC2 control with a safe name and sensible starting size.</p>
+                <div class="guided-actions">
+                    <button type="button" data-guided-add="Frame">Container</button>
+                    <button type="button" data-guided-add="Label">Text label</button>
+                    <button type="button" data-guided-add="Image">Image</button>
+                    <button type="button" data-guided-add="Button">Button</button>
+                    <button type="button" data-guided-add="CheckBox">Check box</button>
+                    <button type="button" data-guided-add="ProgressBar">Progress bar</button>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Edit the selected frame</legend>
+                <div class="guided-actions">
+                    <button id="guided-duplicate" type="button">Duplicate beside it</button>
+                    <button id="guided-show" type="button">Show</button>
+                    <button id="guided-hide" type="button">Hide</button>
+                    <button id="guided-grow" type="button">Grow container around children</button>
+                </div>
+                <div class="guided-move-resize">
+                    <div class="guided-move-pad" aria-label="Move selected frame">
+                        <button type="button" data-guided-nudge="0,-8" title="Move up 8 pixels">↑</button>
+                        <button type="button" data-guided-nudge="-8,0" title="Move left 8 pixels">←</button>
+                        <button type="button" data-guided-nudge="8,0" title="Move right 8 pixels">→</button>
+                        <button type="button" data-guided-nudge="0,8" title="Move down 8 pixels">↓</button>
+                    </div>
+                    <label>Width <input id="guided-width" type="number" min="1" max="4000"></label>
+                    <label>Height <input id="guided-height" type="number" min="1" max="4000"></label>
+                    <button id="guided-resize" type="button">Apply size</button>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Copy an existing button pattern</legend>
+                <p>Copies the last matching button in the row, continues its spacing, chooses the next numbered name, and advances supported numbered <code>HotkeyUse</code> values. Extra commander buttons use their normal Data-module hotkey.</p>
+                <label class="guided-checkbox">
+                    <input id="guided-extend-art" type="checkbox" checked>
+                    Extend recognized commander artwork when a safe preset is available
+                </label>
+                <button id="guided-add-matching" type="button">Add matching button to end of row</button>
+            </fieldset>
+            <fieldset>
+                <legend>Finish and test</legend>
+                <div class="guided-actions">
+                    <button id="guided-readiness" type="button">Run SC2 readiness check</button>
+                    <button id="guided-triggers" type="button">Generate trigger hookups</button>
+                    <button id="guided-support" type="button">Export support bundle</button>
+                </div>
+            </fieldset>
+            <div id="guided-result" class="guided-result" hidden></div>
+            <menu>
+                <button id="guided-undo" type="button" hidden>Undo this change</button>
+                <button value="close" type="submit">Close</button>
+            </menu>
+        </form>
+    </dialog>
+
+    <dialog id="readiness-dialog">
+        <form method="dialog">
+            <h3>SC2 readiness check</h3>
+            <div id="readiness-summary"></div>
+            <p class="hint">This checks layout structure, resolved frame boxes, nearby background coverage, and runtime hookup paths. Existing Galaxy code and data-driven ability assignments still require an in-game test.</p>
+            <menu>
+                <button id="readiness-triggers" type="button">Generate trigger hookups</button>
+                <button id="readiness-export" type="button">Export support bundle</button>
+                <button value="close" type="submit">Close</button>
             </menu>
         </form>
     </dialog>

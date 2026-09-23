@@ -45,14 +45,15 @@ canvas tracks it live. (Text alignment lives in the FontStyle the frame
 references, not as a per-frame override — pick a Style whose alignment
 you want.)
 
-Type into the Texture or Style fields and you get autocomplete from your
-real loaded Assets.txt (~1,500 entries on a normal install). Same for
-templates.
+Type into the Texture or Style fields and you get autocomplete from the
+real loaded `Assets.txt` and `AssetsProduct.txt` catalogs. Same for templates.
 
-The hierarchy on the left supports drag-and-drop — pull a frame onto another
+The hierarchy on the left supports drag-and-drop - pull a frame onto another
 to reparent it, drop above or below for sibling reordering. The Insert menu
 adds new frames (Frame, Image, Label, Button, Tooltip, CheckBox, EditBox,
-ListBox, ProgressBar, StatusBar) with sensible defaults wired up.
+ListBox, ProgressBar, StatusBar) with sensible defaults wired up. Composite
+controls inherit Blizzard's standard templates, so their required internal
+frames and control properties are present in-game.
 
 For the common "put one button on the HUD" case, select the stock container
 that should own it and use **Insert → Button here…**. Enter a name and caption,
@@ -80,15 +81,49 @@ You can also export an HTML snapshot of the current canvas with textures
 inlined as base64. Useful for showing layouts to someone who doesn't have
 the editor installed.
 
+## Guided tools and Simple mode
+
+Click **Guided tools…** in the top bar when you want to make a common change
+without writing XML. The task hub can add containers, labels, images, buttons,
+check boxes, and progress bars; duplicate, move, resize, show, or hide the
+selection; and grow a container around its direct children.
+
+**Copy an existing button pattern** copies the actual last matching button,
+continues the detected spacing, chooses the next numbered name, and advances a
+supported numbered `HotkeyUse` values. SC2 only defines `CommanderAbility0`
+through `CommanderAbility3`, so later commander buttons use their normal
+Data-module button hotkey. Recognized commander layouts can also extend their
+artwork safely. The Mengsk preset reuses the flat right-hand texture section
+and end cap instead of stretching the central crest.
+
+Enable **View → Simple mode** to hide the raw XML pane and show task buttons
+above the preview. Every guided operation is recorded as one Undo step and
+reports exactly what it changed.
+
+Use **Help → Run SC2 readiness check** before an in-game test. It checks
+structural warnings, layout cycles, invalid frame boxes, buttons outside nearby
+background art, stable runtime paths, assets, and likely trigger work. It
+cannot execute existing Galaxy or supply ability data, so the final in-game
+smoke test still matters.
+
 ## Triggers export
 
 If you want the layout wired up in-game, File → Export Triggers XML
-generates a fragment you can paste into your mod's Triggers file. Pick which
-frames you want bound to Galaxy variables, optionally include click-handler
-stubs for buttons, and you get the variable declarations, the init trigger
-that loads the layout and binds them, and (per opted-in button) a
-TriggerAddEventDialogControl event handler with a comment placeholder for
-your logic.
+generates a self-contained trigger library. Pick which frames you want bound
+to Galaxy dialog-control variables and optionally include click-handler stubs
+for buttons. The generated init trigger hooks each frame with its correct SC2
+control type, stores `DialogControlLastCreated()`, and filters each click event
+to the corresponding control variable.
+
+The dialog generates a unique library ID for you. For an existing `Triggers`
+file, copy the downloaded `<Library>` block inside its `<TriggerData>` root.
+Use the complete download as the `Triggers` file only when the mod does not
+already have one.
+
+Turn on **Load this layout from triggers** only when the layout is not already
+listed in `DescIndex.SC2Layout`. Loading the same layout through both routes
+causes duplicate-frame errors in SC2. The trigger option uses `PreloadLayout`
+at map initialization before hooking the selected controls.
 
 You still have to do the SC2 Editor "poke any trigger and save" dance to
 force MapScript to regenerate — that's a quirk of how Galaxy codegen works,
@@ -133,12 +168,16 @@ I'll widen the search.
 
 ## Bug reports
 
-Use Help → Export diagnostics when something misbehaves. Describe what
-happened, choose whether to include the current XML, and send the resulting
-JSON file with the bug report. It contains editor state, validator warnings,
-failed asset references, and recent logs in a format a developer or coding
-assistant can inspect directly. Local filesystem paths and the localhost
-session token are removed automatically.
+Use **Help → Export support bundle** when someone else needs to diagnose or
+repair the layout. The single `.sc2support.json` file contains the exact layout
+XML, readiness results, editor diagnostics, and a generated trigger-hookup
+draft. A developer or coding assistant can inspect it directly. Local
+filesystem paths and the localhost session token are removed automatically.
+
+**Export diagnostics** remains available when the layout itself cannot be
+shared. Describe what happened, choose whether to include the current XML, and
+send the resulting JSON file with the bug report. It contains editor state,
+validator warnings, failed asset references, and recent logs.
 
 The XML checkbox includes exactly what is visible in the XML pane, including
 unapplied or malformed text. Leave it off when the layout cannot be shared.

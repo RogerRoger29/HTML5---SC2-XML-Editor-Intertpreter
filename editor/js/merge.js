@@ -181,11 +181,48 @@ function elementToNode(el, path, origin) {
     return node;
 }
 
+// A local child frame with the same name as a template child re-opens that
+// child in SC2. It does not replace the child wholesale. Preserve the
+// template child's properties and descendants as bases, then let the local
+// node's own props win during materialization.
+function inheritElementIntoNode(node, el) {
+    if (!node._inheritedElements) node._inheritedElements = new WeakSet();
+    if (node._inheritedElements.has(el)) return;
+    node._inheritedElements.add(el);
+
+    const inheritedProps = [];
+    for (const child of el.children || []) {
+        if (child.type !== 'element') continue;
+        if (child.tag === 'Frame' || FRAME_TAG.test(child.tag)) {
+            const attrs = attrMap(child);
+            const childName = attrs.name;
+            if (!childName) continue;
+            const existing = node.children.find(candidate => candidate.name === childName);
+            if (existing) {
+                inheritElementIntoNode(existing, child);
+            } else {
+                const inherited = elementToNode(child, `${node.path}/${childName}`, node.origin);
+                inherited.parent = node;
+                node.children.push(inherited);
+            }
+        } else {
+            inheritedProps.push(child);
+        }
+    }
+    // Template chains are visited derived -> base. Prepending makes the
+    // final order base -> derived -> local, matching SC2's last-wins rules.
+    node.inheritedProps.unshift(...inheritedProps);
+
+    const inheritedTemplate = attrMap(el).template;
+    if (!node.template && inheritedTemplate) node.template = inheritedTemplate;
+}
+
 function makeNode(type, name, path, origin) {
     return {
         type, name, path, origin,
         attrs: {},
         props: [],          // non-Frame children (Width, Anchor, Texture, ...)
+        inheritedProps: [], // props supplied by same-named template children
         sources: [],        // original XML <Frame> elements contributing to this node
         children: [],       // child MergedNodes
         parent: null,
@@ -263,11 +300,14 @@ function materialize(node, registry, opts, depth = 0) {
                 if (!(FRAME_TAG.test(c.tag) || c.tag === 'Frame')) continue;
                 const childName = (c.attrs.find(a => a.name === 'name') || {}).value;
                 if (!childName) continue;
-                if (!node.children.find(ch => ch.name === childName)) {
+                const existing = node.children.find(ch => ch.name === childName);
+                if (!existing) {
                     const subPath = node.path + '/' + childName;
                     const child = elementToNode(c, subPath, node.origin);
                     child.parent = node;
                     node.children.push(child);
+                } else {
+                    inheritElementIntoNode(existing, c);
                 }
             }
         }
@@ -282,6 +322,7 @@ function materialize(node, registry, opts, depth = 0) {
             }
         }
     }
+    for (const p of node.inheritedProps) props.push(p);
     // Local props (later sources override earlier; mod overrides stock).
     for (const p of node.props) props.push(p);
 

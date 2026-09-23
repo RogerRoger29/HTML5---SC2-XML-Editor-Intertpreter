@@ -116,11 +116,13 @@ function checkFrame(el, ancestors, out, registry) {
     }
 
     // 2. Type-specific structural checks. We skip these when the frame uses
-    //    a template= since the template likely provides what's missing.
+    //    a template= or overrides a same-named child supplied by its parent's
+    //    template, since inherited properties can provide what's missing.
     const hasTemplate = !!attrs.template;
+    const overridesInheritedChild = hasInheritedChildDefinition(el, ancestors, registry);
     const hasOwn = (tag) => findElementChild(el, tag);
     const hasOwnFrame = (childName) => findFrameChildByName(el, childName);
-    if (!hasTemplate) {
+    if (!hasTemplate && !overridesInheritedChild) {
         if (type === 'Image' && !hasOwn('Texture')) {
             add('warning', `Image has no <Texture/> child. Will render as the magenta placeholder.`);
         }
@@ -152,15 +154,9 @@ function checkFrame(el, ancestors, out, registry) {
         checkConstRef(off, `<Anchor side="${side || '?'}"> offset`);
     }
 
-    // 4. Width / Height ignored due to anchor double-pinning.
-    const widthEl = findElementChild(el, 'Width');
-    const heightEl = findElementChild(el, 'Height');
-    if (widthEl && anchorsBySide.Left && anchorsBySide.Right) {
-        add('info', `Width is ignored: frame is pinned on Left + Right, so anchor positions determine width.`);
-    }
-    if (heightEl && anchorsBySide.Top && anchorsBySide.Bottom) {
-        add('info', `Height is ignored: frame is pinned on Top + Bottom, so anchor positions determine height.`);
-    }
+    // 4. Explicit Width / Height remain meaningful with opposing anchors.
+    // SC2 centres the declared size inside the anchor extent. Without an
+    // explicit size, the frame fills the extent.
     for (const tag of ['Width', 'Height']) {
         const child = findElementChild(el, tag);
         if (!child) continue;
@@ -221,6 +217,19 @@ function checkFrame(el, ancestors, out, registry) {
         add('error', `<VAlign> is not a valid SC2 layout element. Move the alignment into the FontStyle this frame uses (Style="..."), or pick a different FontStyle.`);
     }
 
+    // SC2 defines exactly four special commander top-bar hotkey slots. A
+    // fifth command-card button is valid, but CommanderAbility4 is not an
+    // accepted HotkeyUse enumeration and causes the layout loader to reject
+    // the element. Let the fifth button inherit its CButton hotkey instead.
+    const hotkeyUse = findElementChild(el, 'HotkeyUse');
+    if (hotkeyUse) {
+        const value = attrVal(hotkeyUse, 'val') || '';
+        const commanderHotkey = value.match(/^CommanderAbility(\d+)$/);
+        if (commanderHotkey && Number(commanderHotkey[1]) > 3) {
+            add('error', `<HotkeyUse val="${value}"/> is invalid. SC2 only defines CommanderAbility0 through CommanderAbility3. Remove this element and set the added ability's normal button hotkey in the Data module.`);
+        }
+    }
+
     // 6. Duplicate sibling frame names (within this frame).
     const childNames = new Map();
     for (const c of el.children || []) {
@@ -249,6 +258,26 @@ function findFrameChildByName(el, childName) {
         if ((attrMap(c).name) === childName) return c;
     }
     return null;
+}
+
+/** Return true when `el` is a same-name child override of a frame supplied by
+ *  the direct parent's template chain. Such overrides inherit the template
+ *  child's Texture/Text/etc. even though those properties are absent locally. */
+function hasInheritedChildDefinition(el, ancestors, registry) {
+    if (!registry || typeof registry.findTemplate !== 'function' || !ancestors.length) return false;
+    const childName = attrVal(el, 'name');
+    if (!childName) return false;
+    const parent = ancestors[ancestors.length - 1];
+    let templateName = attrVal(parent, 'template');
+    const seen = new Set();
+    while (templateName && !seen.has(templateName)) {
+        seen.add(templateName);
+        const template = registry.findTemplate(templateName);
+        if (!template) return false;
+        if (findFrameChildByName(template, childName)) return true;
+        templateName = attrVal(template, 'template');
+    }
+    return false;
 }
 // childVal removed in issue #4 cleanup (was only used by the now-deleted
 // HAlign/VAlign value check).

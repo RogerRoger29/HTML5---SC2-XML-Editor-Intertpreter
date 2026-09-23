@@ -1,5 +1,5 @@
-// Verify Assets.txt alias resolution end-to-end:
-//   1. Load Assets.txt from each mod
+// Verify SC2 asset-catalog alias resolution end-to-end:
+//   1. Load Assets.txt and AssetsProduct.txt from each mod
 //   2. Resolve the @@@/@@/@ refs UpgradeSlotPanel.SC2Layout uses
 //   3. HEAD each resolved URL through the live server and report which 200/404
 
@@ -24,6 +24,7 @@ const refs = [
     '@@UI/HeroPanelShieldBar',
     '@@UI/HeroPanelHealthBar',
     '@@UI/StandardButtonNormal',
+    '@@UI/StandardTechBorderButton',
     '@UI_ActionButtonSelect',
     'Assets\\Textures\\btn-ability-zerg-dehaka-levelup.dds',
     'Assets\\Textures\\sc2_ui_glues_bluebuttons_taskbarbuttonover.dds',
@@ -31,6 +32,7 @@ const refs = [
     'Assets\\Textures\\ui_nova_storymode_missionlaunch_breakingnews_border.dds',
 ];
 let hits = 0;
+const resolved = new Set();
 for (const ref of refs) {
     const urls = tex.candidateUrls(ref);
     let hit = null;
@@ -38,8 +40,10 @@ for (const ref of refs) {
         const r = await origFetch(BASE + url, { method: 'HEAD' });
         if (r.ok) { hit = url; break; }
     }
-    if (hit) { hits++; console.log(`OK   ${ref}\n     -> ${hit.replace(BASE, '')}`); }
+    if (hit) { hits++; resolved.add(ref); console.log(`OK   ${ref}\n     -> ${hit.replace(BASE, '')}`); }
     else      console.log(`MISS ${ref}\n     tried ${urls.length} candidates`);
 }
 assert.ok(hits > 0, 'none of the known texture references resolved through the live server');
+assert.ok(resolved.has('@@UI/StandardTechBorderButton'),
+    'AssetsProduct.txt standard EditBox border alias did not resolve');
 console.log(`\nALL PASS (${hits}/${refs.length} known texture references resolved)`);

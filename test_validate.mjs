@@ -74,5 +74,39 @@ const hasConstError = (results) =>
         !matching.some(w => /namespaces templates/.test(w.message)));
 }
 
+// 7. A same-name child override inherits structural properties from the
+// parent frame's template and must not be reported as an empty image.
+{
+    const doc = parseXml(`<?xml version="1.0"?>
+<Desc>
+    <Frame type="Frame" name="Base">
+        <Frame type="Image" name="Glow"><Texture val="glow.dds"/></Frame>
+    </Frame>
+    <Frame type="Frame" name="Derived" template="Inherited/Base">
+        <Frame type="Image" name="Glow"><TextureCoords top="0" left="1" bottom="1" right="0"/></Frame>
+    </Frame>
+</Desc>
+`);
+    const reg = regWith({});
+    reg.addModTemplates(doc.root, 'Inherited');
+    const out = validate(doc, reg, { fileName: 'Inherited.SC2Layout' });
+    check('inherited child override is not flagged as missing Texture',
+        !out.some(w => w.severity === 'warning' && w.framePath === 'Derived/Glow' && /no <Texture/.test(w.message)));
+}
+
+// 8. SC2 only defines CommanderAbility0 through CommanderAbility3. A fifth
+// button may exist, but CommanderAbility4 makes the layout parser reject it.
+{
+    const invalid = parseXml(`<?xml version="1.0"?><Desc><Frame type="CommandButton" name="Fifth"><HotkeyUse val="CommanderAbility4"/></Frame></Desc>`);
+    const invalidOut = validate(invalid, null);
+    check('CommanderAbility4 is rejected',
+        invalidOut.some(w => w.severity === 'error' && /only defines CommanderAbility0/.test(w.message)));
+
+    const valid = parseXml(`<?xml version="1.0"?><Desc><Frame type="CommandButton" name="Fourth"><HotkeyUse val="CommanderAbility3"/></Frame></Desc>`);
+    const validOut = validate(valid, null);
+    check('CommanderAbility3 remains valid',
+        !validOut.some(w => /only defines CommanderAbility0/.test(w.message)));
+}
+
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURE(S)`);
 process.exit(failures === 0 ? 0 : 1);

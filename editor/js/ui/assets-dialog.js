@@ -171,7 +171,7 @@ export class AssetsUi {
             ${sc2Detected}
             <button id="cascextract-btn" type="button" title="Extracts textures + fonts from your local StarCraft II install using CascLib. Requires SC2 to be installed.">Extract from SC2&nbsp;install</button>
             <button id="set-sc2-path-btn" type="button" title="Tell the editor where SC2 is installed if auto-detect couldn't find it.">Set SC2 path&hellip;</button>
-            <button id="download-stock-btn" type="button" title="Fetches ~30 essential layout + asset files from github.com/SC2Mapster/SC2GameData (about 500 KB - 2 MB). XML / Assets.txt only - no textures.">Download essentials</button>
+            <button id="download-stock-btn" type="button" title="Fetches essential layout + asset-catalog files from github.com/SC2Mapster/SC2GameData (about 500 KB - 2 MB). XML / text catalogs only - no textures.">Download essentials</button>
             <button id="set-assets-btn" type="button">Use existing folder&hellip;</button>
             <button id="dismiss-banner-btn" type="button" title="Dismiss">&times;</button>
             <div id="download-progress" hidden></div>

@@ -13,7 +13,16 @@ export function oneIndentDeeper(indent) {
     const match = /^\n([ \t]*)$/.exec(indent || '');
     if (!match) return '\n        ';
     const whitespace = match[1];
-    const unit = whitespace.endsWith('\t') ? '\t' : (whitespace || '    ');
+    if (whitespace.endsWith('\t')) return `\n${whitespace}\t`;
+    // `indent` is the full indentation at the current depth, not the indent
+    // unit. Appending it to itself happened to work at depth one, then doubled
+    // every deeper level (4 -> 8 -> 16 spaces). Infer the conventional unit
+    // from the current width instead.
+    const unitWidth = whitespace.length === 0 ? 4
+        : whitespace.length % 4 === 0 ? 4
+        : whitespace.length % 2 === 0 ? 2
+        : 1;
+    const unit = ' '.repeat(unitWidth);
     return `\n${whitespace}${unit}`;
 }
 

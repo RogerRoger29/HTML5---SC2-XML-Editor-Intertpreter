@@ -109,6 +109,9 @@ export class FrameRenderer {
         if (node.synthetic) el.classList.add('synthetic');
         el.dataset.name = node.name;
         el.dataset.type = node.type;
+        if (node.parent?.type === 'Button' && node.name === 'HoverImage') {
+            el.classList.add('button-hover-image');
+        }
         // Issue #3: node.x / node.y are stage-absolute; subtract parent's
         // origin so CSS positioning (which is relative to the nearest
         // positioned ancestor — here the parent .sc2-frame) doesn't double-
@@ -172,7 +175,17 @@ export class FrameRenderer {
         node._el = el;
         parentEl.appendChild(el);
 
-        for (const child of node.children) this._renderNode(child, el);
+        let children = node.children;
+        if (node.type === 'Button') {
+            // Internal button art should sit behind its caption regardless of
+            // whether a local Label override appeared before inherited images.
+            const order = new Map([
+                ['NormalImage', 0], ['HoverImage', 1], ['Label', 2], ['HitTestFrame', 3],
+            ]);
+            children = [...node.children].sort((a, b) =>
+                (order.get(a.name) ?? 1) - (order.get(b.name) ?? 1));
+        }
+        for (const child of children) this._renderNode(child, el);
     }
 
     _paintImage(node, el) {
@@ -379,7 +392,13 @@ export class FrameRenderer {
      *  Buttons centre text without an explicit override. */
     _buildTextElement(node, opts = {}) {
         const text = findChildVal(node.xml, 'Text') || '';
-        const styleName = findChildVal(node.xml, 'Style');
+        let styleName = findChildVal(node.xml, 'Style');
+        // Standard button templates put their font style on the Button while
+        // the actual text lives in its Label child.
+        if (!styleName && node.type === 'Label' && node.parent?.type === 'Button') {
+            styleName = findChildVal(node.parent.xml, 'Style');
+        }
+        if (styleName) styleName = styleName.replace(/^@+/, '');
         const style = this.fontstyles ? this.fontstyles.getStyle(styleName) : null;
         const css = styleToCss(style);
         const halign = findChildVal(node.xml, 'HAlign')

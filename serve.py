@@ -303,8 +303,8 @@ class Router(http.server.SimpleHTTPRequestHandler):
     #                                                    via casc-index.json
     #   "texture_refs":   ["@@@UI/Foo", "Assets\\...\\foo.dds"]  # SC2 layout
     #                                                    refs, resolved via
-    #                                                    Assets.txt aliases
-    #   "all_textures":   true                          # every Assets.txt
+    #                                                    asset-catalog aliases
+    #   "all_textures":   true                          # every asset-catalog
     #                                                    entry across the
     #                                                    14 known mod prefixes
     #   "include_fonts":  true                          # known UI font files
@@ -474,7 +474,8 @@ class Router(http.server.SimpleHTTPRequestHandler):
         return [f"Mods\\{mod}.{ext}\\Base.SC2Assets\\{rel}"
                 for (mod, ext) in CASC_MOD_PREFIXES]
 
-    # Load Assets.txt aliases from the active assets_root (if any).
+    # Load Assets.txt and AssetsProduct.txt aliases from the active assets_root
+    # (if any). Product entries load second and override the base catalog.
     def _load_alias_map(self) -> dict:
         from casc import STOCK_MOD_DIRS
         out = {}
@@ -482,18 +483,19 @@ class Router(http.server.SimpleHTTPRequestHandler):
         if not root:
             return out
         for mod in STOCK_MOD_DIRS:
-            for variant in (root / mod / "base.sc2data" / "GameData" / "Assets.txt",
-                            root / mod / "Base.SC2Data" / "GameData" / "Assets.txt"):
-                if variant.exists():
-                    for line in variant.read_text(encoding="utf-8", errors="ignore").splitlines():
-                        line = line.strip()
-                        if not line or line.startswith("//") or line.startswith(";"):
-                            continue
-                        if "=" not in line:
-                            continue
-                        k, v = line.split("=", 1)
-                        out[k.strip()] = v.strip()
-                    break
+            for filename in ("Assets.txt", "AssetsProduct.txt"):
+                for variant in (root / mod / "base.sc2data" / "GameData" / filename,
+                                root / mod / "Base.SC2Data" / "GameData" / filename):
+                    if variant.exists():
+                        for line in variant.read_text(encoding="utf-8", errors="ignore").splitlines():
+                            line = line.strip()
+                            if not line or line.startswith("//") or line.startswith(";"):
+                                continue
+                            if "=" not in line:
+                                continue
+                            k, v = line.split("=", 1)
+                            out[k.strip()] = v.strip()
+                        break
         return out
 
     # (The previous _known_font_paths method moved to casc.UI_FONT_CASC_PATHS

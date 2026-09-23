@@ -16,6 +16,8 @@ const skeleton = `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 
 check('indent helper preserves 2-space documents', oneIndentDeeper('\n  ') === '\n    ');
 check('indent helper preserves tab documents', oneIndentDeeper('\n\t') === '\n\t\t');
+check('indent helper does not double deep 4-space indentation',
+    oneIndentDeeper('\n        ') === '\n            ');
 
 {
     const doc = parseXml(skeleton);

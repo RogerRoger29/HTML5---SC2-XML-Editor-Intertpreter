@@ -23,11 +23,20 @@ const layout = `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
     </Frame>
     <Frame type="Frame" name="DerivedTemplate" template="BaseTemplate">
         <Height val="30"/>
+        <Frame type="Image" name="SharedImage">
+            <Anchor side="Top" relative="$parent" pos="Min" offset="3"/>
+            <Anchor side="Bottom" relative="$parent" pos="Max" offset="-3"/>
+            <Texture val="@@@template"/>
+        </Frame>
         <Frame type="Image" name="DerivedImage">
             <Texture val="@@@derived"/>
         </Frame>
     </Frame>
-    <Frame type="Frame" name="Instance" template="DerivedTemplate"/>
+    <Frame type="Frame" name="Instance" template="DerivedTemplate">
+        <Frame type="Image" name="SharedImage">
+            <Texture val="@@@local"/>
+        </Frame>
+    </Frame>
 </Desc>`;
 
 const reg = new StockRegistry();
@@ -58,6 +67,11 @@ if (inst) {
     // Props from both levels: Width from base, Height from derived.
     check('inherits Width=50 from base template', inst.width === 50);
     check('inherits Height=30 from derived template', inst.height === 30);
+    const shared = findByName(inst.children || [], 'SharedImage');
+    check('same-named local child keeps inherited anchors', shared?.anchors?.length === 2);
+    const sharedTexture = shared?.xml?.children?.filter(c => c.tag === 'Texture').at(-1)
+        ?.attrs?.find(a => a.name === 'val')?.value;
+    check('same-named local child overrides inherited property', sharedTexture === '@@@local');
 }
 
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURE(S)`);

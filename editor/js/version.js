@@ -1,6 +1,58 @@
 // Single source of truth for the editor's version.
 // Bumped on every meaningful change set.
 //
+// 0.9.1 - Fifth commander-button hotkey safety:
+//   * Add Matching Button no longer emits the invalid CommanderAbility4 enum.
+//     Fifth and later commander buttons inherit their normal CButton hotkey.
+//   * Validation reports unsupported CommanderAbility values as blocking
+//     errors before the layout reaches SC2.
+//
+// 0.9.0 - Guided authoring and SC2 readiness workflow:
+//   * Simple mode presents task-based controls and hides the raw XML pane.
+//   * The guided task hub can add six common control types, duplicate any
+//     mod-backed frame, move, resize, show/hide, and grow containers safely.
+//   * Add Matching Button detects a row, copies its real template/content,
+//     continues spacing, chooses the next numbered name, and advances supported
+//     HotkeyUse values.
+//   * Mengsk command-button rows can extend their original artwork with a
+//     non-stretched texture slice and support more than one added button.
+//   * SC2 Readiness checks structural errors, layout cycles, resolved boxes,
+//     nearby background coverage, assets, and runtime trigger paths.
+//   * Guided edits are single-step undoable and explain every applied change.
+//   * Support bundles contain exact layout XML, diagnostics, readiness results,
+//     and a generated trigger-hookup draft in one shareable JSON file.
+//   * Hidden placeholder controls no longer opt into trigger export or inflate
+//     the readiness screen's visible-button count.
+//   * Trigger export now reads the materialized runtime tree, so controls
+//     inherited from templates appear at their actual instantiated paths.
+// 0.8.2 - Accurate fixed-size anchors and fresh project reloads:
+//   * Opposing anchors now honour explicit Width/Height and centre the frame
+//     between their resolved positions, matching SC2 and stock top-bar layouts.
+//   * Side-less fill anchors still fill their target even when an inherited
+//     default size is present.
+//   * Validator no longer reports explicit sizes on opposing anchors as
+//     ignored, or same-name template child overrides as missing content.
+//   * Opening a project layout bypasses the browser cache, so reopening a path
+//     always reads the current file from disk.
+// 0.8.1 - Trigger correctness and hands-on authoring fixes:
+//   * Trigger export now uses SC2's verified PreloadLayout, hookup, variable,
+//     event, and current-control condition natives. Runtime hookup paths omit
+//     GameUI, identifiers are sanitized, and duplicate layout loading is off
+//     by default.
+//   * Composite control internals remain available in trigger export but no
+//     longer opt into redundant variables and click handlers by default.
+//   * Added a guided trigger-export workflow with a random library namespace,
+//     per-frame selection, control-type presets, and optional click stubs.
+//   * Template children with local overrides now retain inherited properties
+//     and descendants, fixing zero-size button labels and similar controls.
+//   * Inserted Button, CheckBox, EditBox, and ListBox controls inherit the
+//     actual Blizzard standard templates so their game-side internals exist.
+//   * Standard button preview now layers its caption correctly, uses the stock
+//     font style, and only displays hover art while hovered or selected.
+//   * Texture aliases now include AssetsProduct.txt, which supplies stock
+//     controls such as the StandardEditBox border.
+//   * Deeply nested insertions preserve the document's indent unit instead of
+//     doubling indentation at each level.
 // 0.8.0 - Guided authoring and stock-frame insertion:
 //   * Insert -> Button here opens a compact form for name, caption, size,
 //     and starting offsets, then selects the new button for drag placement.
@@ -213,4 +265,4 @@
 //   * CascLib bundling for in-editor texture extraction
 //   * CASC filename index + on-demand auto-extract
 //   * Persistent assets dialog, drag-edit flicker fix
-export const VERSION = '0.8.0';
+export const VERSION = '0.9.1';

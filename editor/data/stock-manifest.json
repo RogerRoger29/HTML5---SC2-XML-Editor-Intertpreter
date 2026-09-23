@@ -2,7 +2,7 @@
     "_comment": [
         "Curated list of essential SC2 stock files for layout editing.",
         "Downloaded on demand from the SC2Mapster/SC2GameData public mirror.",
-        "Covers templates + constants + Assets.txt + fontstyle definitions used by",
+        "Covers templates + constants + asset catalogs + fontstyle definitions used by",
         "the vast majority of mods. Does NOT include binary .dds textures - those",
         "need a real SC2 install + an extraction tool like CASCExplorer.",
         "Total payload at v0.3.0: roughly ~500 KB compressed, ~2 MB uncompressed."
@@ -12,6 +12,7 @@
         "core.sc2mod/base.sc2data/UI/Layout/DescIndex.SC2Layout",
         "core.sc2mod/base.sc2data/UI/FontStyles.SC2Style",
         "core.sc2mod/base.sc2data/GameData/Assets.txt",
+        "core.sc2mod/base.sc2data/GameData/AssetsProduct.txt",
         "liberty.sc2mod/base.sc2data/GameData/Assets.txt",
         "swarm.sc2mod/base.sc2data/GameData/Assets.txt",
         "core.sc2mod/base.sc2data/UI/Layout/Common/StandardConstants.SC2Layout",

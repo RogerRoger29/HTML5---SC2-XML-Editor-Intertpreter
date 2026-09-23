@@ -34,7 +34,8 @@ export class TextureLoader {
             // Heroes of the Storm shared assets
             'core.stormmod', 'heroes.stormmod', 'heroesdata.stormmod',
         ];
-        // Texture aliases populated from each mod's Base.SC2Data/GameData/Assets.txt.
+        // Texture aliases populated from each mod's Base.SC2Data/GameData/
+        // Assets.txt and AssetsProduct.txt.
         // SC2 references textures as "@@UI/Foo" or "@@@UI/Foo"; we strip the @s and
         // look up the remainder in this map. Later mods override earlier ones
         // (mirrors SC2's mod load order).
@@ -76,34 +77,38 @@ export class TextureLoader {
         this.aliases.set(name, path);
     }
 
-    /** Load Assets.txt from every known mod and merge into the alias map.
+    /** Load the asset catalogs from every known mod and merge into the alias map.
      *  Lines look like:   UI/HeroPanelButtonNormal=Assets\Textures\foo.dds
-     *  Blank lines and lines starting with '//' or ';' are ignored. */
+     *  AssetsProduct.txt is loaded after Assets.txt because it contains the
+     *  product-specific standard UI entries and overrides. Blank lines and
+     *  lines starting with '//' or ';' are ignored. */
     async loadAssetsTxt() {
         if (this.aliasesLoaded) return this.aliases.size;
         let total = 0;
         for (const mod of this.modOrder) {
-            const url = `${this.assetsBase}${mod}/Base.SC2Data/GameData/Assets.txt`;
-            try {
-                const text = await fetch(url).then(r => r.ok ? r.text() : null);
-                if (!text) continue;
-                let n = 0;
-                for (const rawLine of text.split(/\r?\n/)) {
-                    const line = rawLine.trim();
-                    if (!line || line.startsWith('//') || line.startsWith(';')) continue;
-                    const eq = line.indexOf('=');
-                    if (eq < 0) continue;
-                    const key = line.slice(0, eq).trim();
-                    const val = line.slice(eq + 1).trim();
-                    if (!key) continue;
-                    this.aliases.set(key, val);
-                    n++;
+            let modTotal = 0;
+            for (const filename of ['Assets.txt', 'AssetsProduct.txt']) {
+                const url = `${this.assetsBase}${mod}/Base.SC2Data/GameData/${filename}`;
+                try {
+                    const text = await fetch(url).then(r => r.ok ? r.text() : null);
+                    if (!text) continue;
+                    for (const rawLine of text.split(/\r?\n/)) {
+                        const line = rawLine.trim();
+                        if (!line || line.startsWith('//') || line.startsWith(';')) continue;
+                        const eq = line.indexOf('=');
+                        if (eq < 0) continue;
+                        const key = line.slice(0, eq).trim();
+                        const val = line.slice(eq + 1).trim();
+                        if (!key) continue;
+                        this.aliases.set(key, val);
+                        modTotal++;
+                    }
+                } catch (err) {
+                    // A mod may omit either catalog; that is normal.
                 }
-                total += n;
-                console.info(`[textures] loaded ${n} aliases from ${mod}`);
-            } catch (err) {
-                // Mod doesn't ship Assets.txt; that's fine.
             }
+            total += modTotal;
+            if (modTotal) console.info(`[textures] loaded ${modTotal} aliases from ${mod}`);
         }
         this.aliasesLoaded = true;
         return total;

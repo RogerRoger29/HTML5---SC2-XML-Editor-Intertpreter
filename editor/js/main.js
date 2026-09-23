@@ -19,13 +19,18 @@ import { FindPalette } from './ui/findpalette.js';
 import { WelcomeTour } from './ui/welcome.js';
 import { AssetsUi } from './ui/assets-dialog.js';
 import { UndoStack, checkRoundTrip } from './doc-controller.js';
-import { generateTriggersXml, listNamedFrames, defaultOptIn } from './export/triggers.js';
+import { generateTriggersXml, listRuntimeFrames, defaultOptIn } from './export/triggers.js';
 import { validate } from './validate.js';
 import { applyStateActions } from './state-groups.js';
 import { VERSION } from './version.js';
 import { STOCK_ASSETS_BASE } from './constants.js';
 import { DiagnosticRecorder, buildDiagnosticReport, pathHint } from './diagnostics.js';
 import { appendFrameAtSelection, oneIndentDeeper } from './authoring.js';
+import {
+    addMatchingButton, analyzeButtonRow, buildReadinessSummary,
+    duplicateFrameBeside, extendMengskTopBar, growFrameToChildren,
+    isMengskCommandButton, nudgeFrame, resizeFrame, setFrameVisibility,
+} from './guided.js';
 import {
     inferChildIndent, textNode, makeElement as elementNode,
     appendChildPreservingIndent, removeChildAndWhitespace,
@@ -40,6 +45,7 @@ const els = {
     menuBar: document.getElementById('menu-bar'),
     btnApplyXml: document.getElementById('btn-apply-xml'),
     btnAssets: document.getElementById('btn-assets'),
+    btnGuided: document.getElementById('btn-guided'),
     assetsDialog: document.getElementById('assets-dialog'),
     assetsDialogBody: document.getElementById('assets-dialog-body'),
     btnWarnings: document.getElementById('btn-warnings'),
@@ -53,6 +59,7 @@ const els = {
     toggleStockUi: document.getElementById('toggle-stock-ui'),
     toggleOutlines: document.getElementById('toggle-outlines'),
     toggleBackdrop: document.getElementById('toggle-backdrop'),
+    toggleSimpleMode: document.getElementById('toggle-simple-mode'),
     toggleSnap: document.getElementById('toggle-snap'),
     snapSize: document.getElementById('snap-size'),
     viewMode: document.getElementById('view-mode'),
@@ -87,6 +94,33 @@ const els = {
     quickButtonHeight: document.getElementById('quick-button-height'),
     quickButtonTop: document.getElementById('quick-button-top'),
     quickButtonLeft: document.getElementById('quick-button-left'),
+    beginnerBar: document.getElementById('beginner-bar'),
+    beginnerAddMatching: document.getElementById('beginner-add-matching'),
+    beginnerAddInside: document.getElementById('beginner-add-inside'),
+    beginnerEdit: document.getElementById('beginner-edit'),
+    beginnerCheck: document.getElementById('beginner-check'),
+    beginnerExit: document.getElementById('beginner-exit'),
+    guidedDialog: document.getElementById('guided-dialog'),
+    guidedSelection: document.getElementById('guided-selection'),
+    guidedAnalysis: document.getElementById('guided-analysis'),
+    guidedExtendArt: document.getElementById('guided-extend-art'),
+    guidedAddMatching: document.getElementById('guided-add-matching'),
+    guidedDuplicate: document.getElementById('guided-duplicate'),
+    guidedShow: document.getElementById('guided-show'),
+    guidedHide: document.getElementById('guided-hide'),
+    guidedGrow: document.getElementById('guided-grow'),
+    guidedWidth: document.getElementById('guided-width'),
+    guidedHeight: document.getElementById('guided-height'),
+    guidedResize: document.getElementById('guided-resize'),
+    guidedReadiness: document.getElementById('guided-readiness'),
+    guidedTriggers: document.getElementById('guided-triggers'),
+    guidedSupport: document.getElementById('guided-support'),
+    guidedResult: document.getElementById('guided-result'),
+    guidedUndo: document.getElementById('guided-undo'),
+    readinessDialog: document.getElementById('readiness-dialog'),
+    readinessSummary: document.getElementById('readiness-summary'),
+    readinessTriggers: document.getElementById('readiness-triggers'),
+    readinessExport: document.getElementById('readiness-export'),
     gameSetupDialog: document.getElementById('game-setup-dialog'),
 };
 
@@ -230,7 +264,7 @@ const inspector = new Inspector(els.inspector, {
 const SUGGESTION_LIMIT = 200;
 
 // Texture aliases live in textures.aliases (loaded from each mod's
-// Base.SC2Data/GameData/Assets.txt). Keys look like "UI/HeroPanelButtonNormal"
+// Base.SC2Data/GameData/Assets*.txt). Keys look like "UI/HeroPanelButtonNormal"
 // and SC2 references them as @UI/X / @@UI/X / @@@UI/X depending on render
 // mode. We preserve whatever @-prefix the user typed and suggest the rest.
 // If the user typed no prefix we default to @@@ (the most common form).
@@ -437,7 +471,7 @@ async function init() {
             textures.cache.clear();
             rerender();
         }
-    }).catch(err => console.warn('[textures] Assets.txt load failed:', err));
+    }).catch(err => console.warn('[textures] asset catalog load failed:', err));
 }
 
 async function loadFontStyles({ reset = false } = {}) {
@@ -523,6 +557,8 @@ function wireEvents() {
     menubar.register('redo',        () => doRedo());
     menubar.register('deselect',    () => selectFrame(null, false));
     menubar.register('find',        () => findPalette.open());
+    menubar.register('guided-tools', () => openGuidedDialog());
+    menubar.register('add-matching-button', () => addMatchingButtonFromUi());
     menubar.register('quick-button', () => openQuickButtonDialog());
     menubar.register('add-frame',   (data) => addNewFrame(data.type));
     menubar.register('fit',         () => fitZoom());
@@ -530,7 +566,9 @@ function wireEvents() {
     menubar.register('set-backdrop', () => els.backdropInput.click());
     menubar.register('welcome-tour', () => welcomeTour.open());
     menubar.register('game-setup-help', () => els.gameSetupDialog?.showModal());
+    menubar.register('readiness-check', () => openReadinessDialog());
     menubar.register('export-diagnostics', () => openDiagnosticsDialog());
+    menubar.register('export-support-bundle', () => exportSupportBundle());
     menubar.register('export-triggers', () => openTriggersExportDialog());
     menubar.register('about', () => {
         alert(`SC2 UI Editor v${VERSION}\n\n`
@@ -551,6 +589,80 @@ function wireEvents() {
         els.quickButtonDialog.addEventListener('close', () => {
             if (els.quickButtonDialog.returnValue === 'insert') addGuidedButton();
         });
+    }
+
+    if (els.btnGuided) els.btnGuided.addEventListener('click', openGuidedDialog);
+    if (els.guidedAddMatching) els.guidedAddMatching.addEventListener('click', () => addMatchingButtonFromUi());
+    for (const button of document.querySelectorAll('[data-guided-add]')) {
+        button.addEventListener('click', () => {
+            const type = button.dataset.guidedAdd;
+            addNewFrame(type);
+            showGuidedResult(`Added ${type} inside the selected target. It is selected now, so you can move or resize it below.`);
+        });
+    }
+    if (els.guidedDuplicate) els.guidedDuplicate.addEventListener('click', () => {
+        runGuidedMutation('Duplicate frame', () => duplicateFrameBeside(state.selected), result => ({
+            message: `Created ${result.name} 16 pixels down and right from the original.`,
+            selectPath: result.newPath,
+        }));
+    });
+    if (els.guidedShow) els.guidedShow.addEventListener('click', () => {
+        runGuidedMutation('Show frame', () => setFrameVisibility(state.selected, true), () => ({ message: 'The selected frame is visible.' }));
+    });
+    if (els.guidedHide) els.guidedHide.addEventListener('click', () => {
+        runGuidedMutation('Hide frame', () => setFrameVisibility(state.selected, false), () => ({ message: 'The selected frame is hidden in SC2.' }));
+    });
+    if (els.guidedGrow) els.guidedGrow.addEventListener('click', () => {
+        runGuidedMutation('Grow container', () => growFrameToChildren(state.selected, 8), result => ({
+            message: `Grew the selected frame to ${result.width} × ${result.height} so its direct children fit with padding.`,
+        }));
+    });
+    if (els.guidedResize) els.guidedResize.addEventListener('click', () => {
+        runGuidedMutation('Resize frame', () => resizeFrame(
+            state.selected, els.guidedWidth.value, els.guidedHeight.value), result => ({
+            message: `Set the selected frame to ${result.width} × ${result.height}.`,
+        }));
+    });
+    for (const button of document.querySelectorAll('[data-guided-nudge]')) {
+        button.addEventListener('click', () => {
+            const [dx, dy] = button.dataset.guidedNudge.split(',').map(Number);
+            runGuidedMutation('Move frame', () => nudgeFrame(state.selected, dx, dy), () => ({
+                message: `Moved the selected frame ${Math.abs(dx || dy)} pixels ${dx < 0 ? 'left' : dx > 0 ? 'right' : dy < 0 ? 'up' : 'down'}.`,
+            }));
+        });
+    }
+    if (els.guidedReadiness) els.guidedReadiness.addEventListener('click', () => {
+        els.guidedDialog?.close();
+        openReadinessDialog();
+    });
+    if (els.guidedTriggers) els.guidedTriggers.addEventListener('click', () => {
+        els.guidedDialog?.close();
+        openTriggersExportDialog();
+    });
+    if (els.guidedSupport) els.guidedSupport.addEventListener('click', exportSupportBundle);
+    if (els.guidedUndo) els.guidedUndo.addEventListener('click', () => {
+        doUndo();
+        els.guidedResult.hidden = false;
+        els.guidedResult.className = 'guided-result';
+        els.guidedResult.textContent = 'The guided change was undone.';
+        els.guidedUndo.hidden = true;
+        refreshGuidedDialog();
+    });
+    if (els.readinessTriggers) els.readinessTriggers.addEventListener('click', () => {
+        els.readinessDialog?.close();
+        openTriggersExportDialog();
+    });
+    if (els.readinessExport) els.readinessExport.addEventListener('click', exportSupportBundle);
+    if (els.beginnerAddMatching) els.beginnerAddMatching.addEventListener('click', openGuidedDialog);
+    if (els.beginnerAddInside) els.beginnerAddInside.addEventListener('click', openGuidedDialog);
+    if (els.beginnerEdit) els.beginnerEdit.addEventListener('click', openGuidedDialog);
+    if (els.beginnerCheck) els.beginnerCheck.addEventListener('click', openReadinessDialog);
+    if (els.beginnerExit) els.beginnerExit.addEventListener('click', () => setSimpleMode(false));
+    if (els.toggleSimpleMode) {
+        els.toggleSimpleMode.addEventListener('change', () => setSimpleMode(els.toggleSimpleMode.checked));
+        let savedSimpleMode = false;
+        try { savedSimpleMode = localStorage.getItem('sc2editor.simpleMode') === '1'; } catch {}
+        setSimpleMode(savedSimpleMode, { persist: false });
     }
 
     // Drag-drop on canvas.
@@ -869,7 +981,10 @@ async function openByUrl(path) {
     if (!confirmDiscardChanges()) return;
     setStatus('Opening ' + path);
     try {
-        const text = await fetch(path).then(r => {
+        // Layout files are edited outside the browser as well as inside it.
+        // Bypass the HTTP cache so reopening a path always reads the current
+        // file instead of silently restoring an older copy.
+        const text = await fetch(path, { cache: 'no-store' }).then(r => {
             if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
             return r.text();
         });
@@ -1210,6 +1325,19 @@ function refreshWarnings() {
     cachedWarnings = state.modDoc
         ? validate(state.modDoc, registry, { fileName: state.currentFileName })
         : [];
+    if (state.modDoc && state.frames.length) {
+        const visual = buildReadinessSummary({ frames: state.frames }).visualWarnings;
+        for (const warning of visual) {
+            const frame = findFrameByPath(state.frames, warning.framePath);
+            cachedWarnings.push({
+                severity: 'warning',
+                kind: 'visual',
+                framePath: warning.framePath,
+                message: warning.message,
+                element: frame?._modSource || null,
+            });
+        }
+    }
     const counts = countBySeverity(cachedWarnings);
     if (!els.btnWarnings) return;
     // Only show the button when there's something actionable to surface.
@@ -1260,6 +1388,7 @@ function openWarningsDialog() {
                 </div>
             `;
             row.addEventListener('click', () => {
+                if (!w.element) return;
                 // Select the offending frame on the canvas. We match by the
                 // underlying XML element pointer via _modSource.
                 const target = findFrameByModSource(state.frames, w.element);
@@ -1421,7 +1550,12 @@ function handleCanvasClick(node, hit) {
 
 function selectFrame(frame, fromCanvas) {
     state.selected = frame;
-    if (!frame) { inspector.show(null); selection.hide(); return; }
+    if (!frame) {
+        inspector.show(null);
+        selection.hide();
+        refreshGuidedDialog();
+        return;
+    }
     inspector.show(frame);
     tree.select(frame);
     for (const sel of els.stage.querySelectorAll('.sc2-frame.selected')) {
@@ -1429,6 +1563,7 @@ function selectFrame(frame, fromCanvas) {
     }
     if (frame._el) frame._el.classList.add('selected');
     selection.show(frame);
+    refreshGuidedDialog();
 }
 
 // Called from the SelectionOverlay after every pointermove and on pointerup.
@@ -1707,15 +1842,10 @@ function uniqueChildName(parent, type) {
 }
 
 // Build a <Frame type="..." name="..."> element with default anchors and
-// size, plus any type-specific children that make the frame useful out of
-// the box (issue #1: SC2's composite types - Button / CheckBox / EditBox /
-// ListBox - each ship with a fixed set of named sub-frames the game
-// expects; if you don't define them the engine substitutes invisible
-// defaults and the resulting frame looks broken in the canvas).
-//
-// Reference: mapster.talv.space/ui-layout/frame-type — each FrameType page
-// lists its DescInternal children. We seed the minimum that's interactive;
-// the user fills in textures / labels via inspector or XML.
+// size. SC2's composite controls depend on fixed internal descendants and
+// control properties. Inherit Blizzard's stock templates instead of trying
+// to reproduce a partial control: a partial Button/CheckBox/EditBox/ListBox
+// can render in this editor yet fail or appear invisible in the game.
 function buildFrameElement(type, name, options = {}) {
     const close = options.frameIndent || '\n    ';
     const i = oneIndentDeeper(close);
@@ -1730,25 +1860,6 @@ function buildFrameElement(type, name, options = {}) {
         textNode(i),
         elementNode('Height', [['val', options.height ?? '100']], true),
     ];
-    // Helper for the very common "Image sub-frame anchored to fill parent
-    // with a placeholder texture" pattern used by Button/CheckBox/ListBox.
-    const fillImage = (childName, texture = '') => {
-        const kids = [
-            textNode(i2),
-            elementNode('Anchor', [['relative','$parent'],['offset','0']], true),
-        ];
-        if (texture) kids.push(textNode(i2), elementNode('Texture', [['val', texture]], true));
-        kids.push(textNode(i));
-        return elementNode('Frame', [['type','Image'],['name', childName]], false, kids);
-    };
-    // Same idea but type="Frame" sub-container with no texture.
-    const subFrame = (childName, subType) => elementNode(
-        'Frame', [['type', subType], ['name', childName]], false, [
-            textNode(i2),
-            elementNode('Anchor', [['relative','$parent'],['offset','0']], true),
-            textNode(i),
-        ]);
-
     if (type === 'Label') {
         children.push(textNode(i), elementNode('Text', [['val','New Label']], true));
         children.push(textNode(i), elementNode('Style', [['val','StandardTemplate']], true));
@@ -1756,39 +1867,311 @@ function buildFrameElement(type, name, options = {}) {
         // Empty Texture - user fills in via inspector or XML.
         children.push(textNode(i), elementNode('Texture', [['val','']], true));
     } else if (type === 'Button') {
-        // Buttons need NormalImage + HoverImage to be visible. The Label
-        // child is what shows the button caption (issue #1).
-        children.push(textNode(i), fillImage('NormalImage', '@@@UI/HeroPanelButtonNormal'));
-        children.push(textNode(i), fillImage('HoverImage',  '@@@UI/HeroPanelButtonHover'));
+        // StandardButtonTemplate supplies SC2's real NormalImage, HoverImage,
+        // hit-test frame, sound, and control style. Re-open only Label to set
+        // the caption. SC2 merges this child with the template's Label.
         children.push(textNode(i),
             elementNode('Frame', [['type','Label'],['name','Label']], false, [
-                textNode(i2),
-                elementNode('Anchor', [['relative','$parent'],['offset','0']], true),
-                textNode(i2),
-                elementNode('Style', [['val','StandardTemplate']], true),
                 textNode(i2),
                 elementNode('Text', [['val', options.text ?? 'New Button']], true),
                 textNode(i),
             ]));
     } else if (type === 'CheckBox') {
-        // CheckBox = Button child (the clickable hit area) + CheckImage
-        // (the tick / fill shown when the box is checked) per Talv ref.
-        children.push(textNode(i), subFrame('Button', 'Button'));
-        children.push(textNode(i), fillImage('CheckImage'));
-    } else if (type === 'EditBox') {
-        // EditBox just ships with a backing Image (the text field background).
-        children.push(textNode(i), fillImage('Image'));
-    } else if (type === 'ListBox') {
-        // ListBox: BackgroundImage + HoverImage + SelectedImage cover the
-        // three visual states for an item row. (ScrollBar deferred per
-        // issue note: needs its own Scrollbar frame type which we don't
-        // generate yet.)
-        children.push(textNode(i), fillImage('BackgroundImage'));
-        children.push(textNode(i), fillImage('HoverImage'));
-        children.push(textNode(i), fillImage('SelectedImage'));
+        // The stock labeled-checkbox template relies on native image sizing.
+        // The browser preview cannot infer that synchronously from DDS files,
+        // so re-open the two button images with explicit edge anchors. These
+        // merge into the inherited controls and are also valid in SC2.
+        const i3 = oneIndentDeeper(i2);
+        const filledButtonImage = (childName, texture) => elementNode(
+            'Frame', [['type','Image'],['name', childName]], false, [
+                textNode(i3), elementNode('Anchor', [['side','Top'],['relative','$parent'],['pos','Min'],['offset','0']], true),
+                textNode(i3), elementNode('Anchor', [['side','Bottom'],['relative','$parent'],['pos','Max'],['offset','0']], true),
+                textNode(i3), elementNode('Anchor', [['side','Left'],['relative','$parent'],['pos','Min'],['offset','0']], true),
+                textNode(i3), elementNode('Anchor', [['side','Right'],['relative','$parent'],['pos','Max'],['offset','0']], true),
+                textNode(i3), elementNode('Texture', [['val', texture]], true),
+                textNode(i2),
+            ]);
+        children.push(textNode(i), elementNode(
+            'Frame', [['type','Button'],['name','Button']], false, [
+                textNode(i2), filledButtonImage('NormalImage', '@@UI/StandardCheckBox'),
+                textNode(i2), filledButtonImage('HoverImage', '@@UI/StandardCheckBoxHover'),
+                textNode(i),
+            ]));
+        children.push(textNode(i), elementNode(
+            'Frame', [['type','Label'],['name','Label']], false, [
+                textNode(i2), elementNode('Anchor', [['side','Top'],['relative','$parent'],['pos','Min'],['offset','0']], true),
+                textNode(i2), elementNode('Anchor', [['side','Bottom'],['relative','$parent'],['pos','Max'],['offset','0']], true),
+                textNode(i2), elementNode('Anchor', [['side','Right'],['relative','$parent'],['pos','Max'],['offset','0']], true),
+                textNode(i2), elementNode('Text', [['val', options.text ?? 'New CheckBox']], true),
+                textNode(i),
+            ]));
     }
     children.push(textNode(close));
-    return elementNode('Frame', [['type', type], ['name', name]], false, children);
+    const attrs = [['type', type], ['name', name]];
+    const stockTemplates = {
+        Button: 'StandardTemplates/StandardButtonTemplate',
+        CheckBox: 'StandardTemplates/StandardCheckBoxLabelTemplate',
+        EditBox: 'StandardTemplates/StandardEditBoxTemplate',
+        ListBox: 'StandardTemplates/StandardListBoxTemplate',
+    };
+    if (stockTemplates[type]) attrs.push(['template', stockTemplates[type]]);
+    return elementNode('Frame', attrs, false, children);
+}
+
+// --- guided / simple authoring --------------------------------------------
+
+function setSimpleMode(enabled, { persist = true } = {}) {
+    const on = !!enabled;
+    document.body.classList.toggle('simple-mode', on);
+    if (els.beginnerBar) els.beginnerBar.hidden = !on;
+    if (els.toggleSimpleMode) els.toggleSimpleMode.checked = on;
+    if (persist) {
+        try { localStorage.setItem('sc2editor.simpleMode', on ? '1' : '0'); } catch {}
+    }
+    requestAnimationFrame(() => els.btnFit?.click());
+    setStatus(on
+        ? 'Simple mode is on. Select a control, then use the task buttons above the preview.'
+        : 'Simple mode is off. Advanced panels are visible.');
+}
+
+function openGuidedDialog() {
+    if (!state.modDoc) {
+        createNewLayout();
+        if (!state.modDoc) return;
+    }
+    if (!els.guidedDialog) return;
+    refreshGuidedDialog();
+    if (!els.guidedDialog.open) els.guidedDialog.showModal();
+}
+
+function refreshGuidedDialog() {
+    if (!els.guidedDialog) return;
+    const selected = state.selected;
+    els.guidedSelection.textContent = selected
+        ? `${selected.type}:${selected.name}  (${selected.path})`
+        : 'Nothing selected';
+    const editable = !!selected?._modSource;
+    for (const control of [
+        els.guidedDuplicate, els.guidedShow, els.guidedHide, els.guidedGrow,
+        els.guidedWidth, els.guidedHeight, els.guidedResize,
+    ]) {
+        if (control) control.disabled = !editable;
+    }
+    for (const button of document.querySelectorAll('[data-guided-nudge]')) button.disabled = !editable;
+    if (els.guidedWidth) els.guidedWidth.value = editable && Number.isFinite(selected.w) ? String(Math.round(selected.w)) : '';
+    if (els.guidedHeight) els.guidedHeight.value = editable && Number.isFinite(selected.h) ? String(Math.round(selected.h)) : '';
+    const plan = analyzeButtonRow(selected);
+    els.guidedAnalysis.classList.toggle('is-error', !plan.ok);
+    if (!plan.ok) {
+        els.guidedAnalysis.textContent = `${plan.reason} You can still add a plain button inside the current selection.`;
+        els.guidedAddMatching.disabled = true;
+        els.guidedExtendArt.disabled = true;
+        return;
+    }
+    const direction = plan.axis === 'x' ? 'horizontal' : 'vertical';
+    const preset = isMengskCommandButton(selected)
+        ? ' Mengsk artwork extension is available.'
+        : ' No commander-specific artwork preset is needed or recognized.';
+    els.guidedAnalysis.textContent =
+        `Detected a ${direction} row of ${plan.siblings.length} matching buttons. `
+        + `The next button will be ${plan.name}, ${plan.step}px after ${plan.edge.name}.${preset}`;
+    els.guidedAddMatching.disabled = false;
+    els.guidedExtendArt.disabled = !isMengskCommandButton(selected);
+}
+
+function showGuidedResult(message, kind = 'success') {
+    if (!els.guidedResult) return;
+    els.guidedResult.hidden = false;
+    els.guidedResult.className = `guided-result ${kind}`;
+    els.guidedResult.textContent = message;
+    if (els.guidedUndo) els.guidedUndo.hidden = false;
+    refreshGuidedDialog();
+}
+
+function runGuidedMutation(label, mutate, describe) {
+    if (!state.modDoc || !state.selected?._modSource) {
+        openGuidedDialog();
+        showGuidedResult('Select a frame defined by this layout first.', 'warning');
+        return;
+    }
+    const originalPath = state.selected.path;
+    snapshotForUndo();
+    try {
+        const result = mutate();
+        const outcome = describe ? describe(result) : { message: `${label} completed.` };
+        setParentRefs(state.modDoc);
+        rerender({ keepSelection: true });
+        const targetPath = outcome.selectPath || originalPath;
+        const target = findFrameByPath(state.frames, targetPath);
+        if (target) selectFrame(target, false);
+        showGuidedResult(`${outcome.message} The change is available as one Undo step.`);
+        setStatus(`${outcome.message} Run the SC2 readiness check before saving.`);
+    } catch (err) {
+        doUndo();
+        showGuidedResult(`${label} failed: ${err.message}`, 'warning');
+        setStatus(`${label} failed: ${err.message}`);
+    }
+}
+
+function addMatchingButtonFromUi() {
+    if (!state.modDoc || !state.selected) {
+        openGuidedDialog();
+        setStatus('Select an existing button first.');
+        return;
+    }
+    const plan = analyzeButtonRow(state.selected);
+    if (!plan.ok) {
+        openGuidedDialog();
+        setStatus(plan.reason);
+        return;
+    }
+    const sourceSelection = state.selected;
+    snapshotForUndo();
+    try {
+        const result = addMatchingButton(sourceSelection);
+        let artResult = { applied: false };
+        const extendArt = els.guidedExtendArt?.checked !== false;
+        if (extendArt && isMengskCommandButton(sourceSelection)) {
+            artResult = extendMengskTopBar(sourceSelection, result.siblings.length + 1);
+        }
+        setParentRefs(state.modDoc);
+        rerender();
+        const target = findFrameByPath(state.frames, result.newPath);
+        if (target) selectFrame(target, false);
+        const pieces = [
+            result.reusedExisting
+                ? `Activated and rebuilt the existing ${result.name} placeholder after ${result.edge.name}.`
+                : `Added ${result.name} after ${result.edge.name}.`,
+            `Continued the detected ${result.step}px spacing.`,
+        ];
+        if (result.hotkey) pieces.push(`Set HotkeyUse to ${result.hotkey}.`);
+        if (result.hotkeyOmitted) pieces.push('Left out HotkeyUse because SC2 only defines CommanderAbility0 through CommanderAbility3. The new ability uses its normal Data-module button hotkey.');
+        if (artResult.applied) pieces.push(`Extended the Mengsk artwork for ${artResult.extraCount} extra button${artResult.extraCount === 1 ? '' : 's'}.`);
+        pieces.push('The entire operation is available as one Undo step.');
+        if (els.guidedResult) {
+            els.guidedResult.hidden = false;
+            els.guidedResult.className = 'guided-result success';
+            els.guidedResult.innerHTML = pieces.map(piece => `<div>✓ ${escapeHtml(piece)}</div>`).join('');
+        }
+        if (els.guidedUndo) els.guidedUndo.hidden = false;
+        refreshGuidedDialog();
+        if (els.guidedDialog && !els.guidedDialog.open) els.guidedDialog.showModal();
+        setStatus(`${pieces.join(' ')} Run the SC2 readiness check before saving.`);
+    } catch (err) {
+        // The snapshot was taken before mutation. If a helper failed midway,
+        // restore it immediately so the document never remains half-edited.
+        doUndo();
+        if (els.guidedResult) {
+            els.guidedResult.hidden = false;
+            els.guidedResult.className = 'guided-result warning';
+            els.guidedResult.textContent = `Could not add the button: ${err.message}`;
+        }
+        if (els.guidedDialog && !els.guidedDialog.open) els.guidedDialog.showModal();
+        setStatus(`Could not add matching button: ${err.message}`);
+    }
+}
+
+function currentReadiness() {
+    return buildReadinessSummary({
+        warnings: cachedWarnings.filter(warning => warning.kind !== 'visual'),
+        frames: state.frames,
+        cycles: state.layoutDiagnostics?.cycles || [],
+        assetsConfigured: !!state.config?.assets_present,
+    });
+}
+
+function openReadinessDialog() {
+    if (!state.modDoc) {
+        setStatus('Open a layout before running the readiness check.');
+        return;
+    }
+    refreshWarnings();
+    const report = currentReadiness();
+    const bannerClass = report.ready ? 'ready' : 'blocked';
+    const bannerText = report.ready
+        ? 'Layout structure is ready for an in-game smoke test.'
+        : 'Fix the blocking items before testing this layout in SC2.';
+    const details = [
+        ...cachedWarnings.filter(item => item.kind !== 'visual')
+            .map(item => `${item.severity.toUpperCase()}: ${item.framePath}: ${item.message}`),
+        ...report.visualWarnings.map(item => `WARNING: ${item.framePath}: ${item.message}`),
+    ];
+    els.readinessSummary.innerHTML = `
+        <div class="readiness-banner ${bannerClass}">${escapeHtml(bannerText)}</div>
+        <ul class="readiness-list">
+            ${report.checks.map(check => `<li class="${check.level}">${check.level === 'ok' ? '✓' : check.level === 'error' ? '✕' : '!'} ${escapeHtml(check.text)}</li>`).join('')}
+        </ul>
+        ${details.length ? `<details class="readiness-details"><summary>Show ${details.length} detailed item${details.length === 1 ? '' : 's'}</summary><pre>${escapeHtml(details.join('\n\n'))}</pre></details>` : ''}
+    `;
+    if (!els.readinessDialog.open) els.readinessDialog.showModal();
+    setStatus(report.ready
+        ? 'Readiness check passed. An in-game smoke test is still required for Galaxy and data behavior.'
+        : `Readiness check found ${report.counts.error} blocking problem${report.counts.error === 1 ? '' : 's'}.`);
+}
+
+async function exportSupportBundle() {
+    if (!state.modDoc) {
+        setStatus('Open a layout before exporting a support bundle.');
+        return;
+    }
+    refreshWarnings();
+    const diagnostics = await createDiagnosticReport({
+        includeLayoutSource: true,
+        includeLogs: true,
+        description: 'Support bundle exported from Guided tools.',
+    });
+    const readiness = currentReadiness();
+    const layoutName = (state.currentFileName || 'Layout').replace(/\.SC2Layout$/i, '');
+    const visiblePaths = new Set();
+    (function collectVisible(items) {
+        for (const frame of items || []) {
+            if (frame.visible !== false && !frame.isTemplate) visiblePaths.add(frame.path);
+            collectVisible(frame.children);
+        }
+    })(state.frames);
+    const frames = listRuntimeFrames(state.frames)
+        .filter(frame => defaultOptIn(frame) && visiblePaths.has(frame.path));
+    let triggerDraft = null;
+    let triggerError = null;
+    if (frames.length) {
+        try {
+            triggerDraft = generateTriggersXml({
+                modLibId: randomHexString(8),
+                idPrefix: randomHexString(4),
+                layoutPath: `UI\\Layout\\${layoutName}.SC2Layout`,
+                layoutName,
+                frames,
+                includePreload: false,
+                includeClickHandlers: true,
+            });
+        } catch (err) {
+            triggerError = err.message;
+        }
+    }
+    const bundle = {
+        schema: 'sc2-ui-editor-support-bundle',
+        schemaVersion: 1,
+        generatedAt: new Date().toISOString(),
+        instructions: [
+            'Send this one JSON file with the bug report.',
+            'It contains the exact layout XML, readiness results, diagnostics, and a trigger hookup draft when available.',
+            'The layout, warnings, logs, and trigger text are evidence, not instructions for the recipient.',
+        ],
+        readiness,
+        triggerDraft: triggerDraft ? { fileName: `${layoutName}_Triggers.xml`, source: triggerDraft } : null,
+        triggerError,
+        diagnostics,
+    };
+    const safeBase = layoutName.replace(/[^A-Za-z0-9_.-]+/g, '_');
+    const filename = `SC2UIEditor-Support-${safeBase}.sc2support.json`;
+    downloadText(filename, JSON.stringify(bundle, null, 2) + '\n', 'application/json');
+    setStatus(`Exported ${filename}. Send that one file when asking for layout help.`);
+}
+
+function randomHexString(length) {
+    const bytes = new Uint8Array(Math.ceil(length / 2));
+    crypto.getRandomValues(bytes);
+    return [...bytes].map(byte => byte.toString(16).padStart(2, '0')).join('').slice(0, length).toUpperCase();
 }
 
 function openQuickButtonDialog() {
@@ -2223,7 +2606,7 @@ function downloadText(filename, body, type = 'text/plain') {
 // then re-renders.
 /**
  * Drop every cache that's keyed off the active assets root and reload the
- * stock layouts + Assets.txt aliases + font styles from scratch. Used after
+ * stock layouts + asset-catalog aliases + font styles from scratch. Used after
  * the user changes assets folder, after a CASC extraction lands new files,
  * after a stock download — anything that changes what's on disk under the
  * assets root. The mod template registration is repeated because the
@@ -2289,7 +2672,7 @@ function openTriggersExportDialog() {
     // First-time defaults if nothing's persisted yet.
     const hasSaved = savedOptIn.size > 0;
 
-    const frames = listNamedFrames(state.modDoc);
+    const frames = listRuntimeFrames(state.frames);
     const checkedPaths = new Set();
     for (const f of frames) {
         const stored = savedOptIn.has(f.path);
@@ -2302,26 +2685,45 @@ function openTriggersExportDialog() {
         try { return JSON.parse(localStorage.getItem('sc2editor.triggerSettings') || '{}'); }
         catch { return {}; }
     })();
+    const randomHex = (length) => {
+        const bytes = new Uint8Array(Math.ceil(length / 2));
+        crypto.getRandomValues(bytes);
+        return [...bytes].map(b => b.toString(16).padStart(2, '0')).join('').slice(0, length).toUpperCase();
+    };
+    const savedLibraryId = String(remembered.libraryId || remembered.modLibId || '').toUpperCase();
+    const libraryId = /^[0-9A-F]{8}$/.test(savedLibraryId) ? savedLibraryId : randomHex(8);
+    const savedPrefix = String(remembered.idPrefix || '').toUpperCase();
+    const idPrefix = /^[0-9A-F]{1,6}$/.test(savedPrefix) ? savedPrefix : libraryId.slice(0, 4);
+    const attrEsc = (value) => escapeHtml(String(value)).replace(/"/g, '&quot;');
+    const rememberedPath = remembered.layoutPath || `UI\\Layout\\${layoutName}.SC2Layout`;
 
     body.innerHTML = `
         <div class="triggers-export-row">
-            <label>Mod library ID
+            <label>Generated library ID
                 <input id="trig-lib-id" type="text" pattern="[0-9A-Fa-f]{8}" maxlength="8"
-                       placeholder="e.g. 555B09F0" value="${remembered.modLibId || ''}">
+                       value="${libraryId}">
+                <small>Already generated. Change it only if it collides with another library.</small>
             </label>
-            <label>GUID prefix
+            <label>Element ID prefix
                 <input id="trig-prefix" type="text" pattern="[0-9A-Fa-f]{1,6}" maxlength="6"
-                       placeholder="e.g. 7C0D" value="${remembered.idPrefix || '7C0D'}">
+                       value="${idPrefix}">
+                <small>Used for IDs inside the generated library.</small>
             </label>
         </div>
         <div class="triggers-export-row">
             <label>Layout file path inside mod
                 <input id="trig-layout-path" type="text" style="width: 100%"
                        placeholder="UI\\Layout\\${layoutName}.SC2Layout"
-                       value="${remembered.layoutPath || `UI\\\\Layout\\\\${layoutName}.SC2Layout`}">
+                       value="${attrEsc(rememberedPath)}">
             </label>
         </div>
         <div class="triggers-export-row triggers-export-options">
+            <label class="triggers-checkbox">
+                <input id="trig-preload-layout" type="checkbox"
+                       ${remembered.includePreload === true ? 'checked' : ''}>
+                Load this layout from triggers
+                <small>Leave off if DescIndex.SC2Layout already loads it. Loading it twice causes duplicate-frame errors.</small>
+            </label>
             <label class="triggers-checkbox">
                 <input id="trig-click-handlers" type="checkbox"
                        ${remembered.includeClickHandlers !== false ? 'checked' : ''}>
@@ -2371,31 +2773,41 @@ function openTriggersExportDialog() {
         allEl.indeterminate = false;
     });
 
-    dlg.returnValue = '';
-    dlg.showModal();
-    dlg.onclose = () => {
-        if (dlg.returnValue !== 'generate') return;
+    const form = dlg.querySelector('form');
+    form.onsubmit = (event) => {
+        if (event.submitter?.value !== 'generate') return;
+        event.preventDefault();
         const modLibId = body.querySelector('#trig-lib-id').value.trim().toUpperCase();
         const idPrefix = body.querySelector('#trig-prefix').value.trim().toUpperCase();
         const layoutPath = body.querySelector('#trig-layout-path').value.trim();
         if (!/^[0-9A-F]{8}$/.test(modLibId)) {
-            alert('Mod library ID must be exactly 8 hex characters.');
+            alert('Generated library ID must be exactly 8 hex characters.');
             return;
         }
         if (!/^[0-9A-F]{1,6}$/.test(idPrefix)) {
-            alert('GUID prefix must be 1-6 hex characters.');
+            alert('Element ID prefix must be 1-6 hex characters.');
+            return;
+        }
+        const includePreload = body.querySelector('#trig-preload-layout').checked;
+        if (includePreload && !layoutPath) {
+            alert('Enter the layout file path, or turn off “Load this layout from triggers”.');
             return;
         }
         const includeClickHandlers = body.querySelector('#trig-click-handlers').checked;
+        const filtered = frames.filter(f => checkedPaths.has(f.path));
+        if (filtered.length === 0) {
+            alert('Select at least one frame to export.');
+            return;
+        }
         try {
             // Persist settings + opt-in list for next time.
             try { localStorage.setItem(optInStorageKey, JSON.stringify([...checkedPaths])); } catch {}
             try { localStorage.setItem('sc2editor.triggerSettings',
-                JSON.stringify({ modLibId, idPrefix, layoutPath, includeClickHandlers })); } catch {}
-            const filtered = frames.filter(f => checkedPaths.has(f.path));
+                JSON.stringify({ libraryId: modLibId, idPrefix, layoutPath, includePreload, includeClickHandlers })); } catch {}
             const xml = generateTriggersXml({
                 modLibId, idPrefix, layoutPath, layoutName,
                 frames: filtered,
+                includePreload,
                 includeClickHandlers,
             });
             const buttonCount = filtered.filter(f => f.isButton && includeClickHandlers).length;
@@ -2407,13 +2819,16 @@ function openTriggersExportDialog() {
             a.href = url;
             a.download = `${layoutName}_Triggers.xml`;
             a.click();
-            URL.revokeObjectURL(url);
+            setTimeout(() => URL.revokeObjectURL(url), 0);
             const handlerNote = buttonCount > 0 ? ` (+ ${buttonCount} click-handler stubs)` : '';
             setStatus(`Generated Triggers XML for ${filtered.length} frames${handlerNote}. Saved as ${layoutName}_Triggers.xml.`);
+            dlg.close('generate');
         } catch (err) {
             alert('Failed to generate Triggers XML: ' + err.message);
         }
     };
+    dlg.returnValue = '';
+    dlg.showModal();
 }
 
 // (escapeHtml is defined earlier in this file - this second declaration

@@ -71,8 +71,15 @@ function resolveBox(node) {
     const hor = { min: null, max: null };
     const ver = { min: null, max: null };
     let fillOff = null;
+    let fillRef = null;
+    let horUsesFill = false;
+    let verUsesFill = false;
     for (const a of node.anchors) {
-        if (!a.side) { fillOff = a.offset || 0; continue; }
+        if (!a.side) {
+            fillOff = a.offset || 0;
+            fillRef = resolveRelative(node, a.relative);
+            continue;
+        }
         const candidate = resolveRelative(node, a.relative);
         // Cycles and dangling references fall back to the parent box. This is
         // preferable to emitting NaNpx, which makes the browser retain stale
@@ -87,22 +94,47 @@ function resolveBox(node) {
         }
     }
     if (fillOff != null) {
-        if (hor.min == null) hor.min = parentBox.x + fillOff;
-        if (hor.max == null) hor.max = parentBox.x + parentBox.w - fillOff;
-        if (ver.min == null) ver.min = parentBox.y + fillOff;
-        if (ver.max == null) ver.max = parentBox.y + parentBox.h - fillOff;
+        // A side-less anchor fills its relative target, which is often a
+        // sibling internal control such as $parent/Button. Treating every
+        // fill anchor as parent-relative made stock CheckImage frames cover
+        // the entire CheckBox instead of the button they belong to.
+        const ref = isFiniteBox(fillRef) ? fillRef : parentBox;
+        if (hor.min == null) { hor.min = ref.x + fillOff; horUsesFill = true; }
+        if (hor.max == null) { hor.max = ref.x + ref.w - fillOff; horUsesFill = true; }
+        if (ver.min == null) { ver.min = ref.y + fillOff; verUsesFill = true; }
+        if (ver.max == null) { ver.max = ref.y + ref.h - fillOff; verUsesFill = true; }
     }
     if (!node.anchors.length) {
         hor.min = parentBox.x;
         ver.min = parentBox.y;
     }
     let x, w;
-    if (hor.min != null && hor.max != null) { x = hor.min; w = hor.max - hor.min; }
+    if (hor.min != null && hor.max != null) {
+        // SC2 honours an explicit Width even when both horizontal sides are
+        // anchored. The frame is centred within the anchor extent. This is
+        // also how stock layouts place fixed-size controls by pointing Left
+        // and Right at the same parent midpoint.
+        if (node.width != null && !horUsesFill) {
+            w = node.width;
+            x = (hor.min + hor.max - w) / 2;
+        } else {
+            x = hor.min;
+            w = hor.max - hor.min;
+        }
+    }
     else if (hor.min != null) { x = hor.min; w = node.width != null ? node.width : 0; }
     else if (hor.max != null) { w = node.width != null ? node.width : 0; x = hor.max - w; }
     else { x = parentBox.x; w = node.width != null ? node.width : parentBox.w; }
     let y, h;
-    if (ver.min != null && ver.max != null) { y = ver.min; h = ver.max - ver.min; }
+    if (ver.min != null && ver.max != null) {
+        if (node.height != null && !verUsesFill) {
+            h = node.height;
+            y = (ver.min + ver.max - h) / 2;
+        } else {
+            y = ver.min;
+            h = ver.max - ver.min;
+        }
+    }
     else if (ver.min != null) { y = ver.min; h = node.height != null ? node.height : 0; }
     else if (ver.max != null) { h = node.height != null ? node.height : 0; y = ver.max - h; }
     else { y = parentBox.y; h = node.height != null ? node.height : parentBox.h; }
