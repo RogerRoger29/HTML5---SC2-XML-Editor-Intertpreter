@@ -5,7 +5,11 @@
 // nested elements.
 
 import { styleToCss } from './fontstyle.js';
-import { findChildVal, findChildAttrs } from '../xml/helpers.js';
+import {
+    attrVal,
+    findLastChildVal as findChildVal,
+    findLastChildAttrs as findChildAttrs,
+} from '../xml/helpers.js';
 
 export class FrameRenderer {
     constructor({ stage, textures, fontstyles, onSelect, onBodyPointerDown }) {
@@ -54,6 +58,7 @@ export class FrameRenderer {
                 // the positions-only fast path (texture-dependent props like
                 // Tiled / TextureCoords / Color still need a full rerender).
                 this._applyAppearance(n._el, n);
+                this._applyProgressFill(n._el, n);
             }
             if (n.children && n.children.length) this.updatePositions(n.children);
         }
@@ -109,7 +114,8 @@ export class FrameRenderer {
         if (node.synthetic) el.classList.add('synthetic');
         el.dataset.name = node.name;
         el.dataset.type = node.type;
-        if (node.parent?.type === 'Button' && node.name === 'HoverImage') {
+        if (isInteractiveButton(node.parent)
+            && (node.name === 'HoverImage' || hasHoverPreviewAnimation(node.xml))) {
             el.classList.add('button-hover-image');
         }
         // Issue #3: node.x / node.y are stage-absolute; subtract parent's
@@ -123,6 +129,7 @@ export class FrameRenderer {
         el.style.width = node.w + 'px';
         el.style.height = node.h + 'px';
         this._applyAppearance(el, node);
+        this._applyProgressFill(el, node);
 
         // Type-specific painters.
         switch (node.type) {
@@ -186,6 +193,38 @@ export class FrameRenderer {
                 (order.get(a.name) ?? 1) - (order.get(b.name) ?? 1));
         }
         for (const child of children) this._renderNode(child, el);
+    }
+
+    /** Preview SC2 ProgressBar fill clipping. The engine resizes the specially
+     *  named FillImageContainer from MinValue..MaxValue; ordinary frame layout
+     *  cannot infer that runtime-only size, so mirror it in the renderer. */
+    _applyProgressFill(el, node) {
+        const progress = node.parent;
+        // Some stock-derived materialized frames keep a generic parent type
+        // even though the named child still has ProgressBar semantics. The
+        // reserved FillImageContainer name is the reliable engine contract.
+        if (node.name !== 'FillImageContainer' || !progress) return;
+
+        const fraction = progressBarFraction(
+            findChildVal(progress.xml, 'Value'),
+            findChildVal(progress.xml, 'MinValue'),
+            findChildVal(progress.xml, 'MaxValue'),
+        );
+        const vertical = (findChildVal(progress.xml, 'Vertical') || '').toLowerCase() === 'true';
+        el.dataset.progressFraction = String(fraction);
+        el.style.overflow = 'hidden';
+        if (vertical) {
+            const height = progress.h * fraction;
+            el.style.left = '0px';
+            el.style.top = (progress.h - height) + 'px';
+            el.style.width = progress.w + 'px';
+            el.style.height = height + 'px';
+        } else {
+            el.style.left = '0px';
+            el.style.top = '0px';
+            el.style.width = (progress.w * fraction) + 'px';
+            el.style.height = progress.h + 'px';
+        }
     }
 
     _paintImage(node, el) {
@@ -266,11 +305,15 @@ export class FrameRenderer {
         const ctx = out.getContext('2d');
 
         // TextureCoords (normalized 0..1, defaults to full image).
+        const coord = (value, fallback) => {
+            const parsed = Number.parseFloat(value);
+            return Number.isFinite(parsed) ? parsed : fallback;
+        };
         const c = coords ? {
-            left: parseFloat(coords.left) || 0,
-            top: parseFloat(coords.top) || 0,
-            right: parseFloat(coords.right) || 1,
-            bottom: parseFloat(coords.bottom) || 1,
+            left: coord(coords.left, 0),
+            top: coord(coords.top, 0),
+            right: coord(coords.right, 1),
+            bottom: coord(coords.bottom, 1),
         } : { left: 0, top: 0, right: 1, bottom: 1 };
 
         // For 9-slice / border modes, c.left/right and c.top/bottom are
@@ -344,11 +387,17 @@ export class FrameRenderer {
                 } else {
                     // Normal: stretch (or excerpt via TextureCoords) the
                     // source to fill the box.
-                    const sx = c.left * W;
-                    const sy = c.top * H;
-                    const sw = Math.max(1, (c.right - c.left) * W);
-                    const sh = Math.max(1, (c.bottom - c.top) * H);
+                    const flipX = c.right < c.left;
+                    const flipY = c.bottom < c.top;
+                    const sx = Math.min(c.left, c.right) * W;
+                    const sy = Math.min(c.top, c.bottom) * H;
+                    const sw = Math.max(1, Math.abs(c.right - c.left) * W);
+                    const sh = Math.max(1, Math.abs(c.bottom - c.top) * H);
+                    ctx.save();
+                    ctx.translate(flipX ? out.width : 0, flipY ? out.height : 0);
+                    ctx.scale(flipX ? -1 : 1, flipY ? -1 : 1);
                     ctx.drawImage(srcCanvas, sx, sy, sw, sh, 0, 0, out.width, out.height);
+                    ctx.restore();
                 }
                 break;
         }
@@ -421,6 +470,39 @@ export class FrameRenderer {
         inner.textContent = text;
         return inner;
     }
+}
+
+/** Convert ProgressBar values to a safe 0..1 preview fraction. Exported so
+ *  the value semantics stay independently testable without a browser DOM. */
+export function progressBarFraction(value, minValue = 0, maxValue = 100) {
+    const valueNumber = Number.parseFloat(value);
+    const minNumber = Number.parseFloat(minValue);
+    const maxNumber = Number.parseFloat(maxValue);
+    const safeValue = Number.isFinite(valueNumber) ? valueNumber : 0;
+    const safeMin = Number.isFinite(minNumber) ? minNumber : 0;
+    const safeMax = Number.isFinite(maxNumber) ? maxNumber : 100;
+    if (safeMax <= safeMin) return safeValue >= safeMax ? 1 : 0;
+    return Math.max(0, Math.min(1, (safeValue - safeMin) / (safeMax - safeMin)));
+}
+
+/** True when a frame carries an SC2 animation driven by pointer enter. This
+ *  lets custom CommandButton art preview its hover state just like the stock
+ *  child named HoverImage. The game remains authoritative for animation
+ *  timing; the editor only previews the visible hover result. */
+export function hasHoverPreviewAnimation(xml) {
+    if (!xml?.children) return false;
+    for (const animation of xml.children) {
+        if (animation.type !== 'element' || animation.tag !== 'Animation') continue;
+        for (const child of animation.children || []) {
+            if (child.type !== 'element' || child.tag !== 'Event') continue;
+            if ((attrVal(child, 'event') || '').toLowerCase() === 'onmouseenter') return true;
+        }
+    }
+    return false;
+}
+
+function isInteractiveButton(node) {
+    return node?.type === 'Button' || node?.type === 'CommandButton';
 }
 
 function drawSlice(ctx, src, sx, sy, sw, sh, dx, dy, dw, dh) {

@@ -1,0 +1,17 @@
+﻿DocInfo/DescLong=Tutti i giocatori dispongono di un'espansione naturale. Le basi successive sono più rischiose da conquistare e mantenere. Coordinatevi con gli alleati per pianificare gli attacchi e la gestione delle risorse di squadra.
+DocInfo/DescShort=3v3
+DocInfo/Name=Accampamento abbandonato
+MapInfo/Player00/Name=Neutrale
+MapInfo/Player01/Name=Giocatore 1
+MapInfo/Player02/Name=Giocatore 2
+MapInfo/Player03/Name=Giocatore 3
+MapInfo/Player04/Name=Giocatore 4
+MapInfo/Player05/Name=Giocatore 5
+MapInfo/Player06/Name=Giocatore 6
+MapInfo/Player07/Name=Nemico
+MapInfo/Team00/Name=1v1 1
+MapInfo/Team01/Name=1v1 2
+MapInfo/Team02/Name=2v2 1
+MapInfo/Team03/Name=2v2 2
+MapInfo/Team04/Name=3v3 1
+MapInfo/Team05/Name=3v3 2

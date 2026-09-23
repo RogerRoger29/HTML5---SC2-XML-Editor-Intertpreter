@@ -1,0 +1,17 @@
+﻿DocInfo/DescLong=Todos los jugadores tienen una base natural que pueden usar como primera expansión. El resto de bases serán más difíciles de tomar. Coordina el ataque con tus compañeros de equipo y administra los recursos sabiamente.
+DocInfo/DescShort=3 vs 3
+DocInfo/Name=Campamento abandonado
+MapInfo/Player00/Name=Neutral
+MapInfo/Player01/Name=Jugador 1
+MapInfo/Player02/Name=Jugador 2
+MapInfo/Player03/Name=Jugador 3
+MapInfo/Player04/Name=Jugador 4
+MapInfo/Player05/Name=Jugador 5
+MapInfo/Player06/Name=Jugador 6
+MapInfo/Player07/Name=Hostil
+MapInfo/Team00/Name=1 vs 1 1
+MapInfo/Team01/Name=1 vs 1 2
+MapInfo/Team02/Name=2 vs 2 1
+MapInfo/Team03/Name=2 vs 2 2
+MapInfo/Team04/Name=3 vs 3 1
+MapInfo/Team05/Name=3 vs 3 2

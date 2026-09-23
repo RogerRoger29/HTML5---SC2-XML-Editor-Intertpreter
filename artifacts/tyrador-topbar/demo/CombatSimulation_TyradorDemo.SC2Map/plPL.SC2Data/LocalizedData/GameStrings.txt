@@ -1,0 +1,17 @@
+﻿DocInfo/DescLong=Wszyscy gracze mają jedną neutralną bazę, którą mogą wykorzystać do wczesnej ekspansji. Zdobycie i utrzymanie kolejnych baz jest bardziej ryzykowne. Koordynuj działania z sojusznikami, aby zaplanować atak i ostrożnie zarządzać zasobami swojej drużyny.
+DocInfo/DescShort=3 na 3
+DocInfo/Name=Opuszczony Obóz
+MapInfo/Player00/Name=Neutralny
+MapInfo/Player01/Name=Gracz 1
+MapInfo/Player02/Name=Gracz 2
+MapInfo/Player03/Name=Gracz 3
+MapInfo/Player04/Name=Gracz 4
+MapInfo/Player05/Name=Gracz 5
+MapInfo/Player06/Name=Gracz 6
+MapInfo/Player07/Name=Wróg
+MapInfo/Team00/Name=1na1 1
+MapInfo/Team01/Name=1na1 2
+MapInfo/Team02/Name=2na2 1
+MapInfo/Team03/Name=2na2 2
+MapInfo/Team04/Name=3na3 1
+MapInfo/Team05/Name=3na3 2

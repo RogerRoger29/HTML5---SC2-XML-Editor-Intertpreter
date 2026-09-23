@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CWeaponLegacy id="DFAConstructionVehicleCutter" parent="FusionCutter">
+        <Name value="Weapon/Name/DFAConstructionVehicleCutter" />
+        <DisplayName value="Weapon/Name/DFAConstructionVehicleCutter" />
+        <InfoTooltipPriority value="1" />
+        <Tip value="Weapon/Tooltip/DFAConstructionVehicleCutter" />
+        <Icon value="Assets\Textures\btn-unit-terran-scvfusionwelder.dds" />
+        <DisplayEffect value="DFAConstructionVehicleCutterDamage" />
+        <Effect value="DFAConstructionVehicleCutterDamage" />
+        <TargetFilters value="Ground,Visible;Self,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AcquireFilters value="Ground,Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <Range value="0.1" />
+        <Period value="1.5" />
+        <DamagePoint value="0.2" />
+        <Backswing value="0.8" />
+        <AllowedMovement value="Slowing" />
+    </CWeaponLegacy>
+    <CWeaponLegacy id="DFALineTrooperRifle" parent="GuassRifle">
+        <Name value="Weapon/Name/DFALineTrooperRifle" />
+        <DisplayName value="Weapon/Name/DFALineTrooperRifle" />
+        <InfoTooltipPriority value="1" />
+        <Tip value="Weapon/Tooltip/DFALineTrooperRifle" />
+        <Icon value="Assets\Textures\btn-unit-terran-troopermengskrifle.dds" />
+        <DisplayEffect value="DFALineTrooperRifleDamage" />
+        <Effect value="DFALineTrooperRifleDamage" />
+        <TargetFilters value="Visible;Self,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AcquireFilters value="Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <Range value="5" />
+        <MinScanRange value="5.5" />
+        <Period value="0.86" />
+        <DamagePoint value="0.10" />
+        <Backswing value="0.60" />
+        <AllowedMovement value="Slowing" />
+    </CWeaponLegacy>
+    <CWeaponLegacy id="DFAFortressMCVTwinCannons" parent="TwinIbiksCannon">
+        <Name value="Weapon/Name/DFAFortressMCVTwinCannons" />
+        <DisplayName value="Weapon/Name/DFAFortressMCVTwinCannons" />
+        <InfoTooltipPriority value="1" />
+        <Tip value="Weapon/Tip/DFAFortressMCVTwinCannons" />
+        <Icon value="Assets\Textures\btn-upgrade-terran-vehicleweaponslevel0.dds" />
+        <DisplayEffect value="DFAFortressMCVLeftCannonDamage" />
+        <Effect value="DFAFortressMCVTwinCannonsSet" />
+        <DisplayAttackCount value="2" />
+        <TargetFilters value="Visible;Self,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AcquireFilters value="Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <Range value="6" />
+        <MinScanRange value="6.5" />
+        <Period value="1.5" />
+        <DamagePoint value="0.25" />
+        <Backswing value="1.0" />
+        <Arc value="5.625" />
+        <ArcSlop value="0" />
+    </CWeaponLegacy>
+    <CWeaponLegacy id="DFAShielderAxe" parent="PsiBlades">
+        <Name value="Weapon/Name/DFAShielderAxe" />
+        <DisplayName value="Weapon/Name/DFAShielderAxe" />
+        <InfoTooltipPriority value="1" />
+        <Tip value="Weapon/Tooltip/DFAShielderAxe" />
+        <Icon value="Assets\Textures\btn-upgrade-nova-equipment-gunblade_sword.dds" />
+        <DisplayEffect value="DFAShielderAxeDamage" />
+        <Effect value="DFAShielderAxeDamage" />
+        <TargetFilters value="Ground,Visible;Self,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AcquireFilters value="Ground,Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <Options index="Melee" value="1" />
+        <Range value="0.1" />
+        <MinScanRange value="0.6" />
+        <Period value="1.1" />
+        <DamagePoint value="0.25" />
+        <Backswing value="0.75" />
+        <AllowedMovement value="Slowing" />
+    </CWeaponLegacy>
+    <CWeaponLegacy id="DFAFieldEngineerPistol" parent="P38ScytheGuassPistol">
+        <Name value="Weapon/Name/DFAFieldEngineerPistol" />
+        <DisplayName value="Weapon/Name/DFAFieldEngineerPistol" />
+        <InfoTooltipPriority value="1" />
+        <Tip value="Weapon/Tooltip/DFAFieldEngineerPistol" />
+        <Icon value="Assets\Textures\btn-upgrade-nova-equipment-gunblade_gun.dds" />
+        <DisplayEffect value="DFAFieldEngineerPistolDamage" />
+        <Effect value="DFAFieldEngineerPistolDamage" />
+        <DisplayAttackCount value="1" />
+        <TargetFilters value="Visible;Self,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AcquireFilters value="Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <Range value="5" />
+        <MinScanRange value="5.5" />
+        <Period value="1.25" />
+        <DamagePoint value="0" />
+        <Backswing value="0.85" />
+        <AllowedMovement value="Slowing" />
+    </CWeaponLegacy>
+    <CWeaponLegacy id="DFAVulturePatrolGuns" parent="Diamondback">
+        <Name value="Weapon/Name/DFAVulturePatrolGuns" />
+        <DisplayName value="Weapon/Name/DFAVulturePatrolGuns" />
+        <InfoTooltipPriority value="1" />
+        <Tip value="Weapon/Tip/DFAVulturePatrolGuns" />
+        <Icon value="Assets\Textures\btn-upgrade-terran-vehicleweaponslevel0.dds" />
+        <DisplayEffect value="DFAVulturePatrolLeftDamage" />
+        <Effect value="DFAVulturePatrolGunsSet" />
+        <DisplayAttackCount value="2" />
+        <TargetFilters value="Ground,Visible;Self,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AcquireFilters value="Ground,Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <Range value="6" />
+        <MinScanRange value="6.5" />
+        <Period value="1.25" />
+        <DamagePoint value="0.1" />
+        <Backswing value="0.85" />
+        <AllowedMovement value="Moving" />
+        <Options index="OnlyFireWhileInAttackOrder" value="0" />
+        <Options index="OnlyFireAtAttackOrderTarget" value="0" />
+    </CWeaponLegacy>
+    <CWeaponLegacy id="DFAStoneGooseAutocannons" parent="TwinGatlingCannon">
+        <Name value="Weapon/Name/DFAStoneGooseAutocannons" />
+        <DisplayName value="Weapon/Name/DFAStoneGooseAutocannons" />
+        <InfoTooltipPriority value="1" />
+        <Tip value="Weapon/Tip/DFAStoneGooseAutocannons" />
+        <Icon value="Assets\Textures\btn-upgrade-terran-vehicleweaponslevel0.dds" />
+        <DisplayEffect value="DFAStoneGooseLeftDamage" />
+        <Effect value="DFAStoneGooseAutocannonsSet" />
+        <DisplayAttackCount value="2" />
+        <TargetFilters value="Visible;Self,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AcquireFilters value="Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <Range value="6" />
+        <MinScanRange value="6.5" />
+        <Period value="1.4" />
+        <DamagePoint value="0.2" />
+        <Backswing value="0.9" />
+        <AllowedMovement value="Slowing" />
+        <Arc value="5.625" />
+        <ArcSlop value="0" />
+        <LegacyOptions index="FaceTargetWhileInCooldown" value="1" />
+    </CWeaponLegacy>
+    <CWeaponLegacy id="DFATransportTruckDefenseGuns" parent="MilitarizedColonistTransport">
+        <Name value="Weapon/Name/DFATransportTruckDefenseGuns" />
+        <DisplayName value="Weapon/Name/DFATransportTruckDefenseGuns" />
+        <InfoTooltipPriority value="1" />
+        <Tip value="Weapon/Tip/DFATransportTruckDefenseGuns" />
+        <Icon value="Assets\Textures\btn-upgrade-terran-vehicleweaponslevel0.dds" />
+        <DisplayEffect value="DFATransportTruckGun1Damage" />
+        <Effect value="DFATransportTruckDefenseGunsSet" />
+        <DisplayAttackCount value="4" />
+        <TargetFilters value="Visible;Self,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AcquireFilters value="Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <Range value="5.5" />
+        <MinScanRange value="6" />
+        <Period value="1.5" />
+        <DamagePoint value="0.15" />
+        <Backswing value="1" />
+        <AllowedMovement value="Slowing" />
+        <Arc value="5.625" />
+        <ArcSlop value="0" />
+    </CWeaponLegacy>
+    <CWeaponLegacy id="DFAStoneGooseMelee" parent="RoachMelee">
+        <Name value="Weapon/Name/DFAStoneGooseMelee" />
+        <DisplayName value="Weapon/Name/DFAStoneGooseMelee" />
+        <InfoTooltipPriority value="1" />
+        <Tip value="Weapon/Tip/DFAStoneGooseMelee" />
+        <Icon value="Assets\Textures\btn-upgrade-terran-mechweaponslevel0.dds" />
+        <Options index="Hidden" value="0" />
+        <Options index="Melee" value="1" />
+        <DisplayEffect value="DFAStoneGooseMeleeDamage" />
+        <Effect value="DFAStoneGooseMeleeDamage" />
+        <TargetFilters value="Ground,Visible;Self,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AcquireFilters value="Ground,Visible;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <Range value="0.75" />
+        <MinScanRange value="0.75" />
+        <Arc value="5.625" />
+        <ArcSlop value="0" />
+        <LegacyOptions index="FaceTargetWhileInCooldown" value="1" />
+        <Period value="1.4" />
+        <DamagePoint value="0.2" />
+        <Backswing value="0.9" />
+        <AllowedMovement value="Slowing" />
+    </CWeaponLegacy>
+    <CWeaponLegacy id="KoEMechaScorpaliskPincerMaul">
+        <EditorCategories value="Race:Zerg" />
+        <AcquirePrioritization value="ByAngle" />
+        <Options index="Melee" value="1" />
+        <Name value="Weapon/Name/KoEMechaScorpaliskPincerMaul" />
+        <DisplayName value="Weapon/Name/KoEMechaScorpaliskPincerMaul" />
+        <Tip value="Weapon/Tip/KoEMechaScorpaliskPincerMaul" />
+        <InfoTooltipPriority value="1" />
+        <Effect value="KoEMechaScorpaliskPincerMaulDamage" />
+        <DisplayEffect value="KoEMechaScorpaliskPincerMaulDamage" />
+        <Icon value="Assets\Textures\MechaScorpalisk\pincer.dds" />
+        <TargetFilters value="Ground,Visible;Self,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AcquireFilters value="Ground,Visible;Player,Ally,Neutral,Self,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <Range value="0.75" />
+        <MinimumRange value="0" />
+        <Period value="1.5" />
+        <DamagePoint value="0.4" />
+        <Backswing value="0.6" />
+        <Arc value="15" />
+        <ArcSlop value="10" />
+        <RandomDelayMin value="0" />
+        <RandomDelayMax value="0" />
+        <UninterruptibleDuration value="0" />
+        <LegacyOptions index="FaceTargetWhileInCooldown" value="1" />
+    </CWeaponLegacy>
+</Catalog>

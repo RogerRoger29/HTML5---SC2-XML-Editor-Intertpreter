@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Regions>
+    <region id="1">
+        <name value="Hide Narud Shit"/>
+        <shape type="circle">
+            <center value="29,76"/>
+            <radius value="17.9023"/>
+        </shape>
+        <shape type="circle">
+            <center value="22.5,93"/>
+            <radius value="11.0112"/>
+        </shape>
+        <shape type="circle">
+            <center value="36.5002,92.5002"/>
+            <radius value="8.8774"/>
+        </shape>
+    </region>
+</Regions>

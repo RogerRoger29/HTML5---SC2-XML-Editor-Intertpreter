@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CAbilBuild id="CalltoArms">
+        <InfoArray index="Build1">
+            <Button Requirements="" />
+        </InfoArray>
+    </CAbilBuild>
+    <CAbilBuild id="DFABuild">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+        <FlagArray index="Interruptible" value="1" />
+        <FlagArray index="PeonDisableCollision" value="1" />
+        <ConstructionMover value="Construction" />
+        <FidgetDelayMin value="5" />
+        <FidgetDelayMax value="10" />
+        <InfoArray index="Build1" Unit="DFAFortressMCV" Time="100">
+            <Button DefaultButtonFace="DFAFortressMCV" State="Available" Requirements="" />
+        </InfoArray>
+        <InfoArray index="Build2" Unit="DFAUndergroundBunker" Time="30">
+            <Button DefaultButtonFace="DFAUndergroundBunker" State="Available" Requirements="" />
+        </InfoArray>
+        <InfoArray index="Build3" Unit="DFARefinery" Time="30">
+            <Button DefaultButtonFace="DFARefinery" State="Available" Requirements="" />
+            <ValidatorArray index="0" value="HasVespene" />
+        </InfoArray>
+        <InfoArray index="Build4" Unit="DFAInfantryDepot" Time="50">
+            <Button DefaultButtonFace="DFAInfantryDepot" State="Available" Requirements="" />
+        </InfoArray>
+        <InfoArray index="Build5" Unit="DFAMobileFactory" Time="45">
+            <Button DefaultButtonFace="DFAMobileFactory" State="Available" Requirements="" />
+        </InfoArray>
+    </CAbilBuild>
+    <CAbilTrain id="DFAFortressTrain">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Structures" />
+        <InfoArray index="Train1" Time="17">
+            <Charge Link="" />
+            <Cooldown Link="" />
+            <Button DefaultButtonFace="TrainDFAConstructionVehicle" State="Available" Requirements="" />
+            <Unit value="DFAConstructionVehicle" />
+        </InfoArray>
+    </CAbilTrain>
+    <CAbilTrain id="DFAInfantryTrain">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Structures" />
+        <InfoArray index="Train1" Time="18">
+            <Charge Link="" />
+            <Cooldown Link="" />
+            <Button DefaultButtonFace="TrainDFALineTrooper" State="Available" Requirements="" />
+            <Unit value="DFALineTrooper" />
+        </InfoArray>
+        <InfoArray index="Train2" Time="28">
+            <Charge Link="" />
+            <Cooldown Link="" />
+            <Button DefaultButtonFace="TrainDFAShielder" State="Available" Requirements="" />
+            <Unit value="DFAShielder" />
+        </InfoArray>
+        <InfoArray index="Train3" Time="24">
+            <Charge Link="" />
+            <Cooldown Link="" />
+            <Button DefaultButtonFace="TrainDFAFieldEngineer" State="Available" Requirements="" />
+            <Unit value="DFAFieldEngineer" />
+        </InfoArray>
+    </CAbilTrain>
+    <CAbilQueue id="DFAProductionQueue">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Structures" />
+        <QueueCount value="1" />
+        <QueueSize value="5" />
+        <Flags index="Passive" value="1" />
+    </CAbilQueue>
+    <CAbilMorph id="DFAFortressMCVPack" parent="SiegeMode">
+        <AbilSetId value="DFAFortressMCVPack" />
+        <EditorCategories value="Race:Terran,AbilityorEffectType:MorphsandBurrows" />
+        <CmdButtonArray index="Execute" DefaultButtonFace="DFAFortressMCVPack" Requirements="">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <Flags index="IgnoreUnitCost" value="1" />
+        <Flags index="SuppressMovement" value="1" />
+        <InfoArray index="0" Unit="DFAFortressMCVMobile" RandomDelayMax="0">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="5" />
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="5" />
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilBehavior id="DFADecommission">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Structures" />
+        <CmdButtonArray index="On" DefaultButtonFace="DFADecommission">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <CmdButtonArray index="Off" DefaultButtonFace="Cancel">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <Flags index="BestUnit" value="1" />
+        <Flags index="Transient" value="1" />
+        <BehaviorArray value="DFADecommission" />
+        <ValidatorArray value="HasNoCargo" />
+        <ValidatorArray value="CasterHasNoOrders" />
+        <Name value="Abil/Name/DFADecommission" />
+    </CAbilBehavior>
+    <CAbilEffectTarget id="DFAFieldReclamation">
+        <AbilSetId value="DFAFieldReclamation" />
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+        <Effect index="0" value="DFAFieldReclamationRecover" />
+        <PrepEffect value="DFAFieldReclamationChannelApply" />
+        <PrepTime value="2.5" />
+        <ShowProgressArray index="Prep" value="1" />
+        <Range value="7" />
+        <AutoCastRange value="7" />
+        <Arc value="360" />
+        <Flags index="AutoCast" value="1" />
+        <Flags index="AutoCastOn" value="1" />
+        <Flags index="AutoCastOffOwnerLeave" value="1" />
+        <Flags index="BestUnit" value="0" />
+        <Flags index="ReExecutable" value="1" />
+        <TargetFilters value="Visible;Self,Enemy,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AutoCastFilters value="Visible;Self,Enemy,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AutoCastValidatorArray value="DFAFieldReclamationTarget" />
+        <CmdButtonArray index="Execute" DefaultButtonFace="DFAFieldReclamation">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+    </CAbilEffectTarget>
+    <CAbilTransport id="DFAUndergroundBunkerTransport" parent="BunkerTransport">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Structures" />
+        <Range value="0" />
+        <MaxCargoCount value="6" />
+        <MaxCargoSize value="2" />
+        <TotalCargoSpace value="6" />
+        <LoadCargoBehavior value="BunkerWeaponRangeBonus" />
+        <CmdButtonArray index="Load" DefaultButtonFace="BunkerLoad" />
+        <CmdButtonArray index="UnloadAll" DefaultButtonFace="BunkerUnloadAll">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <CmdButtonArray index="UnloadAt">
+            <Flags index="Hidden" value="1" />
+        </CmdButtonArray>
+        <CmdButtonArray index="UnloadUnit">
+            <Flags index="Hidden" value="1" />
+        </CmdButtonArray>
+        <CmdButtonArray index="LoadAll">
+            <Flags index="Hidden" value="1" />
+        </CmdButtonArray>
+        <LoadValidatorArray value="RequiresTerran" />
+        <TargetFilters value="Biological,Visible;Neutral,Enemy,Dead,Hidden" />
+        <AbilSetId value="DFAUndergroundBunkerTransport" />
+    </CAbilTransport>
+    <CAbilTransport id="DFAMovingBunkerTransport" parent="BunkerTransport">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+        <Range value="0" />
+        <MaxCargoCount value="6" />
+        <MaxCargoSize value="2" />
+        <TotalCargoSpace value="6" />
+        <LoadCargoBehavior value="BunkerWeaponRangeBonus" />
+        <CmdButtonArray index="Load" DefaultButtonFace="BunkerLoad" />
+        <CmdButtonArray index="UnloadAll" DefaultButtonFace="BunkerUnloadAll">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <CmdButtonArray index="UnloadAt">
+            <Flags index="Hidden" value="1" />
+        </CmdButtonArray>
+        <CmdButtonArray index="UnloadUnit">
+            <Flags index="Hidden" value="1" />
+        </CmdButtonArray>
+        <CmdButtonArray index="LoadAll">
+            <Flags index="Hidden" value="1" />
+        </CmdButtonArray>
+        <LoadValidatorArray value="RequiresTerran" />
+        <LoadValidatorArray value="DFAIsMovingBunkerBurrowed" />
+        <TargetFilters value="Biological,Visible;Neutral,Enemy,Dead,Hidden" />
+        <AbilSetId value="DFAMovingBunkerTransport" />
+    </CAbilTransport>
+    <CAbilMorph id="DFAMovingBunkerBurrow" parent="WidowMineBurrow">
+        <AbilSetId value="DFAMovingBunkerBurrow" />
+        <ActorKey value="BurrowDown" />
+        <EditorCategories value="Race:Terran,AbilityorEffectType:MorphsandBurrows" />
+        <CmdButtonArray index="Execute" DefaultButtonFace="DFAMovingBunkerBurrow">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <InfoArray index="0" Unit="DFAMovingBunkerBurrowed" RandomDelayMax="0">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="3" />
+            </SectionArray>
+            <SectionArray index="Collide">
+                <DurationArray index="Delay" value="0.5556" />
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="3" />
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="DFAMovingBunkerUnburrow" parent="WidowMineUnburrow">
+        <AbilSetId value="DFAMovingBunkerUnburrow" />
+        <ActorKey value="BurrowUp" />
+        <EditorCategories value="Race:Terran,AbilityorEffectType:MorphsandBurrows" />
+        <CmdButtonArray index="Execute" DefaultButtonFace="DFAMovingBunkerUnburrow">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <InfoArray index="0" Unit="DFAMovingBunker" RandomDelayMax="0">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="1" />
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Duration" value="1" />
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="1" />
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorphPlacement id="DFAFortressMCVDeploy" parent="TerranBuildingLand" unit="DFAFortressMCV">
+        <AbilSetId value="DFAFortressMCVDeploy" />
+        <ActorKey value="DFAFortressMCVDeploy" />
+        <EditorCategories value="Race:Terran,AbilityorEffectType:MorphsandBurrows" />
+        <CmdButtonArray index="Execute" DefaultButtonFace="DFAFortressMCVDeploy">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <Flags index="IgnoreUnitCost" value="1" />
+        <Flags index="IgnorePlacement" value="0" />
+        <Flags index="MoveBlockers" value="1" />
+        <Flags index="ShowPlaceholder" value="1" />
+        <Flags index="SuppressMovement" value="1" />
+        <InfoArray index="0" Unit="DFAFortressMCV" CollideRange="0" RandomDelayMax="0">
+            <SectionArray index="Abils">
+                <DurationArray index="Delay" value="5" />
+            </SectionArray>
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="5" />
+            </SectionArray>
+            <SectionArray index="Facing">
+                <DurationArray index="Duration" value="0.5" />
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Duration" value="5" />
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Delay" value="5" />
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorphPlacement>
+    <CAbilTrain id="DFAVehicleTrain">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Structures" />
+        <InfoArray index="Train1" Time="22">
+            <Charge Link="" />
+            <Cooldown Link="" />
+            <Button DefaultButtonFace="TrainDFAVulturePatrol" State="Available" Requirements="" />
+            <Unit value="DFAVulturePatrol" />
+        </InfoArray>
+        <InfoArray index="Train2" Time="36">
+            <Charge Link="" />
+            <Cooldown Link="" />
+            <Button DefaultButtonFace="TrainDFAStoneGoose" State="Available" Requirements="" />
+            <Unit value="DFAStoneGoose" />
+        </InfoArray>
+        <InfoArray index="Train3" Time="40">
+            <Charge Link="" />
+            <Cooldown Link="" />
+            <Button DefaultButtonFace="TrainDFATransportTruck" State="Available" Requirements="" />
+            <Unit value="DFATransportTruck" />
+        </InfoArray>
+    </CAbilTrain>
+    <CAbilQueue id="DFAVehicleProductionQueue">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Structures" />
+        <QueueCount value="1" />
+        <QueueSize value="5" />
+        <Flags index="Passive" value="1" />
+    </CAbilQueue>
+    <CAbilMorph id="DFAMobileFactoryPack" parent="Unsiege">
+        <AbilSetId value="DFAMobileFactoryPack" />
+        <ActorKey value="DFAMobileFactoryPack" />
+        <EditorCategories value="Race:Terran,AbilityorEffectType:MorphsandBurrows" />
+        <CmdButtonArray index="Execute" DefaultButtonFace="DFAMobileFactoryPack">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <Flags index="IgnoreUnitCost" value="1" />
+        <Flags index="SuppressMovement" value="1" />
+        <ValidatorArray value="DFAFactoryQueueEmpty" />
+        <InfoArray index="0" Unit="DFAMobileFactoryMobile" RandomDelayMax="0">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="3.0333" />
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="3.0333" />
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="DFAMobileFactoryDeploy" parent="Unsiege">
+        <AbilSetId value="DFAMobileFactoryDeploy" />
+        <ActorKey value="DFAMobileFactoryDeploy" />
+        <EditorCategories value="Race:Terran,AbilityorEffectType:MorphsandBurrows" />
+        <CmdButtonArray index="Execute" DefaultButtonFace="DFAMobileFactoryDeploy" Requirements="">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <Flags index="IgnoreUnitCost" value="1" />
+        <Flags index="SuppressMovement" value="1" />
+        <InfoArray index="0" Unit="DFAMobileFactory" RandomDelayMax="0">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="3.3667" />
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Duration" value="3.3667" />
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="3.3667" />
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilTransport id="DFATransportTruckTransport" parent="MedivacTransport">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+        <Range value="1.5" />
+        <MaxCargoCount value="8" />
+        <MaxCargoSize value="2" />
+        <TotalCargoSpace value="8" />
+        <CmdButtonArray index="Load" DefaultButtonFace="DFATransportTruckLoad" />
+        <CmdButtonArray index="UnloadAll" DefaultButtonFace="DFATransportTruckUnloadAll">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <CmdButtonArray index="UnloadAt">
+            <Flags index="Hidden" value="1" />
+        </CmdButtonArray>
+        <CmdButtonArray index="UnloadUnit">
+            <Flags index="Hidden" value="1" />
+        </CmdButtonArray>
+        <CmdButtonArray index="LoadAll">
+            <Flags index="Hidden" value="1" />
+        </CmdButtonArray>
+        <TargetFilters value="Biological,Visible;Self,Neutral,Enemy,Structure,Massive,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AbilSetId value="DFATransportTruckTransport" />
+    </CAbilTransport>
+    <CAbilMorph id="DFATransportTruckDeploy" parent="Unsiege">
+        <AbilSetId value="DFATransportTruckDeploy" />
+        <ActorKey value="DFATransportTruckDeploy" />
+        <EditorCategories value="Race:Terran,AbilityorEffectType:MorphsandBurrows" />
+        <CmdButtonArray index="Execute" DefaultButtonFace="DFATransportTruckDeploy">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <Flags index="IgnoreUnitCost" value="1" />
+        <Flags index="SuppressMovement" value="1" />
+        <InfoArray index="0" Unit="DFATransportTruckDeployed" RandomDelayMax="0">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="5" />
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Duration" value="5" />
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="5" />
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilMorph id="DFATransportTruckPack" parent="Unsiege">
+        <AbilSetId value="DFATransportTruckPack" />
+        <ActorKey value="DFATransportTruckPack" />
+        <EditorCategories value="Race:Terran,AbilityorEffectType:MorphsandBurrows" />
+        <CmdButtonArray index="Execute" DefaultButtonFace="DFATransportTruckPack">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <Flags index="IgnoreUnitCost" value="1" />
+        <Flags index="SuppressMovement" value="1" />
+        <InfoArray index="0" Unit="DFATransportTruck" RandomDelayMax="0">
+            <SectionArray index="Actor">
+                <DurationArray index="Duration" value="5" />
+            </SectionArray>
+            <SectionArray index="Mover">
+                <DurationArray index="Duration" value="5" />
+            </SectionArray>
+            <SectionArray index="Stats">
+                <DurationArray index="Duration" value="5" />
+            </SectionArray>
+        </InfoArray>
+    </CAbilMorph>
+    <CAbilBehavior id="DFAStoneGooseMeleeMode">
+        <AbilSetId value="DFAStoneGooseMeleeMode" />
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+        <CmdButtonArray index="On" DefaultButtonFace="DFAStoneGooseMeleeModeOn">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <CmdButtonArray index="Off" DefaultButtonFace="DFAStoneGooseMeleeModeOff">
+            <Flags index="ToSelection" value="1" />
+        </CmdButtonArray>
+        <Flags index="Toggle" value="1" />
+        <Flags index="Transient" value="1" />
+        <BehaviorArray value="DFAStoneGooseMeleeModeBehavior" />
+    </CAbilBehavior>
+    <CAbilEffectTarget id="KoEMechaScorpaliskShoulderAbility">
+        <EditorCategories value="Race:Terran,AbilityorEffectType:Units" />
+        <Effect index="0" value="KoEMechaScorpaliskShoulderSalvo" />
+        <Name value="Abil/Name/KoEMechaScorpaliskShoulderAbility" />
+        <TargetFilters value="Visible;Self,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <Range value="9" />
+        <RangeSlop value="0" />
+        <Arc value="360" />
+        <ArcSlop value="0" />
+        <PrepTime value="0" />
+        <CastIntroTime value="0" />
+        <CastOutroTime value="0" />
+        <FinishTime value="0" />
+        <FollowRange value="9" />
+        <Alignment value="Negative" />
+        <Flags index="AllowMovement" value="1" />
+        <Flags index="NoDeceleration" value="1" />
+        <Flags index="Transient" value="1" />
+        <Flags index="Chase" value="0" />
+        <Flags index="WaitToSpend" value="1" />
+        <Flags index="BestUnit" value="1" />
+        <Cost>
+            <Cooldown Link="KoEMechaScorpaliskShoulderAbility" TimeUse="11" Location="Unit" />
+        </Cost>
+        <CmdButtonArray index="Execute" DefaultButtonFace="KoEMechaScorpaliskShoulderButton" Requirements="" />
+    </CAbilEffectTarget>
+</Catalog>

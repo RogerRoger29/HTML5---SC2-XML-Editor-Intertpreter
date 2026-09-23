@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CTurret id="DFAFortressMCVTurret" parent="PlanetaryFortress">
+        <YawRate value="90" />
+    </CTurret>
+    <CTurret id="DFATransportTruckTurret" parent="MilitarizedColonistTransport">
+        <YawRate value="180" />
+    </CTurret>
+</Catalog>

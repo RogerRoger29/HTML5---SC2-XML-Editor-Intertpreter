@@ -1,0 +1,17 @@
+﻿DocInfo/DescLong=所有玩家都有一处天然分基地，他们可以快速开分矿。之后，其它位置的基地无论是进攻还是防守可能都比较困难。和你的队友制定好攻击方案，明智地使用你们的队伍资源。 /// All players have one natural base they can use for an early expansion.  Afterwards, the other bases can be more risky to take and hold.  Coordinate with your teammates for your plan of attack and manage your team's resources carefully.
+DocInfo/DescShort=3v3
+DocInfo/Name=废弃营地 /// Abandoned Camp
+MapInfo/Player00/Name=中立
+MapInfo/Player01/Name=玩家1
+MapInfo/Player02/Name=玩家2
+MapInfo/Player03/Name=玩家3
+MapInfo/Player04/Name=玩家4
+MapInfo/Player05/Name=玩家5
+MapInfo/Player06/Name=玩家6
+MapInfo/Player07/Name=敌对
+MapInfo/Team00/Name=1v1 1
+MapInfo/Team01/Name=1v1 2
+MapInfo/Team02/Name=2v2 1
+MapInfo/Team03/Name=2v2 2
+MapInfo/Team04/Name=3v3 1
+MapInfo/Team05/Name=3v3 2

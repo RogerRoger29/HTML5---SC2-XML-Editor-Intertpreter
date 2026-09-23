@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CLight id="Agria">
+        <ToDInfoArray index="0" Id="ProbePortrait" AmbientColor="0.439216,0.137255,0.145098" Colorize="0">
+            <Param index="HDRExposure" value="1.480000"/>
+            <Param index="HDRBloomThreshold" value="1.825000"/>
+            <Param index="HDRWhitePoint" value="2.000000"/>
+            <Param index="HDRSpecMultiplier" value="1.700000"/>
+            <Param index="HDREmisMultiplier" value="1.400000"/>
+            <Param index="TerrainSpecularExp" value="31.900000"/>
+            <Param index="TerrainHDRSpecular" value="1.000000"/>
+            <Param index="CreepSpecularExp" value="32.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="2.000000"/>
+            <Param index="ColorizationContrast" value="1.000000"/>
+            <Param index="ColorizationHue" value="0.000000"/>
+            <Param index="ColorizationBlend" value="0.500000"/>
+            <DirectionalLight index="Key">
+                <Color value="0.658824,0.509804,0.509804"/>
+                <ColorMultiplier value="2.265000"/>
+                <SpecColorMultiplier value="1.084000"/>
+                <Direction value="0.929254,0.258054,-0.264378"/>
+            </DirectionalLight>
+            <DirectionalLight index="Fill" Color="0.498039,0.498039,0.498039" ColorMultiplier="4.120000" Direction="-0.871884,-0.465934,-0.150743"/>
+            <DirectionalLight index="Back" Color="0.576471,0.576471,0.576471" ColorMultiplier="1.035000" Direction="-0.650937,-0.726755,-0.219336"/>
+        </ToDInfoArray>
+    </CLight>
+</Catalog>

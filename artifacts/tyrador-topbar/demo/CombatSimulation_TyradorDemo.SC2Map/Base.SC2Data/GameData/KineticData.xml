@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CKineticRotate id="SentinalRotationFixed">
+        <Pitch value="360"/>
+        <Duration value="10"/>
+    </CKineticRotate>
+</Catalog>

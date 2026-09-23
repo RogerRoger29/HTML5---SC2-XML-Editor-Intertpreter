@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CButton id="DFABuildStructures">
+        <Icon value="Assets\Textures\BTN-Command-Terran-BuildStructure.dds" />
+        <AlertIcon value="Assets\Textures\BTN-Command-Terran-BuildStructure.dds" />
+        <Name value="Button/Name/DFABuildStructures" />
+        <Tooltip value="Button/Tooltip/DFABuildStructures" />
+        <Hotkey value="Button/Hotkey/DFABuildStructures" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAFortressMCV">
+        <Icon value="Assets\Textures\btn-units-terran-fortress_mcv-icon.dds" />
+        <AlertIcon value="Assets\Textures\btn-units-terran-fortress_mcv-icon.dds" />
+        <Name value="Unit/Name/DFAFortressMCV" />
+        <Tooltip value="Unit/Description/DFAFortressMCV" />
+        <Hotkey value="Button/Hotkey/DFAFortressMCV" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAUndergroundBunker">
+        <Icon value="Assets\Textures\btn-buildings-dominion-bunkerunder_icon.dds" />
+        <AlertIcon value="Assets\Textures\btn-buildings-dominion-bunkerunder_icon.dds" />
+        <Name value="Unit/Name/DFAUndergroundBunker" />
+        <Tooltip value="Unit/Description/DFAUndergroundBunker" />
+        <Hotkey value="Button/Hotkey/DFAUndergroundBunker" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFARefinery">
+        <Icon value="Assets\Textures\btn-building-terran-refinery.dds" />
+        <AlertIcon value="Assets\Textures\btn-building-terran-refinery.dds" />
+        <Name value="Unit/Name/DFARefinery" />
+        <Tooltip value="Unit/Description/DFARefinery" />
+        <Hotkey value="Button/Hotkey/DFARefinery" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAInfantryDepot">
+        <Icon value="Assets\Textures\btn-building-terran-barracksmengsk.dds" />
+        <AlertIcon value="Assets\Textures\btn-building-terran-barracksmengsk.dds" />
+        <Name value="Unit/Name/DFAInfantryDepot" />
+        <Tooltip value="Unit/Description/DFAInfantryDepot" />
+        <Hotkey value="Button/Hotkey/DFAInfantryDepot" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="TrainDFAConstructionVehicle">
+        <Icon value="Assets\Textures\btn-units-dominion-constructionvehicle-icon.dds" />
+        <AlertIcon value="Assets\Textures\btn-units-dominion-constructionvehicle-icon.dds" />
+        <Name value="Button/Name/TrainDFAConstructionVehicle" />
+        <Tooltip value="Unit/Description/DFAConstructionVehicle" />
+        <Hotkey value="Button/Hotkey/TrainDFAConstructionVehicle" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="TrainDFALineTrooper">
+        <Icon value="Assets\Textures\btn-units-tosh-silon-armoredmarine-icon.dds" />
+        <AlertIcon value="Assets\Textures\btn-units-tosh-silon-armoredmarine-icon.dds" />
+        <Name value="Button/Name/TrainDFALineTrooper" />
+        <Tooltip value="Unit/Description/DFALineTrooper" />
+        <Hotkey value="Button/Hotkey/TrainDFALineTrooper" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="TrainDFAShielder">
+        <Icon value="Assets\Textures\btn-units-dominion-shielder-icon.dds" />
+        <AlertIcon value="Assets\Textures\btn-units-dominion-shielder-icon.dds" />
+        <Name value="Button/Name/TrainDFAShielder" />
+        <Tooltip value="Unit/Description/DFAShielder" />
+        <Hotkey value="Button/Hotkey/TrainDFAShielder" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="TrainDFAFieldEngineer">
+        <Icon value="Assets\Textures\btn-units-dominion-fieldengineer.dds" />
+        <AlertIcon value="Assets\Textures\btn-units-dominion-fieldengineer.dds" />
+        <Name value="Button/Name/TrainDFAFieldEngineer" />
+        <Tooltip value="Unit/Description/DFAFieldEngineer" />
+        <Hotkey value="Button/Hotkey/TrainDFAFieldEngineer" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAFortressMCVPack">
+        <Icon value="Assets\Textures\btn-ability-terran-liftoff.dds" />
+        <AlertIcon value="Assets\Textures\btn-ability-terran-liftoff.dds" />
+        <Name value="Button/Name/DFAFortressMCVPack" />
+        <Tooltip value="Button/Tooltip/DFAFortressMCVPack" />
+        <Hotkey value="Button/Hotkey/DFAFortressMCVPack" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAFortressMCVDeploy">
+        <Icon value="Assets\Textures\btn-ability-terran-land.dds" />
+        <AlertIcon value="Assets\Textures\btn-ability-terran-land.dds" />
+        <Name value="Button/Name/DFAFortressMCVDeploy" />
+        <Tooltip value="Button/Tooltip/DFAFortressMCVDeploy" />
+        <Hotkey value="Button/Hotkey/DFAFortressMCVDeploy" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFADecommission">
+        <Icon value="Assets\Textures\btn-ability-terran-salvage.dds" />
+        <AlertIcon value="Assets\Textures\btn-ability-terran-salvage.dds" />
+        <Name value="Button/Name/DFADecommission" />
+        <Tooltip value="Button/Tooltip/DFADecommission" />
+        <Hotkey value="Button/Hotkey/DFADecommission" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAFieldReclamation">
+        <Icon value="Assets\Textures\BTN-Ability-Terran-Salvage.dds" />
+        <AlertIcon value="Assets\Textures\BTN-Ability-Terran-Salvage.dds" />
+        <Name value="Button/Name/DFAFieldReclamation" />
+        <Tooltip value="Button/Tooltip/DFAFieldReclamation" />
+        <Hotkey value="Button/Hotkey/DFAFieldReclamation" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAMobileCover">
+        <Icon value="Assets\Textures\btn-ability-terran-defensivematrix.dds" />
+        <AlertIcon value="Assets\Textures\btn-ability-terran-defensivematrix.dds" />
+        <Name value="Button/Name/DFAMobileCover" />
+        <Tooltip value="Button/Tooltip/DFAMobileCover" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAPreparedGround">
+        <Icon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds" />
+        <AlertIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds" />
+        <Name value="Button/Name/DFAPreparedGround" />
+        <Tooltip value="Button/Tooltip/DFAPreparedGround" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAMovingBunkerBurrow">
+        <Icon value="Assets\Textures\BTN-Ability-Terran-ActivateMine.dds" />
+        <AlertIcon value="Assets\Textures\BTN-Ability-Terran-ActivateMine.dds" />
+        <Name value="Button/Name/DFAMovingBunkerBurrow" />
+        <Tooltip value="Button/Tooltip/DFAMovingBunkerBurrow" />
+        <Hotkey value="Button/Hotkey/DFAMovingBunkerBurrow" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAMovingBunkerUnburrow">
+        <Icon value="Assets\Textures\BTN-Ability-Terran-DeactivateMine.dds" />
+        <AlertIcon value="Assets\Textures\BTN-Ability-Terran-DeactivateMine.dds" />
+        <Name value="Button/Name/DFAMovingBunkerUnburrow" />
+        <Tooltip value="Button/Tooltip/DFAMovingBunkerUnburrow" />
+        <Hotkey value="Button/Hotkey/DFAMovingBunkerUnburrow" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAMobileFactory">
+        <Icon value="Assets\Textures\btn-buildings-dominion-mobilefactoy_land-icon.dds" />
+        <AlertIcon value="Assets\Textures\btn-buildings-dominion-mobilefactoy_land-icon.dds" />
+        <Name value="Unit/Name/DFAMobileFactory" />
+        <Tooltip value="Unit/Description/DFAMobileFactory" />
+        <Hotkey value="Button/Hotkey/DFAMobileFactory" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="TrainDFAVulturePatrol">
+        <Icon value="Assets\Textures\btn-units-dominion-troopervulture-icon.dds" />
+        <AlertIcon value="Assets\Textures\btn-units-dominion-troopervulture-icon.dds" />
+        <Name value="Button/Name/TrainDFAVulturePatrol" />
+        <Tooltip value="Unit/Description/DFAVulturePatrol" />
+        <Hotkey value="Button/Hotkey/TrainDFAVulturePatrol" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="TrainDFAStoneGoose">
+        <Icon value="Assets\Textures\btn-units-terran-stone_goose-icon.dds" />
+        <AlertIcon value="Assets\Textures\btn-units-terran-stone_goose-icon.dds" />
+        <Name value="Button/Name/TrainDFAStoneGoose" />
+        <Tooltip value="Unit/Description/DFAStoneGoose" />
+        <Hotkey value="Button/Hotkey/TrainDFAStoneGoose" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="TrainDFATransportTruck">
+        <Icon value="Assets\Textures\btn-buildings-terran-transport_truck-icon.dds" />
+        <AlertIcon value="Assets\Textures\btn-buildings-terran-transport_truck-icon.dds" />
+        <Name value="Button/Name/TrainDFATransportTruck" />
+        <Tooltip value="Unit/Description/DFATransportTruck" />
+        <Hotkey value="Button/Hotkey/TrainDFATransportTruck" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAMobileFactoryPack">
+        <Icon value="Assets\Textures\btn-ability-terran-liftoff.dds" />
+        <AlertIcon value="Assets\Textures\btn-ability-terran-liftoff.dds" />
+        <Name value="Button/Name/DFAMobileFactoryPack" />
+        <Tooltip value="Button/Tooltip/DFAMobileFactoryPack" />
+        <Hotkey value="Button/Hotkey/DFAMobileFactoryPack" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAMobileFactoryDeploy">
+        <Icon value="Assets\Textures\btn-ability-terran-land.dds" />
+        <AlertIcon value="Assets\Textures\btn-ability-terran-land.dds" />
+        <Name value="Button/Name/DFAMobileFactoryDeploy" />
+        <Tooltip value="Button/Tooltip/DFAMobileFactoryDeploy" />
+        <Hotkey value="Button/Hotkey/DFAMobileFactoryDeploy" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFARoadHunter">
+        <Icon value="Assets\Textures\btn-upgrade-terran-reapernitropacks.dds" />
+        <AlertIcon value="Assets\Textures\btn-upgrade-terran-reapernitropacks.dds" />
+        <Name value="Button/Name/DFARoadHunter" />
+        <Tooltip value="Button/Tooltip/DFARoadHunter" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFATransportTruckLoad">
+        <Icon value="Assets\Textures\btn-ability-terran-load.dds" />
+        <AlertIcon value="Assets\Textures\btn-ability-terran-load.dds" />
+        <Name value="Button/Name/DFATransportTruckLoad" />
+        <Tooltip value="Button/Tooltip/DFATransportTruckLoad" />
+        <Hotkey value="Button/Hotkey/DFATransportTruckLoad" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFATransportTruckUnloadAll">
+        <Icon value="Assets\Textures\btn-ability-terran-unloadall.dds" />
+        <AlertIcon value="Assets\Textures\btn-ability-terran-unloadall.dds" />
+        <Name value="Button/Name/DFATransportTruckUnloadAll" />
+        <Tooltip value="Button/Tooltip/DFATransportTruckUnloadAll" />
+        <Hotkey value="Button/Hotkey/DFATransportTruckUnloadAll" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFATransportTruckDeploy">
+        <Icon value="Assets\Textures\btn-ability-terran-land.dds" />
+        <AlertIcon value="Assets\Textures\btn-ability-terran-land.dds" />
+        <Name value="Button/Name/DFATransportTruckDeploy" />
+        <Tooltip value="Button/Tooltip/DFATransportTruckDeploy" />
+        <Hotkey value="Button/Hotkey/DFATransportTruckDeploy" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFATransportTruckPack">
+        <Icon value="Assets\Textures\btn-ability-terran-liftoff.dds" />
+        <AlertIcon value="Assets\Textures\btn-ability-terran-liftoff.dds" />
+        <Name value="Button/Name/DFATransportTruckPack" />
+        <Tooltip value="Button/Tooltip/DFATransportTruckPack" />
+        <Hotkey value="Button/Hotkey/DFATransportTruckPack" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAFieldService">
+        <Icon value="Assets\Textures\btn-ability-terran-repair.dds" />
+        <AlertIcon value="Assets\Textures\btn-ability-terran-repair.dds" />
+        <Name value="Button/Name/DFAFieldService" />
+        <Tooltip value="Button/Tooltip/DFAFieldService" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAStoneGooseMeleeModeOn">
+        <Icon value="Assets\Textures\btn-unit-terran-hellionbattlemode.dds" />
+        <AlertIcon value="Assets\Textures\btn-unit-terran-hellionbattlemode.dds" />
+        <Name value="Button/Name/DFAStoneGooseMeleeModeOn" />
+        <Tooltip value="Button/Tooltip/DFAStoneGooseMeleeModeOn" />
+        <Hotkey value="Button/Hotkey/DFAStoneGooseMeleeModeOn" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="DFAStoneGooseMeleeModeOff">
+        <Icon value="Assets\Textures\btn-unit-terran-hellion.dds" />
+        <AlertIcon value="Assets\Textures\btn-unit-terran-hellion.dds" />
+        <Name value="Button/Name/DFAStoneGooseMeleeModeOff" />
+        <Tooltip value="Button/Tooltip/DFAStoneGooseMeleeModeOff" />
+        <Hotkey value="Button/Hotkey/DFAStoneGooseMeleeModeOff" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="KoEMechaScorpaliskDetector">
+        <TintRacially value="1" />
+        <EditorCategories value="Race:Neutral" />
+        <Name value="Button/Name/KoEMechaScorpaliskDetector" />
+        <Tooltip value="Button/Tooltip/KoEMechaScorpaliskDetector" />
+        <Icon value="Assets\Textures\btn-status-detector.dds" />
+        <AlertIcon value="Assets\Textures\btn-status-detector.dds" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="KoEMechaScorpaliskShoulderButton">
+        <EditorCategories value="Race:Terran" />
+        <HidesForSimpleText value="0" />
+        <Name value="Button/Name/KoEMechaScorpaliskShoulderButton" />
+        <Tooltip value="Button/Tooltip/KoEMechaScorpaliskShoulderButton" />
+        <Hotkey value="Button/Hotkey/KoEMechaScorpaliskShoulderButton" />
+        <Icon value="Assets\Textures\btn-upgrade-terran-weaponrefit.dds" />
+        <AlertIcon value="Assets\Textures\btn-upgrade-terran-weaponrefit.dds" />
+    </CButton>
+</Catalog>

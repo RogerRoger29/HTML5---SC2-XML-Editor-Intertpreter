@@ -1,0 +1,17 @@
+﻿DocInfo/DescLong=Tous les joueurs disposent d’une base naturelle pour une extension précoce. Les autres bases sont plus difficiles à atteindre et à défendre. Élaborez une stratégie d’attaque avec vos coéquipiers et faites attention à la gestion de vos ressources.
+DocInfo/DescShort=3c3
+DocInfo/Name=Camp déserté
+MapInfo/Player00/Name=Neutre
+MapInfo/Player01/Name=Joueur 1
+MapInfo/Player02/Name=Joueur 2
+MapInfo/Player03/Name=Joueur 3
+MapInfo/Player04/Name=Joueur 4
+MapInfo/Player05/Name=Joueur 5
+MapInfo/Player06/Name=Joueur 6
+MapInfo/Player07/Name=Hostile
+MapInfo/Team00/Name=1c1 1
+MapInfo/Team01/Name=1c1 2
+MapInfo/Team02/Name=2c2 1
+MapInfo/Team03/Name=2c2 2
+MapInfo/Team04/Name=3c3 1
+MapInfo/Team05/Name=3c3 2

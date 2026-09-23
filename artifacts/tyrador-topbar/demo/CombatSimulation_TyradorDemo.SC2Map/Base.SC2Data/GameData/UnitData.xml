@@ -1,0 +1,3604 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CUnit id="CoopCasterRaynor">
+        <AbilArray index="2" Link="NovaGriffinBombingRunActivate" />
+        <AbilArray index="3" Link="NovaGriffinBombingRunExecute" />
+        <AbilArray Link="NovaGriffinBombingRunTargetingDummy" />
+        <AbilArray Link="SolaceAmongRuin" />
+        <AbilArray Link="ShatteredRealityActivate" />
+        <AbilArray Link="ShatteredRealityExecute" />
+        <AbilArray Link="ShatteredRealityTargetingDummy2" />
+        <AbilArray Link="CalltoArms" />
+        <AbilArray Link="DeployAssistanceDrone" />
+        <AbilArray Link="SOAGravitonBombActivate" />
+        <AbilArray Link="SOAGravitonBombExecute" />
+        <CardLayouts index="0">
+            <LayoutButtons index="1" Face="NovaGriffinBombingRun" AbilCmd="NovaGriffinBombingRunExecute,Execute" Row="2" Column="3" />
+            <LayoutButtons index="2" Face="ShatteredReality" AbilCmd="ShatteredRealityExecute,Execute" Row="2" Column="3" />
+            <LayoutButtons index="3">
+                <Face value="ShatteredReality" />
+                <Type value="AbilCmd" />
+                <AbilCmd value="ShatteredRealityTargetingDummy2,Execute" />
+                <Requirements value="" />
+                <Row value="2" />
+                <Column value="3" />
+            </LayoutButtons>
+            <LayoutButtons Face="NovaGriffinBombingRun" Type="AbilCmd" AbilCmd="NovaGriffinBombingRunTargetingDummy,Execute" Row="2" Column="3" />
+            <LayoutButtons Face="SOAGravitonBomb" Type="AbilCmd" AbilCmd="SOAGravitonBombActivate,On" Row="2" Column="3" />
+            <LayoutButtons Face="ShatteredReality" Type="AbilCmd" AbilCmd="ShatteredRealityActivate,On" Row="0" Column="1" />
+            <LayoutButtons Face="SOAGravitonBomb" Type="AbilCmd" AbilCmd="SOAGravitonBombExecute,Execute" Row="0" Column="1" />
+            <LayoutButtons Face="NovaGriffinBombingRun" Type="AbilCmd" AbilCmd="NovaGriffinBombingRunActivate,On" Row="0" Column="1" />
+            <LayoutButtons Face="SolaceAmongRuin" Type="AbilCmd" AbilCmd="SolaceAmongRuin,Build1" Row="0" Column="0" />
+            <LayoutButtons Face="DeployAssistanceDrone" Type="AbilCmd" AbilCmd="DeployAssistanceDrone,Execute" Row="0" Column="0" />
+            <LayoutButtons Face="CalltoArms" Type="AbilCmd" AbilCmd="CalltoArms,Build1" Row="1" Column="0" />
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="DFAConstructionVehicle" parent="SCV">
+        <Name value="Unit/Name/DFAConstructionVehicle" />
+        <Description value="Unit/Description/DFAConstructionVehicle" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="PreventDestroy" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <Attributes index="Biological" value="1" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="0" />
+        <Attributes index="Light" value="1" />
+        <LifeStart value="90" />
+        <LifeMax value="90" />
+        <LifeArmor value="1" />
+        <LifeArmorName value="Unit/LifeArmorName/DFACyborgArmor" />
+        <Speed value="2.75" />
+        <Acceleration value="1000" />
+        <Deceleration value="8" />
+        <StationaryTurningRate value="720" />
+        <TurningRate value="720" />
+        <Food value="-1" />
+        <CostResource index="Minerals" value="75" />
+        <CostResource index="Vespene" value="0" />
+        <RepairTime value="20" />
+        <Radius value="0.55" />
+        <InnerRadius value="0.42" />
+        <SeparationRadius value="0.55" />
+        <MinimapRadius value="0.55" />
+        <CargoSize value="2" />
+        <AbilArray index="0" Link="stop" />
+        <AbilArray index="1" Link="attack" />
+        <AbilArray index="2" Link="move" />
+        <AbilArray index="3" Link="Repair" />
+        <AbilArray index="4" Link="SCVHarvest" />
+        <AbilArray index="5" Link="DFABuild" />
+        <AbilArray index="6" Link="DFAFieldReclamation" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <BehaviorArray index="0" Link="HalfDamageforPartialRobotics" />
+        <BehaviorArray index="1" removed="1" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" Link="DFAConstructionVehicleCutter" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0" />
+            <LayoutButtons index="1" Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" />
+            <LayoutButtons index="2" Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2" />
+            <LayoutButtons index="3" Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3" />
+            <LayoutButtons index="4" Face="AttackWorker" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4" />
+            <LayoutButtons index="5" Face="GatherTerr" Type="AbilCmd" AbilCmd="SCVHarvest,Gather" Row="1" Column="0" />
+            <LayoutButtons index="6" Face="ReturnCargo" Type="AbilCmd" AbilCmd="SCVHarvest,Return" Row="1" Column="1" />
+            <LayoutButtons index="7" Face="DFABuildStructures" Type="Submenu" AbilCmd="" SubmenuCardId="DFAB" Row="2" Column="0" />
+            <LayoutButtons index="8" Face="Repair" Type="AbilCmd" AbilCmd="Repair,Execute" Row="2" Column="1" />
+            <LayoutButtons index="9" Face="DFAFieldReclamation" Type="AbilCmd" AbilCmd="DFAFieldReclamation,Execute" Row="2" Column="2" />
+            <LayoutButtons index="10" Face="Halt" Type="AbilCmd" AbilCmd="DFABuild,Halt" Row="2" Column="4" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" CardId="DFAB">
+            <LayoutButtons index="0" Face="DFAFortressMCV" Type="AbilCmd" AbilCmd="DFABuild,Build1" Row="0" Column="0" />
+            <LayoutButtons index="1" Face="DFAUndergroundBunker" Type="AbilCmd" AbilCmd="DFABuild,Build2" Row="0" Column="1" />
+            <LayoutButtons index="2" Face="DFARefinery" Type="AbilCmd" AbilCmd="DFABuild,Build3" Row="0" Column="2" />
+            <LayoutButtons index="3" Face="DFAInfantryDepot" Type="AbilCmd" AbilCmd="DFABuild,Build4" Row="1" Column="0" />
+            <LayoutButtons index="4" Face="DFAMobileFactory" Type="AbilCmd" AbilCmd="DFABuild,Build5" Row="1" Column="1" />
+            <LayoutButtons index="5" Face="Cancel" Type="CancelSubmenu" AbilCmd="" Row="2" Column="4" />
+            <LayoutButtons index="6" removed="1" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFAFortressMCV" parent="PlanetaryFortress">
+        <Name value="Unit/Name/DFAFortressMCV" />
+        <Description value="Unit/Description/DFAFortressMCV" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Campaign" />
+        <Attributes index="Structure" value="1" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Armored" value="1" />
+        <LifeStart value="1500" />
+        <LifeMax value="1500" />
+        <LifeArmor value="1" />
+        <LifeArmorName value="Unit/LifeArmorName/DFARoboticArmor" />
+        <Food value="10" />
+        <CostResource index="Minerals" value="400" />
+        <CostResource index="Vespene" value="0" />
+        <RepairTime value="100" />
+        <Radius value="2.5" />
+        <InnerRadius value="2.0" />
+        <SeparationRadius value="2.5" />
+        <MinimapRadius value="2.5" />
+        <Sight value="11" />
+        <AbilArray index="0" Link="BuildInProgress" />
+        <AbilArray index="1" Link="stop" />
+        <AbilArray index="2" Link="attack" />
+        <AbilArray index="3" Link="RallyCommand" />
+        <AbilArray index="4" Link="DFAFortressTrain" />
+        <AbilArray index="5" Link="DFAProductionQueue" />
+        <AbilArray index="6" Link="DFAFortressMCVPack" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <BehaviorArray index="0" Link="TerranBuildingBurnDown" />
+        <BehaviorArray index="1" removed="1" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" Link="DFAFortressMCVTwinCannons" Turret="DFAFortressMCVTurret" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="StopPlanetaryFortress" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" />
+            <LayoutButtons index="1" Face="AttackBuildingPFort" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4" />
+            <LayoutButtons index="2" Face="TrainDFAConstructionVehicle" Type="AbilCmd" AbilCmd="DFAFortressTrain,Train1" Row="1" Column="0" />
+            <LayoutButtons index="3" Face="Rally" Type="AbilCmd" AbilCmd="RallyCommand,Rally1" Row="1" Column="4" />
+            <LayoutButtons index="4" Face="DFAFortressMCVPack" Type="AbilCmd" AbilCmd="DFAFortressMCVPack,Execute" Row="2" Column="0" />
+            <LayoutButtons index="5" Face="Cancel" Type="AbilCmd" AbilCmd="DFAProductionQueue,CancelLast" Row="2" Column="4" />
+            <LayoutButtons index="6" Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" value="DFAConstructionVehicle" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFAUndergroundBunker" parent="Bunker">
+        <Name value="Unit/Name/DFAUndergroundBunker" />
+        <Description value="Unit/Description/DFAUndergroundBunker" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Campaign" />
+        <Attributes index="Structure" value="1" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Armored" value="1" />
+        <LifeStart value="500" />
+        <LifeMax value="500" />
+        <LifeArmor value="1" />
+        <LifeArmorName value="Unit/LifeArmorName/DFARoboticArmor" />
+        <Food value="8" />
+        <CostResource index="Minerals" value="125" />
+        <CostResource index="Vespene" value="0" />
+        <RepairTime value="30" />
+        <Radius value="1.5" />
+        <InnerRadius value="1.2" />
+        <SeparationRadius value="1.5" />
+        <MinimapRadius value="1.5" />
+        <Sight value="10" />
+        <AbilArray index="0" Link="BuildInProgress" />
+        <AbilArray index="1" Link="DFAUndergroundBunkerTransport" />
+        <AbilArray index="2" Link="StopRedirect" />
+        <AbilArray index="3" Link="AttackRedirect" />
+        <AbilArray index="4" removed="1" />
+        <AbilArray index="5" removed="1" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <BehaviorArray index="0" Link="TerranBuildingBurnDown" />
+        <BehaviorArray index="1" Link="DFAPreparedGroundEmitter" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" removed="1" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Stop" Type="AbilCmd" AbilCmd="StopRedirect,Execute" Row="0" Column="1" />
+            <LayoutButtons index="1" Face="AttackRedirect" Type="AbilCmd" AbilCmd="AttackRedirect,Execute" Row="0" Column="4" />
+            <LayoutButtons index="2" Face="BunkerLoad" Type="AbilCmd" AbilCmd="DFAUndergroundBunkerTransport,Load" Row="1" Column="0" />
+            <LayoutButtons index="3" Face="BunkerUnloadAll" Type="AbilCmd" AbilCmd="DFAUndergroundBunkerTransport,UnloadAll" Row="1" Column="1" />
+            <LayoutButtons index="4" Face="DFAPreparedGround" Type="Passive" AbilCmd="" Row="1" Column="2" />
+            <LayoutButtons index="5" Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4" />
+            <LayoutButtons index="6" removed="1" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFAMovingBunker" parent="WidowMine">
+        <Name value="Unit/Name/DFAMovingBunker" />
+        <Description value="Unit/Description/DFAMovingBunker" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign" />
+        <Attributes index="Structure" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Armored" value="1" />
+        <LifeStart value="500" />
+        <LifeMax value="500" />
+        <LifeArmor value="1" />
+        <LifeArmorName value="Unit/LifeArmorName/DFARoboticArmor" />
+        <Food value="8" />
+        <CostResource index="Minerals" value="125" />
+        <CostResource index="Vespene" value="0" />
+        <RepairTime value="30" />
+        <Mover value="Ground" />
+        <Speed value="2.25" />
+        <Acceleration value="2.5" />
+        <Deceleration value="5" />
+        <StationaryTurningRate value="180" />
+        <TurningRate value="180" />
+        <Radius value="1.15" />
+        <InnerRadius value="0.9" />
+        <SeparationRadius value="1.15" />
+        <MinimapRadius value="1.15" />
+        <Sight value="10" />
+        <CargoSize value="8" />
+        <TechAliasArray index="0" value="DFAMovingBunkerForms" />
+        <TechAliasArray index="1" removed="1" />
+        <TechAliasArray index="2" removed="1" />
+        <TechAliasArray index="3" removed="1" />
+        <TechAliasArray index="4" removed="1" />
+        <TechAliasArray index="5" removed="1" />
+        <TechAliasArray index="6" removed="1" />
+        <TechAliasArray index="7" removed="1" />
+        <TechAliasArray index="8" removed="1" />
+        <TechAliasArray index="9" removed="1" />
+        <TechAliasArray index="10" removed="1" />
+        <SelectAlias value="DFAMovingBunker" />
+        <LeaderAlias value="DFAMovingBunker" />
+        <HotkeyAlias value="DFAMovingBunker" />
+        <SubgroupAlias value="DFAMovingBunker" />
+        <AbilArray index="0" Link="stop" />
+        <AbilArray index="1" Link="move" />
+        <AbilArray index="2" Link="DFAMovingBunkerTransport" />
+        <AbilArray index="3" Link="DFAMovingBunkerBurrow" />
+        <AbilArray index="4" removed="1" />
+        <AbilArray index="5" removed="1" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <BehaviorArray index="0" removed="1" />
+        <BehaviorArray index="1" removed="1" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" removed="1" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0" />
+            <LayoutButtons index="1" Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" />
+            <LayoutButtons index="2" Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2" />
+            <LayoutButtons index="3" Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3" />
+            <LayoutButtons index="4" Face="BunkerUnloadAll" Type="AbilCmd" AbilCmd="DFAMovingBunkerTransport,UnloadAll" Row="1" Column="1" />
+            <LayoutButtons index="5" Face="DFAMovingBunkerBurrow" Type="AbilCmd" AbilCmd="DFAMovingBunkerBurrow,Execute" Row="2" Column="0" />
+            <LayoutButtons index="6" removed="1" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFARefinery" parent="Refinery">
+        <Name value="Unit/Name/DFARefinery" />
+        <Description value="Unit/Description/DFARefinery" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Campaign" />
+        <Attributes index="Structure" value="1" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Armored" value="1" />
+        <CostResource index="Minerals" value="75" />
+        <CostResource index="Vespene" value="0" />
+        <RepairTime value="30" />
+        <AbilArray index="0" Link="BuildInProgress" />
+        <AbilArray index="1" Link="DFADecommission" />
+        <AbilArray index="2" removed="1" />
+        <AbilArray index="3" removed="1" />
+        <AbilArray index="4" removed="1" />
+        <AbilArray index="5" removed="1" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <BehaviorArray index="0" Link="HarvestableVespeneGeyserGas" />
+        <BehaviorArray index="1" Link="TerranBuildingBurnDown" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" removed="1" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="DFADecommission" Type="AbilCmd" AbilCmd="DFADecommission,On" Row="2" Column="3" />
+            <LayoutButtons index="1" Face="Cancel" Type="AbilCmd" AbilCmd="DFADecommission,Off" Row="2" Column="4" />
+            <LayoutButtons index="2" Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3" />
+            <LayoutButtons index="3" Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4" />
+            <LayoutButtons index="4" removed="1" />
+            <LayoutButtons index="5" removed="1" />
+            <LayoutButtons index="6" removed="1" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFAInfantryDepot" parent="BarracksMengsk">
+        <Name value="Unit/Name/DFAInfantryDepot" />
+        <Description value="Unit/Description/DFAInfantryDepot" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Campaign" />
+        <Attributes index="Structure" value="1" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Armored" value="1" />
+        <LifeStart value="1000" />
+        <LifeMax value="1000" />
+        <LifeArmor value="1" />
+        <LifeArmorName value="Unit/LifeArmorName/DFARoboticArmor" />
+        <CostResource index="Minerals" value="150" />
+        <CostResource index="Vespene" value="0" />
+        <RepairTime value="50" />
+        <Radius value="1.5" />
+        <InnerRadius value="1.2" />
+        <SeparationRadius value="1.5" />
+        <MinimapRadius value="1.5" />
+        <Sight value="10" />
+        <AbilArray index="0" Link="BuildInProgress" />
+        <AbilArray index="1" Link="stop" />
+        <AbilArray index="2" Link="DFAInfantryTrain" />
+        <AbilArray index="3" Link="DFAProductionQueue" />
+        <AbilArray index="4" Link="Rally" />
+        <AbilArray index="5" Link="DFADecommission" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <BehaviorArray index="0" Link="TerranBuildingBurnDown" />
+        <BehaviorArray index="1" removed="1" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" removed="1" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="TrainDFALineTrooper" Type="AbilCmd" AbilCmd="DFAInfantryTrain,Train1" Row="0" Column="0" />
+            <LayoutButtons index="1" Face="TrainDFAShielder" Type="AbilCmd" AbilCmd="DFAInfantryTrain,Train2" Row="0" Column="1" />
+            <LayoutButtons index="2" Face="TrainDFAFieldEngineer" Type="AbilCmd" AbilCmd="DFAInfantryTrain,Train3" Row="0" Column="2" />
+            <LayoutButtons index="3" Face="Rally" Type="AbilCmd" AbilCmd="Rally,Rally1" Row="1" Column="4" />
+            <LayoutButtons index="4" Face="DFADecommission" Type="AbilCmd" AbilCmd="DFADecommission,On" Row="2" Column="3" />
+            <LayoutButtons index="5" Face="Cancel" Type="AbilCmd" AbilCmd="DFADecommission,Off" Row="2" Column="4" />
+            <LayoutButtons index="6" Face="Cancel" Type="AbilCmd" AbilCmd="DFAProductionQueue,CancelLast" Row="2" Column="4" />
+            <LayoutButtons index="7" Face="Halt" Type="AbilCmd" AbilCmd="BuildInProgress,Halt" Row="2" Column="3" />
+            <LayoutButtons index="8" Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" value="DFALineTrooper" />
+        <TechTreeProducedUnitArray index="1" value="DFAShielder" />
+        <TechTreeProducedUnitArray index="2" value="DFAFieldEngineer" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFALineTrooper" parent="Marine">
+        <Name value="Unit/Name/DFALineTrooper" />
+        <Description value="Unit/Description/DFALineTrooper" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="PreventDestroy" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="Turnable" value="1" />
+        <FlagArray index="Movable" value="1" />
+        <FlagArray index="UseLineOfSight" value="1" />
+        <FlagArray index="ArmySelect" value="1" />
+        <Attributes index="Biological" value="1" />
+        <Attributes index="Mechanical" value="0" />
+        <Attributes index="Robotic" value="0" />
+        <Attributes index="Light" value="1" />
+        <Attributes index="Armored" value="0" />
+        <Attributes index="Heroic" value="0" />
+        <Attributes index="Structure" value="0" />
+        <LifeStart value="60" />
+        <LifeMax value="60" />
+        <LifeArmor value="0" />
+        <LifeArmorName value="Unit/LifeArmorName/DFAInfantryArmor" />
+        <Mover value="Ground" />
+        <Speed value="2.75" />
+        <Acceleration value="1000" />
+        <Deceleration value="8" />
+        <StationaryTurningRate value="720" />
+        <TurningRate value="720" />
+        <Sight value="9" />
+        <Food value="-1" />
+        <CostCategory value="Army" />
+        <CostResource index="Minerals" value="50" />
+        <CostResource index="Vespene" value="0" />
+        <RepairTime value="12" />
+        <Radius value="0.45" />
+        <InnerRadius value="0.338" />
+        <SeparationRadius value="0.45" />
+        <MinimapRadius value="0.45" />
+        <CargoSize value="1" />
+        <AttackTargetPriority value="20" />
+        <ScoreMake value="50" />
+        <ScoreKill value="100" />
+        <ScoreResult value="BuildOrder" />
+        <AbilArray index="0" Link="stop" />
+        <AbilArray index="1" Link="attack" />
+        <AbilArray index="2" Link="move" />
+        <AbilArray index="3" removed="1" />
+        <AbilArray index="4" removed="1" />
+        <AbilArray index="5" removed="1" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <BehaviorArray index="0" Link="DFAInfantryClassification" />
+        <BehaviorArray index="1" removed="1" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" Link="DFALineTrooperRifle" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0" />
+            <LayoutButtons index="1" Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" />
+            <LayoutButtons index="2" Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2" />
+            <LayoutButtons index="3" Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3" />
+            <LayoutButtons index="4" Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4" />
+            <LayoutButtons index="5" removed="1" />
+            <LayoutButtons index="6" removed="1" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryStrongArray index="0" removed="1" />
+        <GlossaryStrongArray index="1" removed="1" />
+        <GlossaryStrongArray index="2" removed="1" />
+        <GlossaryStrongArray index="3" removed="1" />
+        <GlossaryStrongArray index="4" removed="1" />
+        <GlossaryStrongArray index="5" removed="1" />
+        <GlossaryStrongArray index="6" removed="1" />
+        <GlossaryStrongArray index="7" removed="1" />
+        <GlossaryStrongArray index="8" removed="1" />
+        <GlossaryStrongArray index="9" removed="1" />
+        <GlossaryStrongArray index="10" removed="1" />
+        <GlossaryWeakArray index="0" removed="1" />
+        <GlossaryWeakArray index="1" removed="1" />
+        <GlossaryWeakArray index="2" removed="1" />
+        <GlossaryWeakArray index="3" removed="1" />
+        <GlossaryWeakArray index="4" removed="1" />
+        <GlossaryWeakArray index="5" removed="1" />
+        <GlossaryWeakArray index="6" removed="1" />
+        <GlossaryWeakArray index="7" removed="1" />
+        <GlossaryWeakArray index="8" removed="1" />
+        <GlossaryWeakArray index="9" removed="1" />
+        <GlossaryWeakArray index="10" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFAShielder" parent="Marauder">
+        <Name value="Unit/Name/DFAShielder" />
+        <Description value="Unit/Description/DFAShielder" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="PreventDestroy" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="Turnable" value="1" />
+        <FlagArray index="Movable" value="1" />
+        <FlagArray index="UseLineOfSight" value="1" />
+        <FlagArray index="ArmySelect" value="1" />
+        <Attributes index="Biological" value="1" />
+        <Attributes index="Mechanical" value="0" />
+        <Attributes index="Robotic" value="0" />
+        <Attributes index="Light" value="0" />
+        <Attributes index="Armored" value="1" />
+        <Attributes index="Heroic" value="0" />
+        <Attributes index="Structure" value="0" />
+        <LifeStart value="150" />
+        <LifeMax value="150" />
+        <LifeArmor value="1" />
+        <LifeArmorName value="Unit/LifeArmorName/DFAInfantryArmor" />
+        <Mover value="Ground" />
+        <Speed value="2.5" />
+        <Acceleration value="1000" />
+        <Deceleration value="8" />
+        <StationaryTurningRate value="720" />
+        <TurningRate value="720" />
+        <Sight value="9" />
+        <Food value="-2" />
+        <CostCategory value="Army" />
+        <CostResource index="Minerals" value="100" />
+        <CostResource index="Vespene" value="25" />
+        <RepairTime value="31" />
+        <Radius value="0.58" />
+        <InnerRadius value="0.435" />
+        <SeparationRadius value="0.58" />
+        <MinimapRadius value="0.58" />
+        <CargoSize value="2" />
+        <AttackTargetPriority value="20" />
+        <ScoreMake value="125" />
+        <ScoreKill value="250" />
+        <ScoreResult value="BuildOrder" />
+        <AbilArray index="0" Link="stop" />
+        <AbilArray index="1" Link="attack" />
+        <AbilArray index="2" Link="move" />
+        <AbilArray index="3" removed="1" />
+        <AbilArray index="4" removed="1" />
+        <AbilArray index="5" removed="1" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <BehaviorArray index="0" Link="DFAInfantryClassification" />
+        <BehaviorArray index="1" Link="DFAMobileCoverEmitter" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" Link="DFAShielderAxe" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0" />
+            <LayoutButtons index="1" Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" />
+            <LayoutButtons index="2" Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2" />
+            <LayoutButtons index="3" Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3" />
+            <LayoutButtons index="4" Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4" />
+            <LayoutButtons index="5" Face="DFAMobileCover" Type="Passive" AbilCmd="" Row="1" Column="0" />
+            <LayoutButtons index="6" removed="1" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryStrongArray index="0" removed="1" />
+        <GlossaryStrongArray index="1" removed="1" />
+        <GlossaryStrongArray index="2" removed="1" />
+        <GlossaryStrongArray index="3" removed="1" />
+        <GlossaryStrongArray index="4" removed="1" />
+        <GlossaryStrongArray index="5" removed="1" />
+        <GlossaryStrongArray index="6" removed="1" />
+        <GlossaryStrongArray index="7" removed="1" />
+        <GlossaryStrongArray index="8" removed="1" />
+        <GlossaryStrongArray index="9" removed="1" />
+        <GlossaryStrongArray index="10" removed="1" />
+        <GlossaryWeakArray index="0" removed="1" />
+        <GlossaryWeakArray index="1" removed="1" />
+        <GlossaryWeakArray index="2" removed="1" />
+        <GlossaryWeakArray index="3" removed="1" />
+        <GlossaryWeakArray index="4" removed="1" />
+        <GlossaryWeakArray index="5" removed="1" />
+        <GlossaryWeakArray index="6" removed="1" />
+        <GlossaryWeakArray index="7" removed="1" />
+        <GlossaryWeakArray index="8" removed="1" />
+        <GlossaryWeakArray index="9" removed="1" />
+        <GlossaryWeakArray index="10" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFAFieldEngineer" parent="Marine">
+        <Name value="Unit/Name/DFAFieldEngineer" />
+        <Description value="Unit/Description/DFAFieldEngineer" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="PreventDestroy" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="Turnable" value="1" />
+        <FlagArray index="Movable" value="1" />
+        <FlagArray index="UseLineOfSight" value="1" />
+        <FlagArray index="ArmySelect" value="1" />
+        <Attributes index="Biological" value="1" />
+        <Attributes index="Mechanical" value="0" />
+        <Attributes index="Robotic" value="0" />
+        <Attributes index="Light" value="1" />
+        <Attributes index="Armored" value="0" />
+        <Attributes index="Heroic" value="0" />
+        <Attributes index="Structure" value="0" />
+        <LifeStart value="80" />
+        <LifeMax value="80" />
+        <LifeArmor value="0" />
+        <LifeArmorName value="Unit/LifeArmorName/DFAInfantryArmor" />
+        <Mover value="Ground" />
+        <Speed value="2.75" />
+        <Acceleration value="1000" />
+        <Deceleration value="8" />
+        <StationaryTurningRate value="720" />
+        <TurningRate value="720" />
+        <Sight value="9" />
+        <Food value="-1" />
+        <CostCategory value="Army" />
+        <CostResource index="Minerals" value="75" />
+        <CostResource index="Vespene" value="25" />
+        <RepairTime value="25" />
+        <Radius value="0.45" />
+        <InnerRadius value="0.338" />
+        <SeparationRadius value="0.45" />
+        <MinimapRadius value="0.45" />
+        <CargoSize value="1" />
+        <AttackTargetPriority value="20" />
+        <ScoreMake value="100" />
+        <ScoreKill value="200" />
+        <ScoreResult value="BuildOrder" />
+        <AbilArray index="0" Link="stop" />
+        <AbilArray index="1" Link="attack" />
+        <AbilArray index="2" Link="move" />
+        <AbilArray index="3" Link="Repair" />
+        <AbilArray index="4" Link="DFAFieldReclamation" />
+        <AbilArray index="5" removed="1" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <BehaviorArray index="0" Link="DFAInfantryClassification" />
+        <BehaviorArray index="1" removed="1" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" Link="DFAFieldEngineerPistol" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0" />
+            <LayoutButtons index="1" Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" />
+            <LayoutButtons index="2" Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2" />
+            <LayoutButtons index="3" Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3" />
+            <LayoutButtons index="4" Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4" />
+            <LayoutButtons index="5" Face="Repair" Type="AbilCmd" AbilCmd="Repair,Execute" Row="2" Column="0" />
+            <LayoutButtons index="6" Face="DFAFieldReclamation" Type="AbilCmd" AbilCmd="DFAFieldReclamation,Execute" Row="2" Column="1" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryStrongArray index="0" removed="1" />
+        <GlossaryStrongArray index="1" removed="1" />
+        <GlossaryStrongArray index="2" removed="1" />
+        <GlossaryStrongArray index="3" removed="1" />
+        <GlossaryStrongArray index="4" removed="1" />
+        <GlossaryStrongArray index="5" removed="1" />
+        <GlossaryStrongArray index="6" removed="1" />
+        <GlossaryStrongArray index="7" removed="1" />
+        <GlossaryStrongArray index="8" removed="1" />
+        <GlossaryStrongArray index="9" removed="1" />
+        <GlossaryStrongArray index="10" removed="1" />
+        <GlossaryWeakArray index="0" removed="1" />
+        <GlossaryWeakArray index="1" removed="1" />
+        <GlossaryWeakArray index="2" removed="1" />
+        <GlossaryWeakArray index="3" removed="1" />
+        <GlossaryWeakArray index="4" removed="1" />
+        <GlossaryWeakArray index="5" removed="1" />
+        <GlossaryWeakArray index="6" removed="1" />
+        <GlossaryWeakArray index="7" removed="1" />
+        <GlossaryWeakArray index="8" removed="1" />
+        <GlossaryWeakArray index="9" removed="1" />
+        <GlossaryWeakArray index="10" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFAWreckConstructionVehicle" parent="ScrapSalvage1x1">
+        <Name value="Unit/Name/DFAWreckConstructionVehicle" />
+        <LifeStart value="40" />
+        <LifeMax value="40" />
+        <CostResource index="Minerals" value="19" />
+        <CostResource index="Vespene" value="0" />
+        <Radius value="0.45" />
+        <MinimapRadius value="0.45" />
+        <AbilArray index="0" removed="1" />
+        <BehaviorArray index="0" Link="DFARecoverableWreck" />
+        <BehaviorArray index="1" Link="DFAWreckTimedLife" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <Collide index="Ground" value="0" />
+        <Collide index="Small" value="0" />
+        <Collide index="Structure" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="Invulnerable" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="ShowResources" value="0" />
+        <EditorFlags index="BlockStructures" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Structure" value="0" />
+        <AttackTargetPriority value="5" />
+    </CUnit>
+    <CUnit id="DFAWreckFortressMCV" parent="ScrapSalvage3x3">
+        <Name value="Unit/Name/DFAWreckFortressMCV" />
+        <LifeStart value="250" />
+        <LifeMax value="250" />
+        <CostResource index="Minerals" value="100" />
+        <CostResource index="Vespene" value="0" />
+        <Radius value="1.2" />
+        <MinimapRadius value="1.2" />
+        <AbilArray index="0" removed="1" />
+        <BehaviorArray index="0" Link="DFARecoverableWreck" />
+        <BehaviorArray index="1" Link="DFAWreckTimedLife" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <Collide index="Ground" value="0" />
+        <Collide index="Small" value="0" />
+        <Collide index="Structure" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="Invulnerable" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="ShowResources" value="0" />
+        <EditorFlags index="BlockStructures" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Structure" value="0" />
+        <AttackTargetPriority value="5" />
+    </CUnit>
+    <CUnit id="DFAWreckUndergroundBunker" parent="ScrapSalvage2x2">
+        <Name value="Unit/Name/DFAWreckUndergroundBunker" />
+        <LifeStart value="100" />
+        <LifeMax value="100" />
+        <CostResource index="Minerals" value="31" />
+        <CostResource index="Vespene" value="0" />
+        <Radius value="0.8" />
+        <MinimapRadius value="0.8" />
+        <AbilArray index="0" removed="1" />
+        <BehaviorArray index="0" Link="DFARecoverableWreck" />
+        <BehaviorArray index="1" Link="DFAWreckTimedLife" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <Collide index="Ground" value="0" />
+        <Collide index="Small" value="0" />
+        <Collide index="Structure" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="Invulnerable" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="ShowResources" value="0" />
+        <EditorFlags index="BlockStructures" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Structure" value="0" />
+        <AttackTargetPriority value="5" />
+    </CUnit>
+    <CUnit id="DFAWreckRefinery" parent="ScrapSalvage2x2">
+        <Name value="Unit/Name/DFAWreckRefinery" />
+        <LifeStart value="80" />
+        <LifeMax value="80" />
+        <CostResource index="Minerals" value="19" />
+        <CostResource index="Vespene" value="0" />
+        <Radius value="0.7" />
+        <MinimapRadius value="0.7" />
+        <AbilArray index="0" removed="1" />
+        <BehaviorArray index="0" Link="DFARecoverableWreck" />
+        <BehaviorArray index="1" Link="DFAWreckTimedLife" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <Collide index="Ground" value="0" />
+        <Collide index="Small" value="0" />
+        <Collide index="Structure" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="Invulnerable" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="ShowResources" value="0" />
+        <EditorFlags index="BlockStructures" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Structure" value="0" />
+        <AttackTargetPriority value="5" />
+    </CUnit>
+    <CUnit id="DFAWreckInfantryDepot" parent="ScrapSalvage2x2">
+        <Name value="Unit/Name/DFAWreckInfantryDepot" />
+        <LifeStart value="150" />
+        <LifeMax value="150" />
+        <CostResource index="Minerals" value="38" />
+        <CostResource index="Vespene" value="0" />
+        <Radius value="0.9" />
+        <MinimapRadius value="0.9" />
+        <AbilArray index="0" removed="1" />
+        <BehaviorArray index="0" Link="DFARecoverableWreck" />
+        <BehaviorArray index="1" Link="DFAWreckTimedLife" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <Collide index="Ground" value="0" />
+        <Collide index="Small" value="0" />
+        <Collide index="Structure" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="Invulnerable" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="ShowResources" value="0" />
+        <EditorFlags index="BlockStructures" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Structure" value="0" />
+        <AttackTargetPriority value="5" />
+    </CUnit>
+    <CUnit id="DFAMovingBunkerBurrowed" parent="WidowMineBurrowed">
+        <Name value="Unit/Name/DFAMovingBunkerBurrowed" />
+        <Description value="Unit/Description/DFAMovingBunkerBurrowed" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign" />
+        <FlagArray index="Turnable" value="0" />
+        <FlagArray index="Movable" value="0" />
+        <FlagArray index="Cloaked" value="0" />
+        <FlagArray index="Buried" value="1" />
+        <FlagArray index="ArmySelect" value="1" />
+        <Attributes index="Structure" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Armored" value="1" />
+        <LifeStart value="500" />
+        <LifeMax value="500" />
+        <LifeArmor value="1" />
+        <LifeArmorName value="Unit/LifeArmorName/DFARoboticArmor" />
+        <Food value="8" />
+        <CostResource index="Minerals" value="125" />
+        <CostResource index="Vespene" value="0" />
+        <RepairTime value="30" />
+        <Radius value="1.15" />
+        <InnerRadius value="0.9" />
+        <SeparationRadius value="1.15" />
+        <MinimapRadius value="1.15" />
+        <Sight value="10" />
+        <CargoSize value="8" />
+        <TechAliasArray index="0" value="DFAMovingBunkerForms" />
+        <TechAliasArray index="1" removed="1" />
+        <TechAliasArray index="2" removed="1" />
+        <TechAliasArray index="3" removed="1" />
+        <TechAliasArray index="4" removed="1" />
+        <TechAliasArray index="5" removed="1" />
+        <TechAliasArray index="6" removed="1" />
+        <TechAliasArray index="7" removed="1" />
+        <TechAliasArray index="8" removed="1" />
+        <TechAliasArray index="9" removed="1" />
+        <TechAliasArray index="10" removed="1" />
+        <SelectAlias value="DFAMovingBunker" />
+        <LeaderAlias value="DFAMovingBunker" />
+        <HotkeyAlias value="DFAMovingBunker" />
+        <SubgroupAlias value="DFAMovingBunker" />
+        <AbilArray index="0" Link="DFAMovingBunkerTransport" />
+        <AbilArray index="1" Link="DFAMovingBunkerUnburrow" />
+        <AbilArray index="2" Link="StopRedirect" />
+        <AbilArray index="3" Link="AttackRedirect" />
+        <AbilArray index="4" removed="1" />
+        <AbilArray index="5" removed="1" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <BehaviorArray index="0" Link="DFAPreparedGroundEmitter" />
+        <BehaviorArray index="1" removed="1" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" removed="1" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Stop" Type="AbilCmd" AbilCmd="StopRedirect,Execute" Row="0" Column="1" />
+            <LayoutButtons index="1" Face="AttackRedirect" Type="AbilCmd" AbilCmd="AttackRedirect,Execute" Row="0" Column="4" />
+            <LayoutButtons index="2" Face="BunkerLoad" Type="AbilCmd" AbilCmd="DFAMovingBunkerTransport,Load" Row="1" Column="0" />
+            <LayoutButtons index="3" Face="BunkerUnloadAll" Type="AbilCmd" AbilCmd="DFAMovingBunkerTransport,UnloadAll" Row="1" Column="1" />
+            <LayoutButtons index="4" Face="DFAPreparedGround" Type="Passive" AbilCmd="" Row="1" Column="2" />
+            <LayoutButtons index="5" Face="DFAMovingBunkerUnburrow" Type="AbilCmd" AbilCmd="DFAMovingBunkerUnburrow,Execute" Row="2" Column="0" />
+            <LayoutButtons index="6" removed="1" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFAWreckMovingBunker" parent="ScrapSalvage2x2">
+        <Name value="Unit/Name/DFAWreckMovingBunker" />
+        <LifeStart value="100" />
+        <LifeMax value="100" />
+        <CostResource index="Minerals" value="31" />
+        <CostResource index="Vespene" value="0" />
+        <Radius value="0.8" />
+        <MinimapRadius value="0.8" />
+        <AbilArray index="0" removed="1" />
+        <BehaviorArray index="0" Link="DFARecoverableWreck" />
+        <BehaviorArray index="1" Link="DFAWreckTimedLife" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <Collide index="Ground" value="0" />
+        <Collide index="Small" value="0" />
+        <Collide index="Structure" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="Invulnerable" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="ShowResources" value="0" />
+        <EditorFlags index="BlockStructures" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Structure" value="0" />
+        <AttackTargetPriority value="5" />
+    </CUnit>
+    <CUnit id="DFAFortressMCVMobile" parent="Thor">
+        <Name value="Unit/Name/DFAFortressMCVMobile" />
+        <Description value="Unit/Description/DFAFortressMCVMobile" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign" />
+        <Attributes index="Structure" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Armored" value="1" />
+        <Attributes index="Massive" value="1" />
+        <LifeStart value="1500" />
+        <LifeMax value="1500" />
+        <LifeArmor value="1" />
+        <LifeArmorName value="Unit/LifeArmorName/DFARoboticArmor" />
+        <Food value="10" />
+        <CostResource index="Minerals" value="400" />
+        <CostResource index="Vespene" value="0" />
+        <RepairTime value="100" />
+        <Mover value="Ground" />
+        <Speed value="1.8" />
+        <Acceleration value="1.8" />
+        <Deceleration value="4" />
+        <StationaryTurningRate value="90" />
+        <TurningRate value="90" />
+        <Radius value="2.25" />
+        <InnerRadius value="1.8" />
+        <SeparationRadius value="2.25" />
+        <MinimapRadius value="2.25" />
+        <Sight value="11" />
+        <CargoSize value="8" />
+        <AbilArray index="0" Link="stop" />
+        <AbilArray index="1" Link="move" />
+        <AbilArray index="2" Link="DFAFortressMCVDeploy" />
+        <AbilArray index="3" removed="1" />
+        <AbilArray index="4" removed="1" />
+        <AbilArray index="5" removed="1" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <BehaviorArray index="0" removed="1" />
+        <BehaviorArray index="1" removed="1" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" removed="1" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0" />
+            <LayoutButtons index="1" Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" />
+            <LayoutButtons index="2" Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2" />
+            <LayoutButtons index="3" Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3" />
+            <LayoutButtons index="4" Face="DFAFortressMCVDeploy" Type="AbilCmd" AbilCmd="DFAFortressMCVDeploy,Execute" Row="2" Column="0" />
+            <LayoutButtons index="5" removed="1" />
+            <LayoutButtons index="6" removed="1" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFAMobileFactory" parent="Factory">
+        <Name value="Unit/Name/DFAMobileFactory" />
+        <Description value="Unit/Description/DFAMobileFactory" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Structure,ObjectFamily:Campaign" />
+        <FlagArray index="Turnable" value="0" />
+        <FlagArray index="PreventDestroy" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="UseLineOfSight" value="1" />
+        <FlagArray index="TownAlert" value="1" />
+        <FlagArray index="ArmySelect" value="1" />
+        <Attributes index="Structure" value="1" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Armored" value="1" />
+        <Attributes index="Massive" value="0" />
+        <LifeStart value="950" />
+        <LifeMax value="950" />
+        <LifeArmor value="1" />
+        <LifeArmorName value="Unit/LifeArmorName/DFARoboticArmor" />
+        <Food value="0" />
+        <CostCategory value="Technology" />
+        <CostResource index="Minerals" value="150" />
+        <CostResource index="Vespene" value="100" />
+        <RepairTime value="62" />
+        <Radius value="1.625" />
+        <InnerRadius value="1.35" />
+        <SeparationRadius value="1.625" />
+        <MinimapRadius value="1.625" />
+        <Footprint value="Footprint3x3Contour" />
+        <PlacementFootprint value="Footprint3x3" />
+        <Sight value="10" />
+        <AttackTargetPriority value="11" />
+        <TechAliasArray index="0" value="DFAMobileFactoryForms" />
+        <TechAliasArray index="1" removed="1" />
+        <TechAliasArray index="2" removed="1" />
+        <TechAliasArray index="3" removed="1" />
+        <TechAliasArray index="4" removed="1" />
+        <TechAliasArray index="5" removed="1" />
+        <TechAliasArray index="6" removed="1" />
+        <TechAliasArray index="7" removed="1" />
+        <TechAliasArray index="8" removed="1" />
+        <TechAliasArray index="9" removed="1" />
+        <TechAliasArray index="10" removed="1" />
+        <SelectAlias value="DFAMobileFactory" />
+        <LeaderAlias value="DFAMobileFactory" />
+        <HotkeyAlias value="DFAMobileFactory" />
+        <SubgroupAlias value="DFAMobileFactory" />
+        <AbilArray index="0" Link="BuildInProgress" />
+        <AbilArray index="1" Link="stop" />
+        <AbilArray index="2" Link="RallyCommand" />
+        <AbilArray index="3" Link="DFAVehicleTrain" />
+        <AbilArray index="4" Link="DFAVehicleProductionQueue" />
+        <AbilArray index="5" Link="DFAMobileFactoryPack" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <AbilArray index="25" removed="1" />
+        <AbilArray index="26" removed="1" />
+        <AbilArray index="27" removed="1" />
+        <AbilArray index="28" removed="1" />
+        <AbilArray index="29" removed="1" />
+        <AbilArray index="30" removed="1" />
+        <BehaviorArray index="0" Link="TerranBuildingBurnDown" />
+        <BehaviorArray index="1" removed="1" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" removed="1" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <WeaponArray index="5" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" />
+            <LayoutButtons index="1" Face="TrainDFAVulturePatrol" Type="AbilCmd" AbilCmd="DFAVehicleTrain,Train1" Row="1" Column="0" />
+            <LayoutButtons index="2" Face="TrainDFAStoneGoose" Type="AbilCmd" AbilCmd="DFAVehicleTrain,Train2" Row="1" Column="1" />
+            <LayoutButtons index="3" Face="TrainDFATransportTruck" Type="AbilCmd" AbilCmd="DFAVehicleTrain,Train3" Row="1" Column="2" />
+            <LayoutButtons index="4" Face="Rally" Type="AbilCmd" AbilCmd="RallyCommand,Rally1" Row="1" Column="4" />
+            <LayoutButtons index="5" Face="DFAMobileFactoryPack" Type="AbilCmd" AbilCmd="DFAMobileFactoryPack,Execute" Row="2" Column="0" />
+            <LayoutButtons index="6" Face="Cancel" Type="AbilCmd" AbilCmd="DFAVehicleProductionQueue,CancelLast" Row="2" Column="4" />
+            <LayoutButtons index="7" Face="CancelBuilding" Type="AbilCmd" AbilCmd="BuildInProgress,Cancel" Row="2" Column="4" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" value="DFAVulturePatrol" />
+        <TechTreeProducedUnitArray index="1" value="DFAStoneGoose" />
+        <TechTreeProducedUnitArray index="2" value="DFATransportTruck" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFAMobileFactoryMobile" parent="Thor">
+        <Name value="Unit/Name/DFAMobileFactoryMobile" />
+        <Description value="Unit/Description/DFAMobileFactoryMobile" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign" />
+        <FlagArray index="PreventDestroy" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="Turnable" value="1" />
+        <FlagArray index="Movable" value="1" />
+        <FlagArray index="UseLineOfSight" value="1" />
+        <FlagArray index="ArmySelect" value="1" />
+        <Attributes index="Structure" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Armored" value="1" />
+        <Attributes index="Massive" value="0" />
+        <LifeStart value="950" />
+        <LifeMax value="950" />
+        <LifeArmor value="1" />
+        <LifeArmorName value="Unit/LifeArmorName/DFARoboticArmor" />
+        <Food value="0" />
+        <CostCategory value="Technology" />
+        <CostResource index="Minerals" value="150" />
+        <CostResource index="Vespene" value="100" />
+        <RepairTime value="62" />
+        <Mover value="Ground" />
+        <Speed value="2.25" />
+        <Acceleration value="2.5" />
+        <Deceleration value="5" />
+        <StationaryTurningRate value="120" />
+        <TurningRate value="120" />
+        <Radius value="1.55" />
+        <InnerRadius value="1.25" />
+        <SeparationRadius value="1.55" />
+        <MinimapRadius value="1.55" />
+        <Sight value="10" />
+        <CargoSize value="8" />
+        <TechAliasArray index="0" value="DFAMobileFactoryForms" />
+        <TechAliasArray index="1" removed="1" />
+        <TechAliasArray index="2" removed="1" />
+        <TechAliasArray index="3" removed="1" />
+        <TechAliasArray index="4" removed="1" />
+        <TechAliasArray index="5" removed="1" />
+        <TechAliasArray index="6" removed="1" />
+        <TechAliasArray index="7" removed="1" />
+        <TechAliasArray index="8" removed="1" />
+        <TechAliasArray index="9" removed="1" />
+        <TechAliasArray index="10" removed="1" />
+        <SelectAlias value="DFAMobileFactory" />
+        <LeaderAlias value="DFAMobileFactory" />
+        <HotkeyAlias value="DFAMobileFactory" />
+        <SubgroupAlias value="DFAMobileFactory" />
+        <AbilArray index="0" Link="stop" />
+        <AbilArray index="1" Link="move" />
+        <AbilArray index="2" Link="DFAMobileFactoryDeploy" />
+        <AbilArray index="3" removed="1" />
+        <AbilArray index="4" removed="1" />
+        <AbilArray index="5" removed="1" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <AbilArray index="25" removed="1" />
+        <AbilArray index="26" removed="1" />
+        <AbilArray index="27" removed="1" />
+        <AbilArray index="28" removed="1" />
+        <AbilArray index="29" removed="1" />
+        <AbilArray index="30" removed="1" />
+        <BehaviorArray index="0" removed="1" />
+        <BehaviorArray index="1" removed="1" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" removed="1" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <WeaponArray index="5" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0" />
+            <LayoutButtons index="1" Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" />
+            <LayoutButtons index="2" Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2" />
+            <LayoutButtons index="3" Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3" />
+            <LayoutButtons index="4" Face="DFAMobileFactoryDeploy" Type="AbilCmd" AbilCmd="DFAMobileFactoryDeploy,Execute" Row="2" Column="0" />
+            <LayoutButtons index="5" removed="1" />
+            <LayoutButtons index="6" removed="1" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFAVulturePatrol" parent="Vulture">
+        <Name value="Unit/Name/DFAVulturePatrol" />
+        <Description value="Unit/Description/DFAVulturePatrol" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign" />
+        <FlagArray index="PreventDestroy" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="Turnable" value="1" />
+        <FlagArray index="Movable" value="1" />
+        <FlagArray index="UseLineOfSight" value="1" />
+        <FlagArray index="ArmySelect" value="1" />
+        <Attributes index="Structure" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Light" value="1" />
+        <Attributes index="Armored" value="0" />
+        <Attributes index="Heroic" value="0" />
+        <LifeStart value="90" />
+        <LifeMax value="90" />
+        <LifeArmor value="0" />
+        <LifeArmorName value="Unit/LifeArmorName/DFARoboticArmor" />
+        <Mover value="Ground" />
+        <Speed value="4.25" />
+        <Acceleration value="1000" />
+        <Deceleration value="8" />
+        <StationaryTurningRate value="720" />
+        <TurningRate value="720" />
+        <Sight value="10" />
+        <Food value="-1" />
+        <CostCategory value="Army" />
+        <CostResource index="Minerals" value="75" />
+        <CostResource index="Vespene" value="25" />
+        <RepairTime value="25" />
+        <Radius value="0.7" />
+        <InnerRadius value="0.52" />
+        <SeparationRadius value="0.7" />
+        <MinimapRadius value="0.7" />
+        <CargoSize value="2" />
+        <AttackTargetPriority value="20" />
+        <AbilArray index="0" Link="stop" />
+        <AbilArray index="1" Link="attack" />
+        <AbilArray index="2" Link="move" />
+        <AbilArray index="3" removed="1" />
+        <AbilArray index="4" removed="1" />
+        <AbilArray index="5" removed="1" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <AbilArray index="25" removed="1" />
+        <AbilArray index="26" removed="1" />
+        <AbilArray index="27" removed="1" />
+        <AbilArray index="28" removed="1" />
+        <AbilArray index="29" removed="1" />
+        <AbilArray index="30" removed="1" />
+        <BehaviorArray index="0" removed="1" />
+        <BehaviorArray index="1" removed="1" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" Link="DFAVulturePatrolGuns" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <WeaponArray index="5" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0" />
+            <LayoutButtons index="1" Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" />
+            <LayoutButtons index="2" Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2" />
+            <LayoutButtons index="3" Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3" />
+            <LayoutButtons index="4" Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4" />
+            <LayoutButtons index="5" Face="DFARoadHunter" Type="Passive" AbilCmd="" Row="1" Column="0" />
+            <LayoutButtons index="6" removed="1" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFAStoneGoose" parent="Goliath">
+        <Name value="Unit/Name/DFAStoneGoose" />
+        <Description value="Unit/Description/DFAStoneGoose" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign" />
+        <FlagArray index="PreventDestroy" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="Turnable" value="1" />
+        <FlagArray index="Movable" value="1" />
+        <FlagArray index="UseLineOfSight" value="1" />
+        <FlagArray index="ArmySelect" value="1" />
+        <Attributes index="Structure" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Light" value="0" />
+        <Attributes index="Armored" value="1" />
+        <Attributes index="Heroic" value="0" />
+        <LifeStart value="220" />
+        <LifeMax value="220" />
+        <LifeArmor value="1" />
+        <LifeArmorName value="Unit/LifeArmorName/DFARoboticArmor" />
+        <Mover value="Ground" />
+        <Speed value="3" />
+        <Acceleration value="4" />
+        <Deceleration value="6" />
+        <StationaryTurningRate value="240" />
+        <TurningRate value="180" />
+        <Sight value="10" />
+        <Food value="-3" />
+        <CostCategory value="Army" />
+        <CostResource index="Minerals" value="150" />
+        <CostResource index="Vespene" value="75" />
+        <RepairTime value="56" />
+        <Radius value="0.95" />
+        <InnerRadius value="0.72" />
+        <SeparationRadius value="0.95" />
+        <MinimapRadius value="0.95" />
+        <CargoSize value="4" />
+        <AttackTargetPriority value="20" />
+        <TechAliasArray index="0" removed="1" />
+        <TechAliasArray index="1" removed="1" />
+        <TechAliasArray index="2" removed="1" />
+        <TechAliasArray index="3" removed="1" />
+        <TechAliasArray index="4" removed="1" />
+        <TechAliasArray index="5" removed="1" />
+        <TechAliasArray index="6" removed="1" />
+        <TechAliasArray index="7" removed="1" />
+        <TechAliasArray index="8" removed="1" />
+        <TechAliasArray index="9" removed="1" />
+        <TechAliasArray index="10" removed="1" />
+        <SelectAlias value="DFAStoneGoose" />
+        <LeaderAlias value="DFAStoneGoose" />
+        <HotkeyAlias value="DFAStoneGoose" />
+        <SubgroupAlias value="DFAStoneGoose" />
+        <AbilArray index="0" Link="stop" />
+        <AbilArray index="1" Link="attack" />
+        <AbilArray index="2" Link="move" />
+        <AbilArray index="3" Link="DFAStoneGooseMeleeMode" />
+        <AbilArray index="4" removed="1" />
+        <AbilArray index="5" removed="1" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <AbilArray index="25" removed="1" />
+        <AbilArray index="26" removed="1" />
+        <AbilArray index="27" removed="1" />
+        <AbilArray index="28" removed="1" />
+        <AbilArray index="29" removed="1" />
+        <AbilArray index="30" removed="1" />
+        <BehaviorArray index="0" removed="1" />
+        <BehaviorArray index="1" removed="1" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" Link="DFAStoneGooseAutocannons" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <WeaponArray index="5" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0" Requirements="" />
+            <LayoutButtons index="1" Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" Requirements="" />
+            <LayoutButtons index="2" Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2" Requirements="" />
+            <LayoutButtons index="3" Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3" Requirements="" />
+            <LayoutButtons index="4" Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4" Requirements="" />
+            <LayoutButtons index="5" Face="DFAStoneGooseMeleeModeOn" Type="AbilCmd" AbilCmd="DFAStoneGooseMeleeMode,On" Row="2" Column="0" Requirements="" />
+            <LayoutButtons index="6" Face="DFAStoneGooseMeleeModeOff" Type="AbilCmd" AbilCmd="DFAStoneGooseMeleeMode,Off" Row="2" Column="1" Requirements="" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFATransportTruck" parent="MilitarizedColonistTransport">
+        <Name value="Unit/Name/DFATransportTruck" />
+        <Description value="Unit/Description/DFATransportTruck" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign" />
+        <FlagArray index="PreventDestroy" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="Turnable" value="1" />
+        <FlagArray index="Movable" value="1" />
+        <FlagArray index="UseLineOfSight" value="1" />
+        <FlagArray index="ArmySelect" value="1" />
+        <Attributes index="Structure" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Light" value="0" />
+        <Attributes index="Armored" value="1" />
+        <Attributes index="Heroic" value="0" />
+        <LifeStart value="400" />
+        <LifeMax value="400" />
+        <LifeArmor value="1" />
+        <LifeArmorName value="Unit/LifeArmorName/DFARoboticArmor" />
+        <Mover value="Ground" />
+        <Speed value="3" />
+        <Acceleration value="3" />
+        <Deceleration value="6" />
+        <StationaryTurningRate value="180" />
+        <TurningRate value="120" />
+        <Sight value="10" />
+        <Food value="-3" />
+        <CostCategory value="Army" />
+        <CostResource index="Minerals" value="175" />
+        <CostResource index="Vespene" value="75" />
+        <RepairTime value="62" />
+        <Radius value="1.55" />
+        <InnerRadius value="1.2" />
+        <SeparationRadius value="1.4" />
+        <MinimapRadius value="1.4" />
+        <CargoSize value="8" />
+        <AttackTargetPriority value="20" />
+        <TechAliasArray index="0" value="DFATransportTruckForms" />
+        <TechAliasArray index="1" removed="1" />
+        <TechAliasArray index="2" removed="1" />
+        <TechAliasArray index="3" removed="1" />
+        <TechAliasArray index="4" removed="1" />
+        <TechAliasArray index="5" removed="1" />
+        <TechAliasArray index="6" removed="1" />
+        <TechAliasArray index="7" removed="1" />
+        <TechAliasArray index="8" removed="1" />
+        <TechAliasArray index="9" removed="1" />
+        <TechAliasArray index="10" removed="1" />
+        <SelectAlias value="DFATransportTruck" />
+        <LeaderAlias value="DFATransportTruck" />
+        <HotkeyAlias value="DFATransportTruck" />
+        <SubgroupAlias value="DFATransportTruck" />
+        <AbilArray index="0" Link="stop" />
+        <AbilArray index="1" Link="attack" />
+        <AbilArray index="2" Link="move" />
+        <AbilArray index="3" Link="RallyCommand" />
+        <AbilArray index="4" Link="DFATransportTruckTransport" />
+        <AbilArray index="5" Link="DFATransportTruckDeploy" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <AbilArray index="25" removed="1" />
+        <AbilArray index="26" removed="1" />
+        <AbilArray index="27" removed="1" />
+        <AbilArray index="28" removed="1" />
+        <AbilArray index="29" removed="1" />
+        <AbilArray index="30" removed="1" />
+        <BehaviorArray index="0" removed="1" />
+        <BehaviorArray index="1" removed="1" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" Link="DFATransportTruckDefenseGuns" Turret="DFATransportTruckTurret" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <WeaponArray index="5" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0" />
+            <LayoutButtons index="1" Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" />
+            <LayoutButtons index="2" Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2" />
+            <LayoutButtons index="3" Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3" />
+            <LayoutButtons index="4" Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4" />
+            <LayoutButtons index="5" Face="DFATransportTruckLoad" Type="AbilCmd" AbilCmd="DFATransportTruckTransport,Load" Row="1" Column="0" />
+            <LayoutButtons index="6" Face="DFATransportTruckUnloadAll" Type="AbilCmd" AbilCmd="DFATransportTruckTransport,UnloadAll" Row="1" Column="1" />
+            <LayoutButtons index="7" Face="DFATransportTruckDeploy" Type="AbilCmd" AbilCmd="DFATransportTruckDeploy,Execute" Row="2" Column="0" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFATransportTruckDeployed" parent="MilitarizedColonistTransport">
+        <Name value="Unit/Name/DFATransportTruckDeployed" />
+        <Description value="Unit/Description/DFATransportTruckDeployed" />
+        <Race value="Terr" />
+        <Mob value="Campaign" />
+        <EditorCategories value="ObjectType:Unit,ObjectFamily:Campaign" />
+        <FlagArray index="PreventDestroy" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="Turnable" value="1" />
+        <FlagArray index="Movable" value="0" />
+        <FlagArray index="UseLineOfSight" value="1" />
+        <FlagArray index="ArmySelect" value="1" />
+        <Attributes index="Structure" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Light" value="0" />
+        <Attributes index="Armored" value="1" />
+        <Attributes index="Heroic" value="0" />
+        <LifeStart value="400" />
+        <LifeMax value="400" />
+        <LifeArmor value="1" />
+        <LifeArmorName value="Unit/LifeArmorName/DFARoboticArmor" />
+        <Mover value="Ground" />
+        <Speed value="0" />
+        <Acceleration value="0" />
+        <Deceleration value="1000" />
+        <StationaryTurningRate value="180" />
+        <TurningRate value="120" />
+        <Sight value="10" />
+        <Food value="-3" />
+        <CostCategory value="Army" />
+        <CostResource index="Minerals" value="175" />
+        <CostResource index="Vespene" value="75" />
+        <RepairTime value="62" />
+        <Radius value="1.7" />
+        <InnerRadius value="1.3" />
+        <SeparationRadius value="1.55" />
+        <MinimapRadius value="1.5" />
+        <CargoSize value="8" />
+        <AttackTargetPriority value="20" />
+        <TechAliasArray index="0" value="DFATransportTruckForms" />
+        <TechAliasArray index="1" removed="1" />
+        <TechAliasArray index="2" removed="1" />
+        <TechAliasArray index="3" removed="1" />
+        <TechAliasArray index="4" removed="1" />
+        <TechAliasArray index="5" removed="1" />
+        <TechAliasArray index="6" removed="1" />
+        <TechAliasArray index="7" removed="1" />
+        <TechAliasArray index="8" removed="1" />
+        <TechAliasArray index="9" removed="1" />
+        <TechAliasArray index="10" removed="1" />
+        <SelectAlias value="DFATransportTruck" />
+        <LeaderAlias value="DFATransportTruck" />
+        <HotkeyAlias value="DFATransportTruck" />
+        <SubgroupAlias value="DFATransportTruck" />
+        <AbilArray index="0" Link="stop" />
+        <AbilArray index="1" Link="attack" />
+        <AbilArray index="2" Link="RallyCommand" />
+        <AbilArray index="3" Link="DFATransportTruckTransport" />
+        <AbilArray index="4" Link="DFATransportTruckPack" />
+        <AbilArray index="5" removed="1" />
+        <AbilArray index="6" removed="1" />
+        <AbilArray index="7" removed="1" />
+        <AbilArray index="8" removed="1" />
+        <AbilArray index="9" removed="1" />
+        <AbilArray index="10" removed="1" />
+        <AbilArray index="11" removed="1" />
+        <AbilArray index="12" removed="1" />
+        <AbilArray index="13" removed="1" />
+        <AbilArray index="14" removed="1" />
+        <AbilArray index="15" removed="1" />
+        <AbilArray index="16" removed="1" />
+        <AbilArray index="17" removed="1" />
+        <AbilArray index="18" removed="1" />
+        <AbilArray index="19" removed="1" />
+        <AbilArray index="20" removed="1" />
+        <AbilArray index="21" removed="1" />
+        <AbilArray index="22" removed="1" />
+        <AbilArray index="23" removed="1" />
+        <AbilArray index="24" removed="1" />
+        <AbilArray index="25" removed="1" />
+        <AbilArray index="26" removed="1" />
+        <AbilArray index="27" removed="1" />
+        <AbilArray index="28" removed="1" />
+        <AbilArray index="29" removed="1" />
+        <AbilArray index="30" removed="1" />
+        <BehaviorArray index="0" Link="DFAPreparedGroundEmitter" />
+        <BehaviorArray index="1" Link="DFAFieldServiceEmitter" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <BehaviorArray index="11" removed="1" />
+        <BehaviorArray index="12" removed="1" />
+        <BehaviorArray index="13" removed="1" />
+        <BehaviorArray index="14" removed="1" />
+        <BehaviorArray index="15" removed="1" />
+        <BehaviorArray index="16" removed="1" />
+        <BehaviorArray index="17" removed="1" />
+        <BehaviorArray index="18" removed="1" />
+        <BehaviorArray index="19" removed="1" />
+        <BehaviorArray index="20" removed="1" />
+        <WeaponArray index="0" Link="DFATransportTruckDefenseGuns" Turret="DFATransportTruckTurret" />
+        <WeaponArray index="1" removed="1" />
+        <WeaponArray index="2" removed="1" />
+        <WeaponArray index="3" removed="1" />
+        <WeaponArray index="4" removed="1" />
+        <WeaponArray index="5" removed="1" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" />
+            <LayoutButtons index="1" Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4" />
+            <LayoutButtons index="2" Face="DFATransportTruckLoad" Type="AbilCmd" AbilCmd="DFATransportTruckTransport,Load" Row="1" Column="0" />
+            <LayoutButtons index="3" Face="DFATransportTruckUnloadAll" Type="AbilCmd" AbilCmd="DFATransportTruckTransport,UnloadAll" Row="1" Column="1" />
+            <LayoutButtons index="4" Face="DFAPreparedGround" Type="Passive" AbilCmd="" Row="1" Column="2" />
+            <LayoutButtons index="5" Face="DFAFieldService" Type="Passive" AbilCmd="" Row="1" Column="3" />
+            <LayoutButtons index="6" Face="DFATransportTruckPack" Type="AbilCmd" AbilCmd="DFATransportTruckPack,Execute" Row="2" Column="0" />
+            <LayoutButtons index="7" removed="1" />
+            <LayoutButtons index="8" removed="1" />
+            <LayoutButtons index="9" removed="1" />
+            <LayoutButtons index="10" removed="1" />
+            <LayoutButtons index="11" removed="1" />
+            <LayoutButtons index="12" removed="1" />
+            <LayoutButtons index="13" removed="1" />
+            <LayoutButtons index="14" removed="1" />
+            <LayoutButtons index="15" removed="1" />
+            <LayoutButtons index="16" removed="1" />
+            <LayoutButtons index="17" removed="1" />
+            <LayoutButtons index="18" removed="1" />
+            <LayoutButtons index="19" removed="1" />
+            <LayoutButtons index="20" removed="1" />
+            <LayoutButtons index="21" removed="1" />
+            <LayoutButtons index="22" removed="1" />
+            <LayoutButtons index="23" removed="1" />
+            <LayoutButtons index="24" removed="1" />
+            <LayoutButtons index="25" removed="1" />
+            <LayoutButtons index="26" removed="1" />
+            <LayoutButtons index="27" removed="1" />
+            <LayoutButtons index="28" removed="1" />
+            <LayoutButtons index="29" removed="1" />
+            <LayoutButtons index="30" removed="1" />
+            <LayoutButtons index="31" removed="1" />
+        </CardLayouts>
+        <CardLayouts index="1" removed="1" />
+        <CardLayouts index="2" removed="1" />
+        <CardLayouts index="3" removed="1" />
+        <CardLayouts index="4" removed="1" />
+        <CardLayouts index="5" removed="1" />
+        <TechTreeProducedUnitArray index="0" removed="1" />
+        <TechTreeProducedUnitArray index="1" removed="1" />
+        <TechTreeProducedUnitArray index="2" removed="1" />
+        <TechTreeProducedUnitArray index="3" removed="1" />
+        <TechTreeProducedUnitArray index="4" removed="1" />
+        <TechTreeProducedUnitArray index="5" removed="1" />
+        <TechTreeProducedUnitArray index="6" removed="1" />
+        <TechTreeProducedUnitArray index="7" removed="1" />
+        <TechTreeProducedUnitArray index="8" removed="1" />
+        <TechTreeProducedUnitArray index="9" removed="1" />
+        <TechTreeProducedUnitArray index="10" removed="1" />
+        <TechTreeProducedUnitArray index="11" removed="1" />
+        <TechTreeProducedUnitArray index="12" removed="1" />
+        <TechTreeProducedUnitArray index="13" removed="1" />
+        <TechTreeProducedUnitArray index="14" removed="1" />
+        <TechTreeProducedUnitArray index="15" removed="1" />
+        <TechTreeProducedUnitArray index="16" removed="1" />
+        <TechTreeProducedUnitArray index="17" removed="1" />
+        <TechTreeProducedUnitArray index="18" removed="1" />
+        <TechTreeProducedUnitArray index="19" removed="1" />
+        <TechTreeProducedUnitArray index="20" removed="1" />
+        <TechTreeUnlockedUnitArray index="0" removed="1" />
+        <TechTreeUnlockedUnitArray index="1" removed="1" />
+        <TechTreeUnlockedUnitArray index="2" removed="1" />
+        <TechTreeUnlockedUnitArray index="3" removed="1" />
+        <TechTreeUnlockedUnitArray index="4" removed="1" />
+        <TechTreeUnlockedUnitArray index="5" removed="1" />
+        <TechTreeUnlockedUnitArray index="6" removed="1" />
+        <TechTreeUnlockedUnitArray index="7" removed="1" />
+        <TechTreeUnlockedUnitArray index="8" removed="1" />
+        <TechTreeUnlockedUnitArray index="9" removed="1" />
+        <TechTreeUnlockedUnitArray index="10" removed="1" />
+        <TechTreeUnlockedUnitArray index="11" removed="1" />
+        <TechTreeUnlockedUnitArray index="12" removed="1" />
+        <TechTreeUnlockedUnitArray index="13" removed="1" />
+        <TechTreeUnlockedUnitArray index="14" removed="1" />
+        <TechTreeUnlockedUnitArray index="15" removed="1" />
+        <TechTreeUnlockedUnitArray index="16" removed="1" />
+        <TechTreeUnlockedUnitArray index="17" removed="1" />
+        <TechTreeUnlockedUnitArray index="18" removed="1" />
+        <TechTreeUnlockedUnitArray index="19" removed="1" />
+        <TechTreeUnlockedUnitArray index="20" removed="1" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+    </CUnit>
+    <CUnit id="DFAWreckMobileFactory" parent="ScrapSalvage3x3">
+        <Name value="Unit/Name/DFAWreckMobileFactory" />
+        <LifeStart value="190" />
+        <LifeMax value="190" />
+        <CostResource index="Minerals" value="38" />
+        <CostResource index="Vespene" value="15" />
+        <Radius value="1.1" />
+        <MinimapRadius value="1.1" />
+        <AbilArray index="0" removed="1" />
+        <BehaviorArray index="0" Link="DFARecoverableWreck" />
+        <BehaviorArray index="1" Link="DFAWreckTimedLife" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <Collide index="Ground" value="0" />
+        <Collide index="Small" value="0" />
+        <Collide index="Structure" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="Invulnerable" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="ShowResources" value="0" />
+        <EditorFlags index="BlockStructures" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Structure" value="0" />
+        <AttackTargetPriority value="5" />
+    </CUnit>
+    <CUnit id="DFAWreckVulturePatrol" parent="ScrapSalvage1x1">
+        <Name value="Unit/Name/DFAWreckVulturePatrol" />
+        <LifeStart value="45" />
+        <LifeMax value="45" />
+        <CostResource index="Minerals" value="19" />
+        <CostResource index="Vespene" value="4" />
+        <Radius value="0.45" />
+        <MinimapRadius value="0.45" />
+        <AbilArray index="0" removed="1" />
+        <BehaviorArray index="0" Link="DFARecoverableWreck" />
+        <BehaviorArray index="1" Link="DFAWreckTimedLife" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <Collide index="Ground" value="0" />
+        <Collide index="Small" value="0" />
+        <Collide index="Structure" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="Invulnerable" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="ShowResources" value="0" />
+        <EditorFlags index="BlockStructures" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Structure" value="0" />
+        <AttackTargetPriority value="5" />
+    </CUnit>
+    <CUnit id="DFAWreckStoneGoose" parent="ScrapSalvage2x2">
+        <Name value="Unit/Name/DFAWreckStoneGoose" />
+        <LifeStart value="100" />
+        <LifeMax value="100" />
+        <CostResource index="Minerals" value="38" />
+        <CostResource index="Vespene" value="11" />
+        <Radius value="0.75" />
+        <MinimapRadius value="0.75" />
+        <AbilArray index="0" removed="1" />
+        <BehaviorArray index="0" Link="DFARecoverableWreck" />
+        <BehaviorArray index="1" Link="DFAWreckTimedLife" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <Collide index="Ground" value="0" />
+        <Collide index="Small" value="0" />
+        <Collide index="Structure" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="Invulnerable" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="ShowResources" value="0" />
+        <EditorFlags index="BlockStructures" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Structure" value="0" />
+        <AttackTargetPriority value="5" />
+    </CUnit>
+    <CUnit id="DFAWreckTransportTruck" parent="ScrapSalvage3x3">
+        <Name value="Unit/Name/DFAWreckTransportTruck" />
+        <LifeStart value="145" />
+        <LifeMax value="145" />
+        <CostResource index="Minerals" value="44" />
+        <CostResource index="Vespene" value="11" />
+        <Radius value="1.0" />
+        <MinimapRadius value="1.0" />
+        <AbilArray index="0" removed="1" />
+        <BehaviorArray index="0" Link="DFARecoverableWreck" />
+        <BehaviorArray index="1" Link="DFAWreckTimedLife" />
+        <BehaviorArray index="2" removed="1" />
+        <BehaviorArray index="3" removed="1" />
+        <BehaviorArray index="4" removed="1" />
+        <BehaviorArray index="5" removed="1" />
+        <BehaviorArray index="6" removed="1" />
+        <BehaviorArray index="7" removed="1" />
+        <BehaviorArray index="8" removed="1" />
+        <BehaviorArray index="9" removed="1" />
+        <BehaviorArray index="10" removed="1" />
+        <Collide index="Ground" value="0" />
+        <Collide index="Small" value="0" />
+        <Collide index="Structure" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="Invulnerable" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="ShowResources" value="0" />
+        <EditorFlags index="BlockStructures" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Structure" value="0" />
+        <AttackTargetPriority value="5" />
+    </CUnit>
+    <CUnit id="KoEMechaScorpalisk">
+        <DeathRevealRadius value="3" />
+        <Race value="Zerg" />
+        <Mob value="Multiplayer" />
+        <AttackTargetPriority value="20" />
+        <ScoreResult value="BuildOrder" />
+        <PlaneArray index="Ground" value="1" />
+        <Collide index="Ground" value="1" />
+        <Collide index="Small" value="1" />
+        <GlossaryPriority value="180" />
+        <CostCategory value="Army" />
+        <Name value="Unit/Name/KoEMechaScorpalisk" />
+        <LifeStart value="2400" />
+        <LifeMax value="2400" />
+        <LifeArmor value="3" />
+        <LifeRegenRate value="0" />
+        <ShieldsStart value="0" />
+        <ShieldsMax value="0" />
+        <ShieldRegenRate value="0" />
+        <EnergyStart value="0" />
+        <EnergyMax value="0" />
+        <EnergyRegenRate value="0" />
+        <LifeArmorName value="Unit/LifeArmorName/KoEMechaScorpalisk" />
+        <Speed value="2.5" />
+        <SpeedMultiplierCreep value="1" />
+        <Acceleration value="1000" />
+        <LateralAcceleration value="46.0625" />
+        <TurningRate value="360" />
+        <StationaryTurningRate value="720" />
+        <Mover value="Ground" />
+        <Radius value="1.05" />
+        <InnerRadius value="0.8" />
+        <SeparationRadius value="1.2" />
+        <MinimapRadius value="1" />
+        <CargoSize value="0" />
+        <Mass value="4" />
+        <Food value="0" />
+        <Sight value="11" />
+        <RepairTime value="120" />
+        <SubgroupPriority value="150" />
+        <DamageDealtXP value="0" />
+        <DamageTakenXP value="0" />
+        <KillXP value="0" />
+        <ScoreMake value="0" />
+        <ScoreKill value="0" />
+        <TacticalAI value="" />
+        <TacticalAIThink value="" />
+        <ReviveType value="" />
+        <KillDisplay value="Always" />
+        <RankDisplay value="Never" />
+        <EditorCategories value="ObjectType:Hero,ObjectFamily:Melee" />
+        <GlossaryCategory value="Unit/Category/TerranUnits" />
+        <HotkeyCategory value="Unit/Category/TerranUnits" />
+        <FlagArray index="PreventDestroy" value="0" />
+        <FlagArray index="PlayerRevivable" value="0" />
+        <FlagArray index="Uncommandable" value="0" />
+        <FlagArray index="Unselectable" value="0" />
+        <FlagArray index="Unclickable" value="0" />
+        <FlagArray index="Unhighlightable" value="0" />
+        <FlagArray index="Untooltipable" value="0" />
+        <FlagArray index="AISplash" value="0" />
+        <FlagArray index="TurnBeforeMove" value="1" />
+        <FlagArray index="ArmySelect" value="1" />
+        <FlagArray index="Hero" value="1" />
+        <FlagArray index="Turnable" value="1" />
+        <FlagArray index="Movable" value="1" />
+        <FlagArray index="UseLineOfSight" value="1" />
+        <FlagArray index="KillCredit" value="1" />
+        <Attributes index="Biological" value="0" />
+        <Attributes index="Mechanical" value="1" />
+        <Attributes index="Robotic" value="1" />
+        <Attributes index="Armored" value="1" />
+        <Attributes index="Massive" value="1" />
+        <Attributes index="Heroic" value="1" />
+        <AbilArray index="0" Link="stop" />
+        <AbilArray index="1" Link="attack" />
+        <AbilArray index="2" Link="move" />
+        <BehaviorArray index="0" Link="KoEMechaScorpaliskDetector" />
+        <WeaponArray index="0" Link="KoEMechaScorpaliskPincerMaul" />
+        <CardLayouts index="0">
+            <LayoutButtons index="0" Face="Move" Type="AbilCmd" AbilCmd="move,Move" Row="0" Column="0" Requirements="" />
+            <LayoutButtons index="1" Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Row="0" Column="1" Requirements="" />
+            <LayoutButtons index="2" Face="MoveHoldPosition" Type="AbilCmd" AbilCmd="move,HoldPos" Row="0" Column="2" Requirements="" />
+            <LayoutButtons index="3" Face="MovePatrol" Type="AbilCmd" AbilCmd="move,Patrol" Row="0" Column="3" Requirements="" />
+            <LayoutButtons index="4" Face="Attack" Type="AbilCmd" AbilCmd="attack,Execute" Row="0" Column="4" Requirements="" />
+            <LayoutButtons index="5" Face="KoEMechaScorpaliskDetector" Type="Passive" Row="1" Column="4" Requirements="" />
+            <LayoutButtons index="6" Face="KoEMechaScorpaliskShoulderButton" Type="AbilCmd" AbilCmd="KoEMechaScorpaliskShoulderAbility,Execute" Row="2" Column="0" Requirements="" />
+        </CardLayouts>
+        <AbilArray index="3" Link="KoEMechaScorpaliskShoulderAbility" />
+        <Description value="Unit/Description/KoEMechaScorpalisk" />
+    </CUnit>
+    <CUnit id="KoEMechaScorpaliskShoulderMissile" parent="MISSILE">
+        <Race value="Terr" />
+        <EditorCategories value="ObjectFamily:Melee,ObjectType:Projectile" />
+        <Mover value="KoEMechaScorpaliskShoulderMover" />
+        <Name value="Unit/Name/KoEMechaScorpaliskShoulderMissile" />
+    </CUnit>
+</Catalog>

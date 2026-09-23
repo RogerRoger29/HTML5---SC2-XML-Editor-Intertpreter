@@ -436,8 +436,12 @@ body.hide-outlines .sc2-frame .frame-label { display: none; }
 /* Button controls keep both images in their layout tree. SC2 swaps them as
    control state changes; the preview models the normal and hover states. */
 .sc2-frame.button-hover-image { display: none !important; }
-.sc2-frame[data-type="Button"]:hover > .sc2-frame.button-hover-image,
+.sc2-frame:is([data-type="Button"], [data-type="CommandButton"]):hover > .sc2-frame.button-hover-image,
 .sc2-frame.button-hover-image.selected { display: block !important; }
+
+/* Command tooltips are runtime popups, not permanently visible children. */
+.sc2-frame[data-type="CommandTooltip"] { display: none !important; }
+.sc2-frame[data-type="CommandTooltip"].selected { display: block !important; }
 
 #pane-inspector .hint { color: var(--fg-dim); padding: 12px; }
 .inspector-row {

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CBehaviorBuff id="SpawnAbominations">
+        <InfoFlags index="Hidden" value="0" />
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DFAInfantryClassification">
+        <BehaviorFlags index="Permanent" value="1" />
+        <InfoFlags index="Hidden" value="1" />
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DFAPreparedGroundEmitter">
+        <BehaviorFlags index="Permanent" value="1" />
+        <InfoFlags index="Hidden" value="1" />
+        <Period value="0.25" />
+        <PeriodicEffect value="DFAPreparedGroundSearch" />
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DFAPreparedGroundBuff">
+        <Name value="Behavior/Name/DFAPreparedGroundBuff" />
+        <Tooltip value="Behavior/Tooltip/DFAPreparedGroundBuff" />
+        <Alignment value="Positive" />
+        <InfoIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds" />
+        <BuffFlags index="RefreshStack" value="1" />
+        <MaxStackCount value="1" />
+        <MaxStackCountPerCaster value="1" />
+        <Duration value="0.5" />
+        <Modification LifeArmorBonus="1" AttackSpeedMultiplier="1.1" />
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DFAMobileCoverEmitter">
+        <BehaviorFlags index="Permanent" value="1" />
+        <InfoFlags index="Hidden" value="1" />
+        <Period value="0.25" />
+        <PeriodicEffect value="DFAMobileCoverSearch" />
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DFAMobileCoverBuff">
+        <Name value="Behavior/Name/DFAMobileCoverBuff" />
+        <Tooltip value="Behavior/Tooltip/DFAMobileCoverBuff" />
+        <Alignment value="Positive" />
+        <InfoIcon value="Assets\Textures\btn-ability-terran-defensivematrix.dds" />
+        <BuffFlags index="RefreshStack" value="1" />
+        <MaxStackCount value="1" />
+        <MaxStackCountPerCaster value="1" />
+        <Duration value="0.5" />
+        <DamageResponse ModifyFraction="0.9" ModifyMinimumDamage="1">
+            <Kind index="Spell" value="0" />
+            <Kind index="Melee" value="0" />
+            <Kind index="Ranged" value="1" />
+            <Kind index="Splash" value="1" />
+            <Chance value="1" />
+        </DamageResponse>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DFADecommission" parent="Salvage">
+        <Name value="Behavior/Name/DFADecommission" />
+        <Duration value="5" />
+        <ExpireEffect value="DFADecommissionCompleteSet" />
+        <DamageResponse Chance="1" Handled="DFADecommissionCancel" />
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DFAReclamationEligible">
+        <BehaviorFlags index="Permanent" value="1" />
+        <InfoFlags index="Hidden" value="1" />
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DFARecoverableWreck">
+        <BehaviorFlags index="Permanent" value="1" />
+        <InfoFlags index="Hidden" value="1" />
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DFAWreckTimedLife" parent="TimedLife">
+        <Duration value="40" />
+        <InfoFlags index="Hidden" value="1" />
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DFAFieldReclamationChannel">
+        <Name value="Behavior/Name/DFAFieldReclamationChannel" />
+        <Tooltip value="Behavior/Tooltip/DFAFieldReclamationChannel" />
+        <Alignment value="Positive" />
+        <InfoIcon value="Assets\Textures\btn-ability-terran-autoturret.dds" />
+        <Duration value="2.6" />
+        <BuffFlags index="RefreshStack" value="1" />
+        <MaxStackCount value="1" />
+        <MaxStackCountPerCaster value="1" />
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DFAFieldServiceEmitter">
+        <BehaviorFlags index="Permanent" value="1" />
+        <InfoFlags index="Hidden" value="1" />
+        <Period value="0.25" />
+        <PeriodicEffect value="DFAFieldServiceSearch" />
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DFAFieldServiceRecovery">
+        <Name value="Behavior/Name/DFAFieldServiceRecovery" />
+        <Tooltip value="Behavior/Tooltip/DFAFieldServiceRecovery" />
+        <Alignment value="Positive" />
+        <InfoIcon value="Assets\Textures\btn-ability-terran-repair.dds" />
+        <BuffFlags index="RefreshStack" value="1" />
+        <MaxStackCount value="1" />
+        <MaxStackCountPerCaster value="1" />
+        <Duration value="0.5" />
+        <DisableValidatorArray value="DFAFieldServiceOutOfCombat" />
+        <Modification>
+            <VitalRegenArray index="Life" value="2" />
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="DFAStoneGooseMeleeModeBehavior">
+        <InfoFlags index="Hidden" value="1" />
+        <Modification>
+            <WeaponArray Link="DFAStoneGooseMelee" />
+            <WeaponDisableArray value="DFAStoneGooseAutocannons" />
+        </Modification>
+    </CBehaviorBuff>
+    <CBehaviorBuff id="KoEMechaScorpaliskDetector" parent="Detector">
+        <InfoIcon value="Assets\Textures\btn-status-detector.dds" />
+        <Modification Detect="10" />
+        <Alignment value="Positive" />
+        <InfoFlags index="Hidden" value="1" />
+        <Name value="Behavior/Name/KoEMechaScorpaliskDetector" />
+        <Tooltip value="Behavior/Tooltip/KoEMechaScorpaliskDetector" />
+    </CBehaviorBuff>
+</Catalog>

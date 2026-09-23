@@ -1,0 +1,17 @@
+﻿DocInfo/DescLong=Todos os jogadores têm uma base natural que podem usar para uma expansão logo no início. As bases seguintes são mais arriscadas de conquistar e manter. Organize-se com os colegas para criar um plano de ataque e gerencie muito bem os recursos.
+DocInfo/DescShort=3x3
+DocInfo/Name=Campo Abandonado
+MapInfo/Player00/Name=Neutro
+MapInfo/Player01/Name=Jogador 1
+MapInfo/Player02/Name=Jogador 2
+MapInfo/Player03/Name=Jogador 3
+MapInfo/Player04/Name=Jogador 4
+MapInfo/Player05/Name=Jogador 5
+MapInfo/Player06/Name=Jogador 6
+MapInfo/Player07/Name=Inimigo
+MapInfo/Team00/Name=1x1 1
+MapInfo/Team01/Name=1x1 2
+MapInfo/Team02/Name=2x2 1
+MapInfo/Team03/Name=2x2 2
+MapInfo/Team04/Name=3x3 1
+MapInfo/Team05/Name=3x3 2

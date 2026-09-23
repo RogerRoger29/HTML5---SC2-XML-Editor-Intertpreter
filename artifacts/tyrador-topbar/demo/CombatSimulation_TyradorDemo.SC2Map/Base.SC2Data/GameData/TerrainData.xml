@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CTerrain id="IceWorld">
+        <BlendTextures index="0" value="Endion1"/>
+        <BlendTextures index="1" value="Endion2"/>
+        <BlendTextures index="2" value="ElsecaroCity3"/>
+        <BlendTextures index="3" value="ElsecaroCity4"/>
+        <BlendTextures index="4" value="ElsecaroCity5"/>
+        <BlendTextures index="5" value="Char2_5"/>
+        <BlendTextures index="6" value="ElsecaroCity7"/>
+        <BlendTextures index="7" value="Void3"/>
+        <CliffSets index="0" value="EndionCliff0"/>
+        <CliffSets index="1" value="EndionCliff1"/>
+        <Lighting value="Endion"/>
+    </CTerrain>
+</Catalog>

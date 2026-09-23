@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CAttachMethodFilter id="DFAAttachVultureLeft">
+        <Keys Keyword="Weapon" Index="0" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="DFAAttachVultureRight">
+        <Keys Keyword="Weapon" Index="1" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="DFAAttachTransportGun1">
+        <Keys Keyword="Weapon" Index="0" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="DFAAttachTransportGun2">
+        <Keys Keyword="Weapon" Index="1" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="DFAAttachTransportGun3">
+        <Keys Keyword="Weapon" Index="2" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="DFAAttachTransportGun4">
+        <Keys Keyword="Weapon" Index="3" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="DFAAttachStoneGooseLeft">
+        <Keys Keyword="Weapon" />
+        <Keys Keyword="Left" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="DFAAttachStoneGooseRight">
+        <Keys Keyword="Weapon" />
+        <Keys Keyword="Right" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="KoEMechaScorpaliskPincerAttachment">
+        <Keys Keyword="SetA" Index="0" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="KoEMechaScorpaliskShoulderAttachment">
+        <Keys Keyword="SetB" Index="0" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="KoEMechaScorpaliskShoulderRightAttachment">
+        <Keys Keyword="SetB" Index="1" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="KoEMechaScorpaliskShoulderAttachment03">
+        <Keys Keyword="SetB" Index="2" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="KoEMechaScorpaliskShoulderAttachment04">
+        <Keys Keyword="SetB" Index="3" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="KoEMechaScorpaliskShoulderAttachment05">
+        <Keys Keyword="SetB" Index="4" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="KoEMechaScorpaliskShoulderAttachment06">
+        <Keys Keyword="SetB" Index="5" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="KoEMechaScorpaliskShoulderAttachment07">
+        <Keys Keyword="SetB" Index="6" />
+    </CAttachMethodFilter>
+    <CAttachMethodFilter id="KoEMechaScorpaliskShoulderAttachment08">
+        <Keys Keyword="SetB" Index="7" />
+    </CAttachMethodFilter>
+</Catalog>

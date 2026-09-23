@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DocInfo>
+    <ModType>
+        <Value>Interface</Value>
+    </ModType>
+    <Dependencies>
+        <Value>file:Mods\Knights-of-Entropy-Modfile.SC2Mod</Value>
+    </Dependencies>
+    <Screenshot>
+        <File>
+            <Value>SC_S3_(6)AbandonedCamp_01.jpg</Value>
+            <Value>SC_S3_(6)AbandonedCamp_02.jpg</Value>
+            <Value>SC_S3_(6)AbandonedCamp_03.jpg</Value>
+            <Value>SC_S3_(6)AbandonedCamp_04.jpg</Value>
+        </File>
+        <CaptionId>
+            <Value>1</Value>
+            <Value>2</Value>
+            <Value>3</Value>
+            <Value>4</Value>
+        </CaptionId>
+        <Flags>
+            <Value> </Value>
+            <Value> </Value>
+            <Value> </Value>
+            <Value> </Value>
+        </Flags>
+    </Screenshot>
+    <Preload>
+        <Value>Bank;KnightBank</Value>
+    </Preload>
+</DocInfo>

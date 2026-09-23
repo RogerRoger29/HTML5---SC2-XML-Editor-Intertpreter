@@ -1,0 +1,17 @@
+﻿DocInfo/DescLong=Alle Spieler haben eine nahe Expansionsmöglichkeit. Weitere Basen danach sind riskanter und schwerer zu halten. Sprechen Sie Ihre Angriffspläne mit Ihren Teamkameraden ab und gehen Sie sorgsam mit Ihren Ressourcen um.
+DocInfo/DescShort=3vs3
+DocInfo/Name=Verlassenes Lager
+MapInfo/Player00/Name=Neutral
+MapInfo/Player01/Name=Spieler 1
+MapInfo/Player02/Name=Spieler 2
+MapInfo/Player03/Name=Spieler 3
+MapInfo/Player04/Name=Spieler 4
+MapInfo/Player05/Name=Spieler 5
+MapInfo/Player06/Name=Spieler 6
+MapInfo/Player07/Name=Feindlich
+MapInfo/Team00/Name=1vs1 1
+MapInfo/Team01/Name=1vs1 2
+MapInfo/Team02/Name=2vs2 1
+MapInfo/Team03/Name=2vs2 2
+MapInfo/Team04/Name=3vs3 1
+MapInfo/Team05/Name=3vs3 2

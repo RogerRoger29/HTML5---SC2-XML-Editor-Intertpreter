@@ -47,6 +47,28 @@ export function findChildAttrs(el, tag) {
     return c ? attrMap(c) : undefined;
 }
 
+/** Last element child with the given tag, or null. Materialized template
+ *  properties are ordered base -> derived -> local, matching SC2's last-wins
+ *  override semantics, so renderers should use these effective-value helpers. */
+export function findLastChild(el, tag) {
+    if (!el || !el.children) return null;
+    for (let i = el.children.length - 1; i >= 0; i--) {
+        const child = el.children[i];
+        if (child.type === 'element' && child.tag === tag) return child;
+    }
+    return null;
+}
+
+export function findLastChildVal(el, tag) {
+    const child = findLastChild(el, tag);
+    return child ? attrVal(child, 'val') : undefined;
+}
+
+export function findLastChildAttrs(el, tag) {
+    const child = findLastChild(el, tag);
+    return child ? attrMap(child) : undefined;
+}
+
 /** First <Anchor side="X"/> child with the matching side, or null. */
 export function findAnchorChild(el, side) {
     if (!el || !el.children) return null;

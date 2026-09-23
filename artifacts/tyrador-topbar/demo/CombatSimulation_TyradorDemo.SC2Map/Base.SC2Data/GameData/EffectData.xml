@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CEffectCreatePersistent id="EchoesofRuinSearchCP">
+        <EditorCategories value="" />
+        <InitialDelay value="0.5" />
+        <InitialEffect value="HybridEchoofRuinSearchApply" />
+    </CEffectCreatePersistent>
+    <CEffectDamage id="DFAConstructionVehicleCutterDamage" parent="DU_WEAP">
+        <Kind value="Melee" />
+        <Amount value="5" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectDamage id="DFALineTrooperRifleDamage" parent="DU_WEAP">
+        <Kind value="Ranged" />
+        <Amount value="8" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectDamage id="DFAFortressMCVLeftCannonDamage" parent="DU_WEAP">
+        <Kind value="Ranged" />
+        <Amount value="10" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectDamage id="DFAFortressMCVRightCannonDamage" parent="DU_WEAP">
+        <Kind value="Ranged" />
+        <Amount value="10" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectSet id="DFAFortressMCVTwinCannonsSet">
+        <EffectArray index="0" value="DFAFortressMCVLeftCannonDamage" />
+        <EffectArray index="1" value="DFAFortressMCVRightCannonDamage" />
+    </CEffectSet>
+    <CEffectApplyBehavior id="DFAPreparedGroundApply">
+        <Behavior value="DFAPreparedGroundBuff" />
+        <ValidatorArray value="DFAApprovedInfantryTarget" />
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="DFAPreparedGroundSearch">
+        <ImpactLocation Value="SourceUnit" />
+        <SearchFilters value="Visible;Enemy,Neutral,Structure,Heroic,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AreaArray Radius="6" Effect="DFAPreparedGroundApply" />
+        <SearchFlags index="ExtendByUnitRadius" value="1" />
+    </CEffectEnumArea>
+    <CEffectApplyBehavior id="DFAMobileCoverApply">
+        <Behavior value="DFAMobileCoverBuff" />
+        <ValidatorArray value="DFAApprovedInfantryTarget" />
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="DFAMobileCoverSearch">
+        <ImpactLocation Value="SourceUnit" />
+        <SearchFilters value="Visible;Enemy,Neutral,Structure,Heroic,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AreaArray Radius="3.5" Effect="DFAMobileCoverApply" />
+        <SearchFlags index="ExtendByUnitRadius" value="1" />
+    </CEffectEnumArea>
+    <CEffectRemoveBehavior id="DFADecommissionRemoveEligibility">
+        <BehaviorLink value="DFAReclamationEligible" />
+        <WhichUnit Value="Source" />
+        <Count value="1" />
+    </CEffectRemoveBehavior>
+    <CEffectModifyUnit id="DFADecommissionRefund">
+        <ModifyFlags index="Salvage" value="1" />
+        <SalvageFactor>
+            <Resource index="Minerals" value="-0.75" />
+            <Resource index="Vespene" value="-0.75" />
+            <Resource index="Terrazine" value="-0.75" />
+            <Resource index="Custom" value="-0.75" />
+        </SalvageFactor>
+    </CEffectModifyUnit>
+    <CEffectSet id="DFADecommissionCompleteSet">
+        <EffectArray index="0" value="DFADecommissionRemoveEligibility" />
+        <EffectArray index="1" value="DFADecommissionRefund" />
+    </CEffectSet>
+    <CEffectRemoveBehavior id="DFADecommissionCancel">
+        <BehaviorLink value="DFADecommission" />
+        <WhichUnit Value="Source" />
+        <Count value="1" />
+    </CEffectRemoveBehavior>
+    <CEffectApplyBehavior id="DFAFieldReclamationChannelApply">
+        <Behavior value="DFAFieldReclamationChannel" />
+    </CEffectApplyBehavior>
+    <CEffectModifyUnit id="DFAFieldReclamationRecover">
+        <ValidatorArray value="DFAFieldReclamationTarget" />
+        <ModifyFlags index="Salvage" value="1" />
+        <SalvageFactor>
+            <Resource index="Minerals" value="-1" />
+            <Resource index="Vespene" value="-1" />
+            <Resource index="Terrazine" value="-1" />
+            <Resource index="Custom" value="-1" />
+        </SalvageFactor>
+    </CEffectModifyUnit>
+    <CEffectDamage id="DFAShielderAxeDamage" parent="DU_WEAP">
+        <Kind value="Melee" />
+        <Amount value="12" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectDamage id="DFAFieldEngineerPistolDamage" parent="DU_WEAP">
+        <Kind value="Ranged" />
+        <Amount value="6" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectDamage id="DFAVulturePatrolLeftDamage" parent="DU_WEAP">
+        <Kind value="Ranged" />
+        <Amount value="6" />
+        <AttributeBonus index="Light" value="3" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectDamage id="DFAVulturePatrolRightDamage" parent="DU_WEAP">
+        <Kind value="Ranged" />
+        <Amount value="6" />
+        <AttributeBonus index="Light" value="3" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectSet id="DFAVulturePatrolGunsSet">
+        <EffectArray index="0" value="DFAVulturePatrolLeftDamage" />
+        <EffectArray index="1" value="DFAVulturePatrolRightDamage" />
+    </CEffectSet>
+    <CEffectDamage id="DFATransportTruckGun1Damage" parent="DU_WEAP">
+        <Kind value="Ranged" />
+        <Amount value="3" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectDamage id="DFATransportTruckGun2Damage" parent="DU_WEAP">
+        <Kind value="Ranged" />
+        <Amount value="3" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectDamage id="DFATransportTruckGun3Damage" parent="DU_WEAP">
+        <Kind value="Ranged" />
+        <Amount value="3" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectDamage id="DFATransportTruckGun4Damage" parent="DU_WEAP">
+        <Kind value="Ranged" />
+        <Amount value="3" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectSet id="DFATransportTruckDefenseGunsSet">
+        <EffectArray index="0" value="DFATransportTruckGun1Damage" />
+        <EffectArray index="1" value="DFATransportTruckGun2Damage" />
+        <EffectArray index="2" value="DFATransportTruckGun3Damage" />
+        <EffectArray index="3" value="DFATransportTruckGun4Damage" />
+    </CEffectSet>
+    <CEffectApplyBehavior id="DFAFieldServiceApply">
+        <Behavior value="DFAFieldServiceRecovery" />
+        <ValidatorArray value="DFAFieldServiceApprovedTarget" />
+    </CEffectApplyBehavior>
+    <CEffectEnumArea id="DFAFieldServiceSearch">
+        <ImpactLocation Value="SourceUnit" />
+        <SearchFilters value="Visible;Self,Enemy,Neutral,Structure,Heroic,Missile,Stasis,Dead,Hidden,Invulnerable" />
+        <AreaArray Radius="6" Effect="DFAFieldServiceApply" />
+        <SearchFlags index="ExtendByUnitRadius" value="1" />
+    </CEffectEnumArea>
+    <CEffectDamage id="DFAStoneGooseMeleeDamage" parent="DU_WEAP">
+        <Kind value="Melee" />
+        <Amount value="24" />
+        <ArmorReduction value="0" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectDamage id="DFAStoneGooseLeftDamage" parent="DU_WEAP">
+        <Kind value="Ranged" />
+        <Amount value="9" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectDamage id="DFAStoneGooseRightDamage" parent="DU_WEAP">
+        <Kind value="Ranged" />
+        <Amount value="9" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectSet id="DFAStoneGooseAutocannonsSet">
+        <EffectArray index="0" value="DFAStoneGooseLeftDamage" />
+        <EffectArray index="1" value="DFAStoneGooseRightDamage" />
+    </CEffectSet>
+    <CEffectDamage id="KoEMechaScorpaliskPincerMaulDamage" parent="DU_WEAP">
+        <EditorCategories value="Race:Zerg" />
+        <Amount value="70" />
+        <Kind value="Melee" />
+        <Death value="Normal" />
+    </CEffectDamage>
+    <CEffectDamage id="KoEMechaScorpaliskShoulderDamage" parent="DU_WEAP_MISSILE">
+        <EditorCategories value="Race:Terran" />
+        <Death value="Blast" />
+        <Amount value="20" />
+        <Kind value="Ranged" />
+        <Name value="Effect/Name/KoEMechaScorpaliskShoulderDamage" />
+    </CEffectDamage>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderLaunch">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetUnit" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderDamage" />
+        <Movers Link="KoEMechaScorpaliskShoulderMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectSet id="KoEMechaScorpaliskShoulderSalvo">
+        <EditorCategories value="" />
+    </CEffectSet>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderRightLaunch">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetUnit" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderDamage" />
+        <Movers Link="KoEMechaScorpaliskShoulderRightMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectDamage id="KoEMechaScorpaliskShoulderGroundDamage">
+        <EditorCategories value="Race:Terran" />
+        <Visibility value="Visible" />
+        <ArmorReduction value="1" />
+        <Amount value="20" />
+        <Kind value="Splash" />
+        <KindSplash value="Splash" />
+        <Name value="Effect/Name/KoEMechaScorpaliskShoulderGroundDamage" />
+    </CEffectDamage>
+    <CEffectEnumArea id="KoEMechaScorpaliskShoulderGroundSearch">
+        <ValidatorArray value="ClusterWarheadsPurchased" />
+        <EditorCategories value="Race:Terran" />
+        <ImpactLocation Value="TargetPoint" />
+        <ImpactLocation Value="TargetPoint" />
+        <SearchFilters value="Ground,Visible;Neutral,Missile,Stasis,Dead,Hidden,Invulnerable,Benign,Passive" />
+        <AreaArray Radius="1" Effect="KoEMechaScorpaliskShoulderGroundDamage" index="0" />
+    </CEffectEnumArea>
+    <CEffectSet id="KoEMechaScorpaliskShoulderWarning">
+        <EditorCategories value="" />
+    </CEffectSet>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderGroundLaunch01">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetPoint" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderGroundSearch" />
+        <Movers Link="KoEMechaScorpaliskShoulderMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderGroundLaunch02">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetPoint" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderGroundSearch" />
+        <Movers Link="KoEMechaScorpaliskShoulderRightMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderLaunch03">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetUnit" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderDamage" />
+        <Movers Link="KoEMechaScorpaliskShoulderMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderGroundLaunch03">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetPoint" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderGroundSearch" />
+        <Movers Link="KoEMechaScorpaliskShoulderMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderLaunch04">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetUnit" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderDamage" />
+        <Movers Link="KoEMechaScorpaliskShoulderRightMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderGroundLaunch04">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetPoint" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderGroundSearch" />
+        <Movers Link="KoEMechaScorpaliskShoulderRightMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderLaunch05">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetUnit" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderDamage" />
+        <Movers Link="KoEMechaScorpaliskShoulderMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderGroundLaunch05">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetPoint" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderGroundSearch" />
+        <Movers Link="KoEMechaScorpaliskShoulderMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderLaunch06">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetUnit" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderDamage" />
+        <Movers Link="KoEMechaScorpaliskShoulderRightMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderGroundLaunch06">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetPoint" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderGroundSearch" />
+        <Movers Link="KoEMechaScorpaliskShoulderRightMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderLaunch07">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetUnit" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderDamage" />
+        <Movers Link="KoEMechaScorpaliskShoulderMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderGroundLaunch07">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetPoint" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderGroundSearch" />
+        <Movers Link="KoEMechaScorpaliskShoulderMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderLaunch08">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetUnit" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderDamage" />
+        <Movers Link="KoEMechaScorpaliskShoulderRightMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+    <CEffectLaunchMissile id="KoEMechaScorpaliskShoulderGroundLaunch08">
+        <EditorCategories value="Race:Terran" />
+        <LaunchLocation Value="CasterUnit" />
+        <AmmoUnit value="KoEMechaScorpaliskShoulderMissile" />
+        <ImpactLocation Value="TargetPoint" />
+        <ImpactEffect value="KoEMechaScorpaliskShoulderGroundSearch" />
+        <Movers Link="KoEMechaScorpaliskShoulderRightMover" />
+        <ValidatorArray index="0" removed="1" />
+    </CEffectLaunchMissile>
+</Catalog>

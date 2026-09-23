@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CValidatorUnitCompareBehaviorCount id="DFAApprovedInfantryTarget">
+        <WhichUnit Value="Target" />
+        <Behavior value="DFAInfantryClassification" />
+        <Compare value="GE" />
+        <Value value="1" />
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="DFAFieldReclamationTarget">
+        <WhichUnit Value="Target" />
+        <Behavior value="DFARecoverableWreck" />
+        <Compare value="GE" />
+        <Value value="1" />
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitType id="DFAIsMovingBunkerBurrowed">
+        <WhichUnit Value="Caster" />
+        <Value value="DFAMovingBunkerBurrowed" />
+    </CValidatorUnitType>
+    <CValidatorUnitType id="DFAFieldServiceIsDFAConstructionVehicle">
+        <WhichUnit Value="Target" />
+        <Value value="DFAConstructionVehicle" />
+    </CValidatorUnitType>
+    <CValidatorUnitType id="DFAFieldServiceIsDFAFortressMCVMobile">
+        <WhichUnit Value="Target" />
+        <Value value="DFAFortressMCVMobile" />
+    </CValidatorUnitType>
+    <CValidatorUnitType id="DFAFieldServiceIsDFAMovingBunker">
+        <WhichUnit Value="Target" />
+        <Value value="DFAMovingBunker" />
+    </CValidatorUnitType>
+    <CValidatorUnitType id="DFAFieldServiceIsDFAMovingBunkerBurrowed">
+        <WhichUnit Value="Target" />
+        <Value value="DFAMovingBunkerBurrowed" />
+    </CValidatorUnitType>
+    <CValidatorUnitType id="DFAFieldServiceIsDFAVulturePatrol">
+        <WhichUnit Value="Target" />
+        <Value value="DFAVulturePatrol" />
+    </CValidatorUnitType>
+    <CValidatorUnitType id="DFAFieldServiceIsDFAStoneGoose">
+        <WhichUnit Value="Target" />
+        <Value value="DFAStoneGoose" />
+    </CValidatorUnitType>
+    <CValidatorUnitType id="DFAFieldServiceIsDFAStoneGooseBraced">
+        <WhichUnit Value="Target" />
+        <Value value="DFAStoneGooseBraced" />
+    </CValidatorUnitType>
+    <CValidatorUnitType id="DFAFieldServiceIsDFATransportTruck">
+        <WhichUnit Value="Target" />
+        <Value value="DFATransportTruck" />
+    </CValidatorUnitType>
+    <CValidatorUnitType id="DFAFieldServiceIsDFATransportTruckDeployed">
+        <WhichUnit Value="Target" />
+        <Value value="DFATransportTruckDeployed" />
+    </CValidatorUnitType>
+    <CValidatorCombine id="DFAFieldServiceApprovedTarget">
+        <Type value="Or" />
+        <CombineArray value="DFAApprovedInfantryTarget" />
+        <CombineArray value="DFAFieldServiceIsDFAConstructionVehicle" />
+        <CombineArray value="DFAFieldServiceIsDFAFortressMCVMobile" />
+        <CombineArray value="DFAFieldServiceIsDFAMovingBunker" />
+        <CombineArray value="DFAFieldServiceIsDFAMovingBunkerBurrowed" />
+        <CombineArray value="DFAFieldServiceIsDFAVulturePatrol" />
+        <CombineArray value="DFAFieldServiceIsDFAStoneGoose" />
+        <CombineArray value="DFAFieldServiceIsDFATransportTruck" />
+        <CombineArray value="DFAFieldServiceIsDFATransportTruckDeployed" />
+    </CValidatorCombine>
+    <CValidatorUnitCompareDamageTakenTime id="DFAFieldServiceOutOfCombat">
+        <Compare value="GE" />
+        <Value value="6" />
+    </CValidatorUnitCompareDamageTakenTime>
+    <CValidatorUnitCompareOrderCount id="DFAFactoryQueueEmpty">
+        <AbilLink value="DFAVehicleTrain" />
+    </CValidatorUnitCompareOrderCount>
+</Catalog>

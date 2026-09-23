@@ -1,0 +1,3038 @@
+//==================================================================================================
+// 
+// Generated Map Script
+// 
+// Name:   Combat Simulation
+// 
+//==================================================================================================
+include "TriggerLibs/NativeLib"
+include "TriggerLibs/VoidCampaignLib"
+include "TriggerLibs/VoidCampaignMissionLib"
+include "LibCOMI"
+include "LibB513D0A0"
+include "LibCC65E7BC"
+
+//--------------------------------------------------------------------------------------------------
+// Library Initialization
+//--------------------------------------------------------------------------------------------------
+void InitLibs () {
+    libNtve_InitLib();
+    libVoiC_InitLib();
+    libVCMI_InitLib();
+    libCOMI_InitLib();
+    libB513D0A0_InitLib();
+    libCC65E7BC_InitLib();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Constants
+//--------------------------------------------------------------------------------------------------
+const int gv_pLAYER_02_TERRAN = 2;
+const int gv_pLAYER_03_ZERG = 3;
+const int gv_pLAYER_04_PROTOSS = 4;
+const int gv_pLAYER_05_UNBOUND = 5;
+const int gv_pLAYER_06_ENDLESS = 6;
+
+//--------------------------------------------------------------------------------------------------
+// Global Variables
+//--------------------------------------------------------------------------------------------------
+bool gv_authorLabEnabled;
+int gv_consoleLauncherDialog;
+int gv_simulationConsoleDialog;
+int gv_warCouncilConsoleDialog;
+int gv_solarCoreConsoleDialog;
+int gv_openConsoleButton;
+int gv_consoleModeLabel;
+int gv_closeConsoleButton;
+int gv_openWarCouncilButton;
+int gv_openSolarCoreButton;
+int gv_consoleResourcesButton;
+int gv_consoleRestoreButton;
+int gv_consoleWavesOffButton;
+int gv_consoleStandardWavesButton;
+int gv_consoleAllWavesButton;
+int gv_consoleReloadProgressButton;
+int gv_consoleReapplyLoadoutButton;
+int gv_warCouncilBackButton;
+int gv_solarCoreBackButton;
+int[26] gv_warCouncilChoiceButtons;
+string[26] gv_warCouncilArmyUnits;
+string[26] gv_warCouncilTechUnits;
+string[26] gv_warCouncilChoiceNames;
+string[26] gv_warCouncilActiveNames;
+string[26] gv_warCouncilLockedNames;
+int[26] gv_warCouncilChoiceTiers;
+int[26] gv_warCouncilChoiceSlots;
+int[10] gv_warCouncilSessionChoices;
+int[18] gv_solarCoreChoiceButtons;
+string[18] gv_solarCorePerks;
+string[18] gv_solarCoreChoiceNames;
+string[18] gv_solarCoreActiveNames;
+string[18] gv_solarCoreLockedNames;
+int[18] gv_solarCoreChoiceTiers;
+int[18] gv_solarCoreChoiceSlots;
+int[18] gv_solarCoreUpgradeCounts;
+string[18] gv_solarCorePrimaryUpgrades;
+string[18] gv_solarCoreSecondaryUpgrades;
+int[6] gv_solarCoreSessionChoices;
+int gv_simulationConsoleTitle;
+int gv_simulationConsoleNotice;
+int gv_warCouncilConsoleTitle;
+int gv_warCouncilTier1Label;
+int gv_warCouncilTier2Label;
+int gv_warCouncilTier3Label;
+int gv_warCouncilTier4Label;
+int gv_warCouncilTier5Label;
+int gv_warCouncilTier6Label;
+int gv_warCouncilTier7Label;
+int gv_warCouncilTier8Label;
+int gv_warCouncilTier9Label;
+int gv_warCouncilTier10Label;
+int gv_solarCoreConsoleTitle;
+int gv_solarCoreTier1Label;
+int gv_solarCoreTier2Label;
+int gv_solarCoreTier3Label;
+int gv_solarCoreTier4Label;
+int gv_solarCoreTier5Label;
+int gv_solarCoreTier6Label;
+playergroup gv_enemyPlayerGroup;
+int gv_tyradorTopBarPanel;
+int gv_tyradorTopBarCommandPanel;
+int[10] gv_tyradorEnergySegments;
+int gv_tyradorEnergyLabel;
+unit gv_tyradorCaster;
+unitgroup gv_tyradorCasterGroup;
+
+void InitGlobals () {
+    gv_enemyPlayerGroup = PlayerGroupEmpty();
+    gv_tyradorTopBarPanel = c_invalidDialogControlId;
+    gv_tyradorTopBarCommandPanel = c_invalidDialogControlId;
+    gv_tyradorEnergyLabel = c_invalidDialogControlId;
+    gv_tyradorCasterGroup = UnitGroupEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Global Function Declarations
+//--------------------------------------------------------------------------------------------------
+void gf_ShowSimulationConsoleLauncher ();
+void gf_ShowSimulationConsoleMain ();
+void gf_ShowSimulationConsoleWarCouncil ();
+void gf_ShowSimulationConsoleSolarCore ();
+void gf_InitializeSimulationConsoleData ();
+void gf_BuildSimulationConsoleDialogs ();
+void gf_RefreshSimulationConsoleMode ();
+void gf_RefreshWarCouncilConsole ();
+void gf_RefreshSolarCoreConsole ();
+void gf_RefreshSimulationConsole ();
+void gf_SeedSimulationConsoleSelections ();
+void gf_ApplyWarCouncilSessionChoice (int lp_choiceIndex);
+void gf_ApplySolarCoreSessionChoice (int lp_choiceIndex);
+void gf_RestoreCampaignLoadout ();
+void gf_DFAMarkReclamationEligible (unit lp_completedasset);
+bool gf_MSCPursuitTargetValid (unit lp_target, bool lp_airtarget);
+void gf_MSCRunPursuitSalvo (unit lp_caster, unit lp_target);
+unit gf_TyradorTopBarFindCaster ();
+void gf_TyradorTopBarUpdate ();
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Variables
+//--------------------------------------------------------------------------------------------------
+trigger gt_LoadKnightBank;
+trigger gt_InitializeCombatSimulation;
+trigger gt_ApplyBankProgression;
+trigger gt_InitializeEnemyResources;
+trigger gt_InitializeCombatSimulationConsole;
+trigger gt_OpenSimulationConsole;
+trigger gt_HandleSimulationConsoleClicks;
+trigger gt_ShowCombatSimulationControls;
+trigger gt_RefillPlayerResources;
+trigger gt_RestoreSelectedUnits;
+trigger gt_PauseOpponentWaves;
+trigger gt_ResumeStandardOpponentWaves;
+trigger gt_EnableAllOpponentWaves;
+trigger gt_WaveTerran;
+trigger gt_WaveZerg;
+trigger gt_WaveProtoss;
+trigger gt_WaveUnbound;
+trigger gt_EnableOGEndlessWavesonSelection;
+trigger gt_WaveOGEndless;
+trigger gt_EnableAuthorTools;
+trigger gt_DisableAuthorTools;
+trigger gt_AuthorReloadCampaignProgression;
+trigger gt_AuthorInitializeAMTTopbar;
+trigger gt_AuthorEnableKnightBankCheatSession;
+trigger gt_AuthorCheckKnightBankCheat;
+trigger gt_AuthorEnableAdditionalUnits;
+trigger gt_AuthorSpawnAbominationTest;
+trigger gt_AuthorTraceNarudHybridBehaviors;
+trigger gt_AuthorGenerateSubtitleTest;
+trigger gt_AuthorEnableSolaceAmongRuins;
+trigger gt_AuthorEnableShatteredReality;
+trigger gt_AuthorEnableCalltoArmsSession;
+trigger gt_AuthorEnableTemporalField;
+trigger gt_AuthorEnableChronoSurge;
+trigger gt_AuthorEnableEnhancedLogisticalProtocols;
+trigger gt_AuthorEnableAIChaseReinforcements;
+trigger gt_AuthorAddRevitalizerXP;
+trigger gt_AuthorLoadTunnelConvoyUnits;
+trigger gt_AuthorClearTunnelConvoyBankSection;
+trigger gt_CompatibilityVoidThrasherFacing;
+trigger gt_DFAReclamationInitializePreplacedAssets;
+trigger gt_DFAReclamationConstructionCompleted;
+trigger gt_DFAReclamationTrainingCompleted;
+trigger gt_DFAReclamationCasualty;
+trigger gt_MSCShoulderSalvoFired;
+trigger gt_TyradorTopBarCreate;
+trigger gt_TyradorTopBarUpdate;
+
+//--------------------------------------------------------------------------------------------------
+// Global Functions
+//--------------------------------------------------------------------------------------------------
+unit gf_TyradorTopBarFindCaster () {
+    unitgroup lv_candidates;
+    int lv_count;
+
+    lv_candidates = UnitGroup("KoEGlobalCaster", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
+    lv_count = UnitGroupCount(lv_candidates, c_unitCountAll);
+    if ((lv_count <= 0)) {
+        return null;
+    }
+    return UnitGroupUnitFromEnd(lv_candidates, lv_count);
+}
+
+void gf_TyradorTopBarUpdate () {
+    fixed lv_energy;
+    fixed lv_energyPercent;
+    fixed lv_segmentValue;
+    int lv_index;
+    playergroup lv_player;
+
+    if ((gv_tyradorCaster == null) || (gv_tyradorTopBarPanel == c_invalidDialogControlId)) {
+        return;
+    }
+
+    lv_player = PlayerGroupSingle(1);
+    lv_energy = MaxF(0.0, UnitGetPropertyFixed(gv_tyradorCaster, c_unitPropEnergy, c_unitPropCurrent));
+    lv_energyPercent = MaxF(0.0, MinF(100.0, UnitGetPropertyFixed(gv_tyradorCaster, c_unitPropEnergyPercent, c_unitPropCurrent)));
+    lv_index = 0;
+    while ((lv_index < 10)) {
+        lv_segmentValue = MaxF(0.0, MinF(100.0, (lv_energyPercent - IntToFixed(lv_index * 10)) * 10.0));
+        libNtve_gf_SetDialogItemCurrentValue(gv_tyradorEnergySegments[lv_index], lv_segmentValue, lv_player);
+        lv_index += 1;
+    }
+    libNtve_gf_SetDialogItemText(gv_tyradorEnergyLabel, IntToText(FixedToInt(Floor(lv_energy))), lv_player);
+}
+
+void gf_ShowSimulationConsoleLauncher () {
+    // Automatic Variable Declarations
+    // Implementation
+    DialogSetVisible(gv_consoleLauncherDialog, PlayerGroupSingle(1), true);
+    DialogSetVisible(gv_simulationConsoleDialog, PlayerGroupSingle(1), false);
+    DialogSetVisible(gv_warCouncilConsoleDialog, PlayerGroupSingle(1), false);
+    DialogSetVisible(gv_solarCoreConsoleDialog, PlayerGroupSingle(1), false);
+}
+
+void gf_ShowSimulationConsoleMain () {
+    // Automatic Variable Declarations
+    // Implementation
+    DialogSetVisible(gv_consoleLauncherDialog, PlayerGroupSingle(1), false);
+    DialogSetVisible(gv_simulationConsoleDialog, PlayerGroupSingle(1), true);
+    DialogSetVisible(gv_warCouncilConsoleDialog, PlayerGroupSingle(1), false);
+    DialogSetVisible(gv_solarCoreConsoleDialog, PlayerGroupSingle(1), false);
+}
+
+void gf_ShowSimulationConsoleWarCouncil () {
+    // Automatic Variable Declarations
+    // Implementation
+    DialogSetVisible(gv_consoleLauncherDialog, PlayerGroupSingle(1), false);
+    DialogSetVisible(gv_simulationConsoleDialog, PlayerGroupSingle(1), false);
+    DialogSetVisible(gv_warCouncilConsoleDialog, PlayerGroupSingle(1), true);
+    DialogSetVisible(gv_solarCoreConsoleDialog, PlayerGroupSingle(1), false);
+}
+
+void gf_ShowSimulationConsoleSolarCore () {
+    // Automatic Variable Declarations
+    // Implementation
+    DialogSetVisible(gv_consoleLauncherDialog, PlayerGroupSingle(1), false);
+    DialogSetVisible(gv_simulationConsoleDialog, PlayerGroupSingle(1), false);
+    DialogSetVisible(gv_warCouncilConsoleDialog, PlayerGroupSingle(1), false);
+    DialogSetVisible(gv_solarCoreConsoleDialog, PlayerGroupSingle(1), true);
+}
+
+void gf_InitializeSimulationConsoleData () {
+    // Automatic Variable Declarations
+    // Implementation
+    gv_warCouncilArmyUnits[0] = "ZealotAiur";
+    gv_warCouncilTechUnits[0] = "ZealotAiur";
+    gv_warCouncilChoiceNames[0] = "Korlak";
+    gv_warCouncilActiveNames[0] = "Korlak [ACTIVE]";
+    gv_warCouncilLockedNames[0] = "Korlak [LOCKED]";
+    gv_warCouncilChoiceTiers[0] = 0;
+    gv_warCouncilChoiceSlots[0] = 0;
+    gv_warCouncilArmyUnits[1] = "ZealotShakuras";
+    gv_warCouncilTechUnits[1] = "ZealotShakuras";
+    gv_warCouncilChoiceNames[1] = "Simmons";
+    gv_warCouncilActiveNames[1] = "Simmons [ACTIVE]";
+    gv_warCouncilLockedNames[1] = "Simmons [LOCKED]";
+    gv_warCouncilChoiceTiers[1] = 0;
+    gv_warCouncilChoiceSlots[1] = 1;
+    gv_warCouncilArmyUnits[2] = "ZealotPurifier";
+    gv_warCouncilTechUnits[2] = "ZealotPurifier";
+    gv_warCouncilChoiceNames[2] = "Valeria";
+    gv_warCouncilActiveNames[2] = "Valeria [ACTIVE]";
+    gv_warCouncilLockedNames[2] = "Valeria [LOCKED]";
+    gv_warCouncilChoiceTiers[2] = 0;
+    gv_warCouncilChoiceSlots[2] = 2;
+    gv_warCouncilArmyUnits[3] = "StalkerAiur";
+    gv_warCouncilTechUnits[3] = "StalkerAiur";
+    gv_warCouncilChoiceNames[3] = "Uther";
+    gv_warCouncilActiveNames[3] = "Uther [ACTIVE]";
+    gv_warCouncilLockedNames[3] = "Uther [LOCKED]";
+    gv_warCouncilChoiceTiers[3] = 1;
+    gv_warCouncilChoiceSlots[3] = 0;
+    gv_warCouncilArmyUnits[4] = "StalkerShakuras";
+    gv_warCouncilTechUnits[4] = "StalkerShakuras";
+    gv_warCouncilChoiceNames[4] = "Apex";
+    gv_warCouncilActiveNames[4] = "Apex [ACTIVE]";
+    gv_warCouncilLockedNames[4] = "Apex [LOCKED]";
+    gv_warCouncilChoiceTiers[4] = 1;
+    gv_warCouncilChoiceSlots[4] = 1;
+    gv_warCouncilArmyUnits[5] = "SentryAiur";
+    gv_warCouncilTechUnits[5] = "SentryAiur";
+    gv_warCouncilChoiceNames[5] = "PAM";
+    gv_warCouncilActiveNames[5] = "PAM [ACTIVE]";
+    gv_warCouncilLockedNames[5] = "PAM [LOCKED]";
+    gv_warCouncilChoiceTiers[5] = 2;
+    gv_warCouncilChoiceSlots[5] = 0;
+    gv_warCouncilArmyUnits[6] = "SentryPurifier";
+    gv_warCouncilTechUnits[6] = "SentryPurifier";
+    gv_warCouncilChoiceNames[6] = "XL-15-Z*4";
+    gv_warCouncilActiveNames[6] = "XL-15-Z*4 [ACTIVE]";
+    gv_warCouncilLockedNames[6] = "XL-15-Z*4 [LOCKED]";
+    gv_warCouncilChoiceTiers[6] = 2;
+    gv_warCouncilChoiceSlots[6] = 1;
+    gv_warCouncilArmyUnits[7] = "SentryTalDarim";
+    gv_warCouncilTechUnits[7] = "SentryTalDarim";
+    gv_warCouncilChoiceNames[7] = "McGregor";
+    gv_warCouncilActiveNames[7] = "McGregor [ACTIVE]";
+    gv_warCouncilLockedNames[7] = "McGregor [LOCKED]";
+    gv_warCouncilChoiceTiers[7] = 2;
+    gv_warCouncilChoiceSlots[7] = 2;
+    gv_warCouncilArmyUnits[8] = "DarkTemplarAiur";
+    gv_warCouncilTechUnits[8] = "DarkTemplarAiur";
+    gv_warCouncilChoiceNames[8] = "Rykard";
+    gv_warCouncilActiveNames[8] = "Rykard [ACTIVE]";
+    gv_warCouncilLockedNames[8] = "Rykard [LOCKED]";
+    gv_warCouncilChoiceTiers[8] = 3;
+    gv_warCouncilChoiceSlots[8] = 0;
+    gv_warCouncilArmyUnits[9] = "DarkTemplarShakuras";
+    gv_warCouncilTechUnits[9] = "DarkTemplarShakuras";
+    gv_warCouncilChoiceNames[9] = "Zelara";
+    gv_warCouncilActiveNames[9] = "Zelara [ACTIVE]";
+    gv_warCouncilLockedNames[9] = "Zelara [LOCKED]";
+    gv_warCouncilChoiceTiers[9] = 3;
+    gv_warCouncilChoiceSlots[9] = 1;
+    gv_warCouncilArmyUnits[10] = "DarkTemplarTaldarim";
+    gv_warCouncilTechUnits[10] = "DarkTemplarTaldarim";
+    gv_warCouncilChoiceNames[10] = "Leon";
+    gv_warCouncilActiveNames[10] = "Leon [ACTIVE]";
+    gv_warCouncilLockedNames[10] = "Leon [LOCKED]";
+    gv_warCouncilChoiceTiers[10] = 3;
+    gv_warCouncilChoiceSlots[10] = 2;
+    gv_warCouncilArmyUnits[11] = "ImmortalAiur";
+    gv_warCouncilTechUnits[11] = "ImmortalAiur";
+    gv_warCouncilChoiceNames[11] = "Yur'wre";
+    gv_warCouncilActiveNames[11] = "Yur'wre [ACTIVE]";
+    gv_warCouncilLockedNames[11] = "Yur'wre [LOCKED]";
+    gv_warCouncilChoiceTiers[11] = 4;
+    gv_warCouncilChoiceSlots[11] = 0;
+    gv_warCouncilArmyUnits[12] = "ImmortalShakuras";
+    gv_warCouncilTechUnits[12] = "ImmortalShakuras";
+    gv_warCouncilChoiceNames[12] = "Probius & Probea";
+    gv_warCouncilActiveNames[12] = "Probius & Probea [ACTIVE]";
+    gv_warCouncilLockedNames[12] = "Probius & Probea [LOCKED]";
+    gv_warCouncilChoiceTiers[12] = 4;
+    gv_warCouncilChoiceSlots[12] = 1;
+    gv_warCouncilArmyUnits[13] = "ImmortalTaldarim";
+    gv_warCouncilTechUnits[13] = "ImmortalTaldarim";
+    gv_warCouncilChoiceNames[13] = "Kepholarkz";
+    gv_warCouncilActiveNames[13] = "Kepholarkz [ACTIVE]";
+    gv_warCouncilLockedNames[13] = "Kepholarkz [LOCKED]";
+    gv_warCouncilChoiceTiers[13] = 4;
+    gv_warCouncilChoiceSlots[13] = 2;
+    gv_warCouncilArmyUnits[14] = "HighTemplarAiur";
+    gv_warCouncilTechUnits[14] = "HighTemplarAiur";
+    gv_warCouncilChoiceNames[14] = "Xor'vas";
+    gv_warCouncilActiveNames[14] = "Xor'vas [ACTIVE]";
+    gv_warCouncilLockedNames[14] = "Xor'vas [LOCKED]";
+    gv_warCouncilChoiceTiers[14] = 5;
+    gv_warCouncilChoiceSlots[14] = 0;
+    gv_warCouncilArmyUnits[15] = "HighTemplarShakuras";
+    gv_warCouncilTechUnits[15] = "HighTemplarShakuras";
+    gv_warCouncilChoiceNames[15] = "Inheritor";
+    gv_warCouncilActiveNames[15] = "Inheritor [ACTIVE]";
+    gv_warCouncilLockedNames[15] = "Inheritor [LOCKED]";
+    gv_warCouncilChoiceTiers[15] = 5;
+    gv_warCouncilChoiceSlots[15] = 1;
+    gv_warCouncilArmyUnits[16] = "ColossusAiur";
+    gv_warCouncilTechUnits[16] = "ColossusAiur";
+    gv_warCouncilChoiceNames[16] = "Tyrant";
+    gv_warCouncilActiveNames[16] = "Tyrant [ACTIVE]";
+    gv_warCouncilLockedNames[16] = "Tyrant [LOCKED]";
+    gv_warCouncilChoiceTiers[16] = 6;
+    gv_warCouncilChoiceSlots[16] = 0;
+    gv_warCouncilArmyUnits[17] = "ColossusPurifier";
+    gv_warCouncilTechUnits[17] = "ColossusPurifier";
+    gv_warCouncilChoiceNames[17] = "Shei'la";
+    gv_warCouncilActiveNames[17] = "Shei'la [ACTIVE]";
+    gv_warCouncilLockedNames[17] = "Shei'la [LOCKED]";
+    gv_warCouncilChoiceTiers[17] = 6;
+    gv_warCouncilChoiceSlots[17] = 1;
+    gv_warCouncilArmyUnits[18] = "ColossusTaldarim";
+    gv_warCouncilTechUnits[18] = "ColossusTaldarim";
+    gv_warCouncilChoiceNames[18] = "Me'em";
+    gv_warCouncilActiveNames[18] = "Me'em [ACTIVE]";
+    gv_warCouncilLockedNames[18] = "Me'em [LOCKED]";
+    gv_warCouncilChoiceTiers[18] = 6;
+    gv_warCouncilChoiceSlots[18] = 2;
+    gv_warCouncilArmyUnits[19] = "VoidRayTaldarim";
+    gv_warCouncilTechUnits[19] = "VoidRayTaldarim";
+    gv_warCouncilChoiceNames[19] = "Forsaken Flame";
+    gv_warCouncilActiveNames[19] = "Forsaken Flame [ACTIVE]";
+    gv_warCouncilLockedNames[19] = "Forsaken Flame [LOCKED]";
+    gv_warCouncilChoiceTiers[19] = 7;
+    gv_warCouncilChoiceSlots[19] = 0;
+    gv_warCouncilArmyUnits[20] = "VoidRayAiur";
+    gv_warCouncilTechUnits[20] = "VoidRayAiur";
+    gv_warCouncilChoiceNames[20] = "Primal Dragon";
+    gv_warCouncilActiveNames[20] = "Primal Dragon [ACTIVE]";
+    gv_warCouncilLockedNames[20] = "Primal Dragon [LOCKED]";
+    gv_warCouncilChoiceTiers[20] = 7;
+    gv_warCouncilChoiceSlots[20] = 1;
+    gv_warCouncilArmyUnits[21] = "PhoenixAiur";
+    gv_warCouncilTechUnits[21] = "PhoenixAiur";
+    gv_warCouncilChoiceNames[21] = "Javelin";
+    gv_warCouncilActiveNames[21] = "Javelin [ACTIVE]";
+    gv_warCouncilLockedNames[21] = "Javelin [LOCKED]";
+    gv_warCouncilChoiceTiers[21] = 8;
+    gv_warCouncilChoiceSlots[21] = 0;
+    gv_warCouncilArmyUnits[22] = "PhoenixShakuras";
+    gv_warCouncilTechUnits[22] = "PhoenixShakuras";
+    gv_warCouncilChoiceNames[22] = "High Arbiter";
+    gv_warCouncilActiveNames[22] = "High Arbiter [ACTIVE]";
+    gv_warCouncilLockedNames[22] = "High Arbiter [LOCKED]";
+    gv_warCouncilChoiceTiers[22] = 8;
+    gv_warCouncilChoiceSlots[22] = 1;
+    gv_warCouncilArmyUnits[23] = "CarrierAiur";
+    gv_warCouncilTechUnits[23] = "CarrierAiur";
+    gv_warCouncilChoiceNames[23] = "Mira Han";
+    gv_warCouncilActiveNames[23] = "Mira Han [ACTIVE]";
+    gv_warCouncilLockedNames[23] = "Mira Han [LOCKED]";
+    gv_warCouncilChoiceTiers[23] = 9;
+    gv_warCouncilChoiceSlots[23] = 0;
+    gv_warCouncilArmyUnits[24] = "CarrierPurifier";
+    gv_warCouncilTechUnits[24] = "CarrierPurifier";
+    gv_warCouncilChoiceNames[24] = "Nysara";
+    gv_warCouncilActiveNames[24] = "Nysara [ACTIVE]";
+    gv_warCouncilLockedNames[24] = "Nysara [LOCKED]";
+    gv_warCouncilChoiceTiers[24] = 9;
+    gv_warCouncilChoiceSlots[24] = 1;
+    gv_warCouncilArmyUnits[25] = "CarrierTaldarim";
+    gv_warCouncilTechUnits[25] = "CarrierTaldarim";
+    gv_warCouncilChoiceNames[25] = "The Exalted One";
+    gv_warCouncilActiveNames[25] = "The Exalted One [ACTIVE]";
+    gv_warCouncilLockedNames[25] = "The Exalted One [LOCKED]";
+    gv_warCouncilChoiceTiers[25] = 9;
+    gv_warCouncilChoiceSlots[25] = 2;
+    gv_solarCorePerks[0] = "GPTier1Power1";
+    gv_solarCoreChoiceNames[0] = "Solace Among Ruin";
+    gv_solarCoreActiveNames[0] = "Solace Among Ruin [ACTIVE]";
+    gv_solarCoreLockedNames[0] = "Solace Among Ruin [LOCKED]";
+    gv_solarCoreChoiceTiers[0] = 0;
+    gv_solarCoreChoiceSlots[0] = 0;
+    gv_solarCoreUpgradeCounts[0] = 1;
+    gv_solarCorePrimaryUpgrades[0] = "SOAProxyPylon";
+    gv_solarCoreSecondaryUpgrades[0] = "SOAProxyPylon";
+    gv_solarCorePerks[1] = "GPTier1Power2";
+    gv_solarCoreChoiceNames[1] = "Assistance Drone";
+    gv_solarCoreActiveNames[1] = "Assistance Drone [ACTIVE]";
+    gv_solarCoreLockedNames[1] = "Assistance Drone [LOCKED]";
+    gv_solarCoreChoiceTiers[1] = 0;
+    gv_solarCoreChoiceSlots[1] = 1;
+    gv_solarCoreUpgradeCounts[1] = 1;
+    gv_solarCorePrimaryUpgrades[1] = "SOASuperChrono";
+    gv_solarCoreSecondaryUpgrades[1] = "SOASuperChrono";
+    gv_solarCorePerks[2] = "GPTier1Power3";
+    gv_solarCoreChoiceNames[2] = "Call to Arms";
+    gv_solarCoreActiveNames[2] = "Call to Arms [ACTIVE]";
+    gv_solarCoreLockedNames[2] = "Call to Arms [LOCKED]";
+    gv_solarCoreChoiceTiers[2] = 0;
+    gv_solarCoreChoiceSlots[2] = 2;
+    gv_solarCoreUpgradeCounts[2] = 1;
+    gv_solarCorePrimaryUpgrades[2] = "SOAWarpInReinforcements";
+    gv_solarCoreSecondaryUpgrades[2] = "SOAWarpInReinforcements";
+    gv_solarCorePerks[3] = "GPTier2Power1";
+    gv_solarCoreChoiceNames[3] = "Shattered Reality";
+    gv_solarCoreActiveNames[3] = "Shattered Reality [ACTIVE]";
+    gv_solarCoreLockedNames[3] = "Shattered Reality [LOCKED]";
+    gv_solarCoreChoiceTiers[3] = 1;
+    gv_solarCoreChoiceSlots[3] = 0;
+    gv_solarCoreUpgradeCounts[3] = 1;
+    gv_solarCorePrimaryUpgrades[3] = "SOAOrbitalStrike";
+    gv_solarCoreSecondaryUpgrades[3] = "SOAOrbitalStrike";
+    gv_solarCorePerks[4] = "GPTier2Power2";
+    gv_solarCoreChoiceNames[4] = "Temporal Field";
+    gv_solarCoreActiveNames[4] = "Temporal Field [ACTIVE]";
+    gv_solarCoreLockedNames[4] = "Temporal Field [LOCKED]";
+    gv_solarCoreChoiceTiers[4] = 1;
+    gv_solarCoreChoiceSlots[4] = 1;
+    gv_solarCoreUpgradeCounts[4] = 1;
+    gv_solarCorePrimaryUpgrades[4] = "SOAGravitonBomb";
+    gv_solarCoreSecondaryUpgrades[4] = "SOAGravitonBomb";
+    gv_solarCorePerks[5] = "GPTier2Power3";
+    gv_solarCoreChoiceNames[5] = "Deploy Bio-Plague";
+    gv_solarCoreActiveNames[5] = "Deploy Bio-Plague [ACTIVE]";
+    gv_solarCoreLockedNames[5] = "Deploy Bio-Plague [LOCKED]";
+    gv_solarCoreChoiceTiers[5] = 1;
+    gv_solarCoreChoiceSlots[5] = 2;
+    gv_solarCoreUpgradeCounts[5] = 1;
+    gv_solarCorePrimaryUpgrades[5] = "SOAThermalLance";
+    gv_solarCoreSecondaryUpgrades[5] = "SOAThermalLance";
+    gv_solarCorePerks[6] = "GPTier3Power1";
+    gv_solarCoreChoiceNames[6] = "Battlefield Adaptation";
+    gv_solarCoreActiveNames[6] = "Battlefield Adaptation [ACTIVE]";
+    gv_solarCoreLockedNames[6] = "Battlefield Adaptation [LOCKED]";
+    gv_solarCoreChoiceTiers[6] = 2;
+    gv_solarCoreChoiceSlots[6] = 0;
+    gv_solarCoreUpgradeCounts[6] = 1;
+    gv_solarCorePrimaryUpgrades[6] = "BattlefieldAdaptation";
+    gv_solarCoreSecondaryUpgrades[6] = "BattlefieldAdaptation";
+    gv_solarCorePerks[7] = "GPTier3Power2";
+    gv_solarCoreChoiceNames[7] = "Enhanced Logistics";
+    gv_solarCoreActiveNames[7] = "Enhanced Logistics [ACTIVE]";
+    gv_solarCoreLockedNames[7] = "Enhanced Logistics [LOCKED]";
+    gv_solarCoreChoiceTiers[7] = 2;
+    gv_solarCoreChoiceSlots[7] = 1;
+    gv_solarCoreUpgradeCounts[7] = 1;
+    gv_solarCorePrimaryUpgrades[7] = "EnhancedLogisticalProtocols";
+    gv_solarCoreSecondaryUpgrades[7] = "EnhancedLogisticalProtocols";
+    gv_solarCorePerks[8] = "GPTier3Power3";
+    gv_solarCoreChoiceNames[8] = "Frontline Protocol";
+    gv_solarCoreActiveNames[8] = "Frontline Protocol [ACTIVE]";
+    gv_solarCoreLockedNames[8] = "Frontline Protocol [LOCKED]";
+    gv_solarCoreChoiceTiers[8] = 2;
+    gv_solarCoreChoiceSlots[8] = 2;
+    gv_solarCoreUpgradeCounts[8] = 1;
+    gv_solarCorePrimaryUpgrades[8] = "FrontlineProtocolUpgrade";
+    gv_solarCoreSecondaryUpgrades[8] = "FrontlineProtocolUpgrade";
+    gv_solarCorePerks[9] = "GPTier4Power1";
+    gv_solarCoreChoiceNames[9] = "Mass Recall";
+    gv_solarCoreActiveNames[9] = "Mass Recall [ACTIVE]";
+    gv_solarCoreLockedNames[9] = "Mass Recall [LOCKED]";
+    gv_solarCoreChoiceTiers[9] = 3;
+    gv_solarCoreChoiceSlots[9] = 0;
+    gv_solarCoreUpgradeCounts[9] = 2;
+    gv_solarCorePrimaryUpgrades[9] = "SOARecall";
+    gv_solarCoreSecondaryUpgrades[9] = "SOAEnergyRegenUpgrade";
+    gv_solarCorePerks[10] = "GPTier4Power2";
+    gv_solarCoreChoiceNames[10] = "Shield Overcharge";
+    gv_solarCoreActiveNames[10] = "Shield Overcharge [ACTIVE]";
+    gv_solarCoreLockedNames[10] = "Shield Overcharge [LOCKED]";
+    gv_solarCoreChoiceTiers[10] = 3;
+    gv_solarCoreChoiceSlots[10] = 1;
+    gv_solarCoreUpgradeCounts[10] = 2;
+    gv_solarCorePrimaryUpgrades[10] = "SOASuperShield";
+    gv_solarCoreSecondaryUpgrades[10] = "SOAEnergyRegenUpgrade";
+    gv_solarCorePerks[11] = "GPTier4Power3";
+    gv_solarCoreChoiceNames[11] = "Deploy Fenix";
+    gv_solarCoreActiveNames[11] = "Deploy Fenix [ACTIVE]";
+    gv_solarCoreLockedNames[11] = "Deploy Fenix [LOCKED]";
+    gv_solarCoreChoiceTiers[11] = 3;
+    gv_solarCoreChoiceSlots[11] = 2;
+    gv_solarCoreUpgradeCounts[11] = 2;
+    gv_solarCorePrimaryUpgrades[11] = "SOAFenix";
+    gv_solarCoreSecondaryUpgrades[11] = "SOAEnergyRegenUpgrade";
+    gv_solarCorePerks[12] = "GPTier5Power1";
+    gv_solarCoreChoiceNames[12] = "Matrix Overload";
+    gv_solarCoreActiveNames[12] = "Matrix Overload [ACTIVE]";
+    gv_solarCoreLockedNames[12] = "Matrix Overload [LOCKED]";
+    gv_solarCoreChoiceTiers[12] = 4;
+    gv_solarCoreChoiceSlots[12] = 0;
+    gv_solarCoreUpgradeCounts[12] = 1;
+    gv_solarCorePrimaryUpgrades[12] = "SOAMatrixOverload";
+    gv_solarCoreSecondaryUpgrades[12] = "SOAMatrixOverload";
+    gv_solarCorePerks[13] = "GPTier5Power2";
+    gv_solarCoreChoiceNames[13] = "Guardian Shell";
+    gv_solarCoreActiveNames[13] = "Guardian Shell [ACTIVE]";
+    gv_solarCoreLockedNames[13] = "Guardian Shell [LOCKED]";
+    gv_solarCoreChoiceTiers[13] = 4;
+    gv_solarCoreChoiceSlots[13] = 1;
+    gv_solarCoreUpgradeCounts[13] = 1;
+    gv_solarCorePrimaryUpgrades[13] = "SOAHeroicShield";
+    gv_solarCoreSecondaryUpgrades[13] = "SOAHeroicShield";
+    gv_solarCorePerks[14] = "GPTier5Power3";
+    gv_solarCoreChoiceNames[14] = "Reconstruction Beam";
+    gv_solarCoreActiveNames[14] = "Reconstruction Beam [ACTIVE]";
+    gv_solarCoreLockedNames[14] = "Reconstruction Beam [LOCKED]";
+    gv_solarCoreChoiceTiers[14] = 4;
+    gv_solarCoreChoiceSlots[14] = 2;
+    gv_solarCoreUpgradeCounts[14] = 1;
+    gv_solarCorePrimaryUpgrades[14] = "SOARepairBeam";
+    gv_solarCoreSecondaryUpgrades[14] = "SOARepairBeam";
+    gv_solarCorePerks[15] = "GPTier6Power1";
+    gv_solarCoreChoiceNames[15] = "Purifier Beam";
+    gv_solarCoreActiveNames[15] = "Purifier Beam [ACTIVE]";
+    gv_solarCoreLockedNames[15] = "Purifier Beam [LOCKED]";
+    gv_solarCoreChoiceTiers[15] = 5;
+    gv_solarCoreChoiceSlots[15] = 0;
+    gv_solarCoreUpgradeCounts[15] = 1;
+    gv_solarCorePrimaryUpgrades[15] = "SOAPurifierBeam";
+    gv_solarCoreSecondaryUpgrades[15] = "SOAPurifierBeam";
+    gv_solarCorePerks[16] = "GPTier6Power2";
+    gv_solarCoreChoiceNames[16] = "Time Stop";
+    gv_solarCoreActiveNames[16] = "Time Stop [ACTIVE]";
+    gv_solarCoreLockedNames[16] = "Time Stop [LOCKED]";
+    gv_solarCoreChoiceTiers[16] = 5;
+    gv_solarCoreChoiceSlots[16] = 1;
+    gv_solarCoreUpgradeCounts[16] = 1;
+    gv_solarCorePrimaryUpgrades[16] = "SOATimeFreeze";
+    gv_solarCoreSecondaryUpgrades[16] = "SOATimeFreeze";
+    gv_solarCorePerks[17] = "GPTier6Power3";
+    gv_solarCoreChoiceNames[17] = "Solar Bombardment";
+    gv_solarCoreActiveNames[17] = "Solar Bombardment [ACTIVE]";
+    gv_solarCoreLockedNames[17] = "Solar Bombardment [LOCKED]";
+    gv_solarCoreChoiceTiers[17] = 5;
+    gv_solarCoreChoiceSlots[17] = 2;
+    gv_solarCoreUpgradeCounts[17] = 1;
+    gv_solarCorePrimaryUpgrades[17] = "SOAStrafeAttack";
+    gv_solarCoreSecondaryUpgrades[17] = "SOAStrafeAttack";
+}
+
+void gf_BuildSimulationConsoleDialogs () {
+    // Variable Declarations
+    int lv_buildWarButtonIndex;
+    int lv_buildSolarButtonIndex;
+
+    // Automatic Variable Declarations
+    const int autoC510098F_ae = 25;
+    const int autoC510098F_ai = 1;
+    const int autoC5100AE0_ae = 17;
+    const int autoC5100AE0_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    DialogCreate(270, 60, c_anchorTopRight, 24, 100, false);
+    gv_consoleLauncherDialog = DialogLastCreated();
+    DialogControlCreate(gv_consoleLauncherDialog, c_triggerControlTypeButton);
+    gv_openConsoleButton = DialogControlLastCreated();
+    DialogControlSetSize(gv_openConsoleButton, PlayerGroupSingle(1), 250, 40);
+    DialogControlSetPosition(gv_openConsoleButton, PlayerGroupSingle(1), c_anchorCenter, 0, 0);
+    DialogControlSetPropertyAsText(gv_openConsoleButton, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Simulation Console"));
+    DialogControlSetPropertyAsText(gv_openConsoleButton, c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Open the Combat Simulation controls."));
+    DialogCreate(1080, 500, c_anchorCenter, 0, -70, false);
+    gv_simulationConsoleDialog = DialogLastCreated();
+    DialogControlCreate(gv_simulationConsoleDialog, c_triggerControlTypeLabel);
+    gv_simulationConsoleTitle = DialogControlLastCreated();
+    DialogControlSetSize(gv_simulationConsoleTitle, PlayerGroupSingle(1), 960, 34);
+    DialogControlSetPosition(gv_simulationConsoleTitle, PlayerGroupSingle(1), c_anchorCenter, 0, -208);
+    DialogControlSetPropertyAsText(gv_simulationConsoleTitle, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("COMBAT SIMULATION"));
+    DialogControlCreate(gv_simulationConsoleDialog, c_triggerControlTypeLabel);
+    gv_consoleModeLabel = DialogControlLastCreated();
+    DialogControlSetSize(gv_consoleModeLabel, PlayerGroupSingle(1), 960, 30);
+    DialogControlSetPosition(gv_consoleModeLabel, PlayerGroupSingle(1), c_anchorCenter, 0, -174);
+    DialogControlSetPropertyAsText(gv_consoleModeLabel, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Player Progression: campaign unlocks enforced"));
+    DialogControlCreate(gv_simulationConsoleDialog, c_triggerControlTypeLabel);
+    gv_simulationConsoleNotice = DialogControlLastCreated();
+    DialogControlSetSize(gv_simulationConsoleNotice, PlayerGroupSingle(1), 960, 30);
+    DialogControlSetPosition(gv_simulationConsoleNotice, PlayerGroupSingle(1), c_anchorCenter, 0, -138);
+    DialogControlSetPropertyAsText(gv_simulationConsoleNotice, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Session-only controls. Changes are never written to KnightBank."));
+    DialogControlCreate(gv_simulationConsoleDialog, c_triggerControlTypeButton);
+    gv_openWarCouncilButton = DialogControlLastCreated();
+    DialogControlSetSize(gv_openWarCouncilButton, PlayerGroupSingle(1), 440, 46);
+    DialogControlSetPosition(gv_openWarCouncilButton, PlayerGroupSingle(1), c_anchorCenter, -235, -82);
+    DialogControlSetPropertyAsText(gv_openWarCouncilButton, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("War Council"));
+    DialogControlSetPropertyAsText(gv_openWarCouncilButton, c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Choose one available package in each War Council tier."));
+    DialogControlCreate(gv_simulationConsoleDialog, c_triggerControlTypeButton);
+    gv_openSolarCoreButton = DialogControlLastCreated();
+    DialogControlSetSize(gv_openSolarCoreButton, PlayerGroupSingle(1), 440, 46);
+    DialogControlSetPosition(gv_openSolarCoreButton, PlayerGroupSingle(1), c_anchorCenter, 235, -82);
+    DialogControlSetPropertyAsText(gv_openSolarCoreButton, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Solar Core"));
+    DialogControlSetPropertyAsText(gv_openSolarCoreButton, c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Choose one available Spear of Adun power in each tier."));
+    DialogControlCreate(gv_simulationConsoleDialog, c_triggerControlTypeButton);
+    gv_consoleResourcesButton = DialogControlLastCreated();
+    DialogControlSetSize(gv_consoleResourcesButton, PlayerGroupSingle(1), 300, 40);
+    DialogControlSetPosition(gv_consoleResourcesButton, PlayerGroupSingle(1), c_anchorCenter, -330, -18);
+    DialogControlSetPropertyAsText(gv_consoleResourcesButton, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Refill Resources"));
+    DialogControlSetPropertyAsText(gv_consoleResourcesButton, c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Set Player 1 to 10,000 minerals and gas."));
+    DialogControlCreate(gv_simulationConsoleDialog, c_triggerControlTypeButton);
+    gv_consoleRestoreButton = DialogControlLastCreated();
+    DialogControlSetSize(gv_consoleRestoreButton, PlayerGroupSingle(1), 300, 40);
+    DialogControlSetPosition(gv_consoleRestoreButton, PlayerGroupSingle(1), c_anchorCenter, 0, -18);
+    DialogControlSetPropertyAsText(gv_consoleRestoreButton, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Restore Selected"));
+    DialogControlSetPropertyAsText(gv_consoleRestoreButton, c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Restore selected units to full life, shields, and energy."));
+    DialogControlCreate(gv_simulationConsoleDialog, c_triggerControlTypeButton);
+    gv_consoleReapplyLoadoutButton = DialogControlLastCreated();
+    DialogControlSetSize(gv_consoleReapplyLoadoutButton, PlayerGroupSingle(1), 300, 40);
+    DialogControlSetPosition(gv_consoleReapplyLoadoutButton, PlayerGroupSingle(1), c_anchorCenter, 330, -18);
+    DialogControlSetPropertyAsText(gv_consoleReapplyLoadoutButton, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Reapply Loadout"));
+    DialogControlSetPropertyAsText(gv_consoleReapplyLoadoutButton, c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Discard session choices and restore the campaign War Council and Solar Core loadout."));
+    DialogControlCreate(gv_simulationConsoleDialog, c_triggerControlTypeButton);
+    gv_consoleWavesOffButton = DialogControlLastCreated();
+    DialogControlSetSize(gv_consoleWavesOffButton, PlayerGroupSingle(1), 300, 40);
+    DialogControlSetPosition(gv_consoleWavesOffButton, PlayerGroupSingle(1), c_anchorCenter, -330, 40);
+    DialogControlSetPropertyAsText(gv_consoleWavesOffButton, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Waves: Off"));
+    DialogControlSetPropertyAsText(gv_consoleWavesOffButton, c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Pause every opponent wave."));
+    DialogControlCreate(gv_simulationConsoleDialog, c_triggerControlTypeButton);
+    gv_consoleStandardWavesButton = DialogControlLastCreated();
+    DialogControlSetSize(gv_consoleStandardWavesButton, PlayerGroupSingle(1), 300, 40);
+    DialogControlSetPosition(gv_consoleStandardWavesButton, PlayerGroupSingle(1), c_anchorCenter, 0, 40);
+    DialogControlSetPropertyAsText(gv_consoleStandardWavesButton, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Waves: Standard"));
+    DialogControlSetPropertyAsText(gv_consoleStandardWavesButton, c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Run standard waves. OG Endless waves remain encounter-gated."));
+    DialogControlCreate(gv_simulationConsoleDialog, c_triggerControlTypeButton);
+    gv_consoleAllWavesButton = DialogControlLastCreated();
+    DialogControlSetSize(gv_consoleAllWavesButton, PlayerGroupSingle(1), 300, 40);
+    DialogControlSetPosition(gv_consoleAllWavesButton, PlayerGroupSingle(1), c_anchorCenter, 330, 40);
+    DialogControlSetPropertyAsText(gv_consoleAllWavesButton, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Waves: All"));
+    DialogControlSetPropertyAsText(gv_consoleAllWavesButton, c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Run every opponent wave, including the OG Endless."));
+    DialogControlCreate(gv_simulationConsoleDialog, c_triggerControlTypeButton);
+    gv_consoleReloadProgressButton = DialogControlLastCreated();
+    DialogControlSetSize(gv_consoleReloadProgressButton, PlayerGroupSingle(1), 440, 40);
+    DialogControlSetPosition(gv_consoleReloadProgressButton, PlayerGroupSingle(1), c_anchorCenter, -235, 108);
+    DialogControlSetPropertyAsText(gv_consoleReloadProgressButton, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Reload Campaign Progress"));
+    DialogControlSetPropertyAsText(gv_consoleReloadProgressButton, c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Author Lab only. Reload KnightBank and reapply campaign progression without saving."));
+    DialogControlCreate(gv_simulationConsoleDialog, c_triggerControlTypeButton);
+    gv_closeConsoleButton = DialogControlLastCreated();
+    DialogControlSetSize(gv_closeConsoleButton, PlayerGroupSingle(1), 440, 40);
+    DialogControlSetPosition(gv_closeConsoleButton, PlayerGroupSingle(1), c_anchorCenter, 235, 108);
+    DialogControlSetPropertyAsText(gv_closeConsoleButton, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Close"));
+    DialogControlSetPropertyAsText(gv_closeConsoleButton, c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Close the Simulation Console."));
+    DialogCreate(1440, 670, c_anchorCenter, 0, -50, false);
+    gv_warCouncilConsoleDialog = DialogLastCreated();
+    DialogControlCreate(gv_warCouncilConsoleDialog, c_triggerControlTypeLabel);
+    gv_warCouncilConsoleTitle = DialogControlLastCreated();
+    DialogControlSetSize(gv_warCouncilConsoleTitle, PlayerGroupSingle(1), 1260, 34);
+    DialogControlSetPosition(gv_warCouncilConsoleTitle, PlayerGroupSingle(1), c_anchorCenter, 0, -302);
+    DialogControlSetPropertyAsText(gv_warCouncilConsoleTitle, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("WAR COUNCIL SESSION LOADOUT"));
+    DialogControlCreate(gv_warCouncilConsoleDialog, c_triggerControlTypeLabel);
+    gv_warCouncilTier1Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_warCouncilTier1Label, PlayerGroupSingle(1), 220, 38);
+    DialogControlSetPosition(gv_warCouncilTier1Label, PlayerGroupSingle(1), c_anchorCenter, -590, -250);
+    DialogControlSetPropertyAsText(gv_warCouncilTier1Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("1. Frontline Leaders"));
+    DialogControlCreate(gv_warCouncilConsoleDialog, c_triggerControlTypeLabel);
+    gv_warCouncilTier2Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_warCouncilTier2Label, PlayerGroupSingle(1), 220, 38);
+    DialogControlSetPosition(gv_warCouncilTier2Label, PlayerGroupSingle(1), c_anchorCenter, -590, -200);
+    DialogControlSetPropertyAsText(gv_warCouncilTier2Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("2. Specialized Fighters"));
+    DialogControlCreate(gv_warCouncilConsoleDialog, c_triggerControlTypeLabel);
+    gv_warCouncilTier3Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_warCouncilTier3Label, PlayerGroupSingle(1), 220, 38);
+    DialogControlSetPosition(gv_warCouncilTier3Label, PlayerGroupSingle(1), c_anchorCenter, -590, -150);
+    DialogControlSetPropertyAsText(gv_warCouncilTier3Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("3. Tactical Support"));
+    DialogControlCreate(gv_warCouncilConsoleDialog, c_triggerControlTypeLabel);
+    gv_warCouncilTier4Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_warCouncilTier4Label, PlayerGroupSingle(1), 220, 38);
+    DialogControlSetPosition(gv_warCouncilTier4Label, PlayerGroupSingle(1), c_anchorCenter, -590, -100);
+    DialogControlSetPropertyAsText(gv_warCouncilTier4Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("4. Covert Operatives"));
+    DialogControlCreate(gv_warCouncilConsoleDialog, c_triggerControlTypeLabel);
+    gv_warCouncilTier5Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_warCouncilTier5Label, PlayerGroupSingle(1), 220, 38);
+    DialogControlSetPosition(gv_warCouncilTier5Label, PlayerGroupSingle(1), c_anchorCenter, -590, -50);
+    DialogControlSetPropertyAsText(gv_warCouncilTier5Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("5. Battlefield Anchors"));
+    DialogControlCreate(gv_warCouncilConsoleDialog, c_triggerControlTypeLabel);
+    gv_warCouncilTier6Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_warCouncilTier6Label, PlayerGroupSingle(1), 220, 38);
+    DialogControlSetPosition(gv_warCouncilTier6Label, PlayerGroupSingle(1), c_anchorCenter, -590, 0);
+    DialogControlSetPropertyAsText(gv_warCouncilTier6Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("6. Master Spellcasters"));
+    DialogControlCreate(gv_warCouncilConsoleDialog, c_triggerControlTypeLabel);
+    gv_warCouncilTier7Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_warCouncilTier7Label, PlayerGroupSingle(1), 220, 38);
+    DialogControlSetPosition(gv_warCouncilTier7Label, PlayerGroupSingle(1), c_anchorCenter, -590, 50);
+    DialogControlSetPropertyAsText(gv_warCouncilTier7Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("7. War Behemoths"));
+    DialogControlCreate(gv_warCouncilConsoleDialog, c_triggerControlTypeLabel);
+    gv_warCouncilTier8Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_warCouncilTier8Label, PlayerGroupSingle(1), 220, 38);
+    DialogControlSetPosition(gv_warCouncilTier8Label, PlayerGroupSingle(1), c_anchorCenter, -590, 100);
+    DialogControlSetPropertyAsText(gv_warCouncilTier8Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("8. Adaptive Forces"));
+    DialogControlCreate(gv_warCouncilConsoleDialog, c_triggerControlTypeLabel);
+    gv_warCouncilTier9Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_warCouncilTier9Label, PlayerGroupSingle(1), 220, 38);
+    DialogControlSetPosition(gv_warCouncilTier9Label, PlayerGroupSingle(1), c_anchorCenter, -590, 150);
+    DialogControlSetPropertyAsText(gv_warCouncilTier9Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("9. Rapid Responders"));
+    DialogControlCreate(gv_warCouncilConsoleDialog, c_triggerControlTypeLabel);
+    gv_warCouncilTier10Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_warCouncilTier10Label, PlayerGroupSingle(1), 220, 38);
+    DialogControlSetPosition(gv_warCouncilTier10Label, PlayerGroupSingle(1), c_anchorCenter, -590, 200);
+    DialogControlSetPropertyAsText(gv_warCouncilTier10Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("10. Strategic Command"));
+    lv_buildWarButtonIndex = 0;
+    for ( ; ( (autoC510098F_ai >= 0 && lv_buildWarButtonIndex <= autoC510098F_ae) || (autoC510098F_ai < 0 && lv_buildWarButtonIndex >= autoC510098F_ae) ) ; lv_buildWarButtonIndex += autoC510098F_ai ) {
+        DialogControlCreate(gv_warCouncilConsoleDialog, c_triggerControlTypeButton);
+        gv_warCouncilChoiceButtons[lv_buildWarButtonIndex] = DialogControlLastCreated();
+        DialogControlSetSize(gv_warCouncilChoiceButtons[lv_buildWarButtonIndex], PlayerGroupSingle(1), 330, 38);
+        DialogControlSetPosition(gv_warCouncilChoiceButtons[lv_buildWarButtonIndex], PlayerGroupSingle(1), c_anchorCenter, (-310 + (gv_warCouncilChoiceSlots[lv_buildWarButtonIndex] * 350)), (-250 + (gv_warCouncilChoiceTiers[lv_buildWarButtonIndex] * 50)));
+        DialogControlSetPropertyAsText(gv_warCouncilChoiceButtons[lv_buildWarButtonIndex], c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText(gv_warCouncilChoiceNames[lv_buildWarButtonIndex]));
+        DialogControlSetPropertyAsText(gv_warCouncilChoiceButtons[lv_buildWarButtonIndex], c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Choose this War Council package for this session."));
+    }
+    DialogControlCreate(gv_warCouncilConsoleDialog, c_triggerControlTypeButton);
+    gv_warCouncilBackButton = DialogControlLastCreated();
+    DialogControlSetSize(gv_warCouncilBackButton, PlayerGroupSingle(1), 320, 40);
+    DialogControlSetPosition(gv_warCouncilBackButton, PlayerGroupSingle(1), c_anchorCenter, 0, 286);
+    DialogControlSetPropertyAsText(gv_warCouncilBackButton, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Back to Console"));
+    DialogControlSetPropertyAsText(gv_warCouncilBackButton, c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Return to the Simulation Console."));
+    DialogCreate(1420, 520, c_anchorCenter, 0, -60, false);
+    gv_solarCoreConsoleDialog = DialogLastCreated();
+    DialogControlCreate(gv_solarCoreConsoleDialog, c_triggerControlTypeLabel);
+    gv_solarCoreConsoleTitle = DialogControlLastCreated();
+    DialogControlSetSize(gv_solarCoreConsoleTitle, PlayerGroupSingle(1), 1240, 34);
+    DialogControlSetPosition(gv_solarCoreConsoleTitle, PlayerGroupSingle(1), c_anchorCenter, 0, -225);
+    DialogControlSetPropertyAsText(gv_solarCoreConsoleTitle, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("SOLAR CORE SESSION LOADOUT"));
+    DialogControlCreate(gv_solarCoreConsoleDialog, c_triggerControlTypeLabel);
+    gv_solarCoreTier1Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_solarCoreTier1Label, PlayerGroupSingle(1), 120, 38);
+    DialogControlSetPosition(gv_solarCoreTier1Label, PlayerGroupSingle(1), c_anchorCenter, -615, -155);
+    DialogControlSetPropertyAsText(gv_solarCoreTier1Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Tier 1"));
+    DialogControlCreate(gv_solarCoreConsoleDialog, c_triggerControlTypeLabel);
+    gv_solarCoreTier2Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_solarCoreTier2Label, PlayerGroupSingle(1), 120, 38);
+    DialogControlSetPosition(gv_solarCoreTier2Label, PlayerGroupSingle(1), c_anchorCenter, -615, -95);
+    DialogControlSetPropertyAsText(gv_solarCoreTier2Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Tier 2"));
+    DialogControlCreate(gv_solarCoreConsoleDialog, c_triggerControlTypeLabel);
+    gv_solarCoreTier3Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_solarCoreTier3Label, PlayerGroupSingle(1), 120, 38);
+    DialogControlSetPosition(gv_solarCoreTier3Label, PlayerGroupSingle(1), c_anchorCenter, -615, -35);
+    DialogControlSetPropertyAsText(gv_solarCoreTier3Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Tier 3"));
+    DialogControlCreate(gv_solarCoreConsoleDialog, c_triggerControlTypeLabel);
+    gv_solarCoreTier4Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_solarCoreTier4Label, PlayerGroupSingle(1), 120, 38);
+    DialogControlSetPosition(gv_solarCoreTier4Label, PlayerGroupSingle(1), c_anchorCenter, -615, 25);
+    DialogControlSetPropertyAsText(gv_solarCoreTier4Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Tier 4"));
+    DialogControlCreate(gv_solarCoreConsoleDialog, c_triggerControlTypeLabel);
+    gv_solarCoreTier5Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_solarCoreTier5Label, PlayerGroupSingle(1), 120, 38);
+    DialogControlSetPosition(gv_solarCoreTier5Label, PlayerGroupSingle(1), c_anchorCenter, -615, 85);
+    DialogControlSetPropertyAsText(gv_solarCoreTier5Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Tier 5"));
+    DialogControlCreate(gv_solarCoreConsoleDialog, c_triggerControlTypeLabel);
+    gv_solarCoreTier6Label = DialogControlLastCreated();
+    DialogControlSetSize(gv_solarCoreTier6Label, PlayerGroupSingle(1), 120, 38);
+    DialogControlSetPosition(gv_solarCoreTier6Label, PlayerGroupSingle(1), c_anchorCenter, -615, 145);
+    DialogControlSetPropertyAsText(gv_solarCoreTier6Label, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Tier 6"));
+    lv_buildSolarButtonIndex = 0;
+    for ( ; ( (autoC5100AE0_ai >= 0 && lv_buildSolarButtonIndex <= autoC5100AE0_ae) || (autoC5100AE0_ai < 0 && lv_buildSolarButtonIndex >= autoC5100AE0_ae) ) ; lv_buildSolarButtonIndex += autoC5100AE0_ai ) {
+        DialogControlCreate(gv_solarCoreConsoleDialog, c_triggerControlTypeButton);
+        gv_solarCoreChoiceButtons[lv_buildSolarButtonIndex] = DialogControlLastCreated();
+        DialogControlSetSize(gv_solarCoreChoiceButtons[lv_buildSolarButtonIndex], PlayerGroupSingle(1), 370, 38);
+        DialogControlSetPosition(gv_solarCoreChoiceButtons[lv_buildSolarButtonIndex], PlayerGroupSingle(1), c_anchorCenter, (-360 + (gv_solarCoreChoiceSlots[lv_buildSolarButtonIndex] * 380)), (-155 + (gv_solarCoreChoiceTiers[lv_buildSolarButtonIndex] * 60)));
+        DialogControlSetPropertyAsText(gv_solarCoreChoiceButtons[lv_buildSolarButtonIndex], c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText(gv_solarCoreChoiceNames[lv_buildSolarButtonIndex]));
+        DialogControlSetPropertyAsText(gv_solarCoreChoiceButtons[lv_buildSolarButtonIndex], c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Choose this Solar Core power for this session."));
+    }
+    DialogControlCreate(gv_solarCoreConsoleDialog, c_triggerControlTypeButton);
+    gv_solarCoreBackButton = DialogControlLastCreated();
+    DialogControlSetSize(gv_solarCoreBackButton, PlayerGroupSingle(1), 320, 40);
+    DialogControlSetPosition(gv_solarCoreBackButton, PlayerGroupSingle(1), c_anchorCenter, 0, 210);
+    DialogControlSetPropertyAsText(gv_solarCoreBackButton, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Back to Console"));
+    DialogControlSetPropertyAsText(gv_solarCoreBackButton, c_triggerControlPropertyTooltip, PlayerGroupSingle(1), StringToText("Return to the Simulation Console."));
+    gf_ShowSimulationConsoleLauncher();
+}
+
+void gf_RefreshSimulationConsoleMode () {
+    // Automatic Variable Declarations
+    // Implementation
+    if ((gv_authorLabEnabled == true)) {
+        DialogControlSetPropertyAsText(gv_consoleModeLabel, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Author Lab: full implemented roster available"));
+        DialogControlSetEnabled(gv_consoleReloadProgressButton, PlayerGroupSingle(1), true);
+    }
+    else {
+        DialogControlSetPropertyAsText(gv_consoleModeLabel, c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText("Player Progression: campaign unlocks enforced"));
+        DialogControlSetEnabled(gv_consoleReloadProgressButton, PlayerGroupSingle(1), false);
+    }
+}
+
+void gf_RefreshWarCouncilConsole () {
+    // Variable Declarations
+    int lv_refreshWarChoiceIndex;
+
+    // Automatic Variable Declarations
+    const int autoC5100B74_ae = 25;
+    const int autoC5100B74_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    lv_refreshWarChoiceIndex = 0;
+    for ( ; ( (autoC5100B74_ai >= 0 && lv_refreshWarChoiceIndex <= autoC5100B74_ae) || (autoC5100B74_ai < 0 && lv_refreshWarChoiceIndex >= autoC5100B74_ae) ) ; lv_refreshWarChoiceIndex += autoC5100B74_ai ) {
+        if (((gv_authorLabEnabled == true) || (libVoiC_gf_PC_StoryArmyUnitState(gv_warCouncilArmyUnits[lv_refreshWarChoiceIndex]) != 0))) {
+            DialogControlSetEnabled(gv_warCouncilChoiceButtons[lv_refreshWarChoiceIndex], PlayerGroupSingle(1), true);
+            if ((gv_warCouncilSessionChoices[gv_warCouncilChoiceTiers[lv_refreshWarChoiceIndex]] == lv_refreshWarChoiceIndex)) {
+                DialogControlSetPropertyAsText(gv_warCouncilChoiceButtons[lv_refreshWarChoiceIndex], c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText(gv_warCouncilActiveNames[lv_refreshWarChoiceIndex]));
+            }
+            else {
+                DialogControlSetPropertyAsText(gv_warCouncilChoiceButtons[lv_refreshWarChoiceIndex], c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText(gv_warCouncilChoiceNames[lv_refreshWarChoiceIndex]));
+            }
+        }
+        else {
+            DialogControlSetEnabled(gv_warCouncilChoiceButtons[lv_refreshWarChoiceIndex], PlayerGroupSingle(1), false);
+            DialogControlSetPropertyAsText(gv_warCouncilChoiceButtons[lv_refreshWarChoiceIndex], c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText(gv_warCouncilLockedNames[lv_refreshWarChoiceIndex]));
+        }
+    }
+}
+
+void gf_RefreshSolarCoreConsole () {
+    // Variable Declarations
+    int lv_refreshSolarChoiceIndex;
+
+    // Automatic Variable Declarations
+    const int autoC5100BBE_ae = 17;
+    const int autoC5100BBE_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    lv_refreshSolarChoiceIndex = 0;
+    for ( ; ( (autoC5100BBE_ai >= 0 && lv_refreshSolarChoiceIndex <= autoC5100BBE_ae) || (autoC5100BBE_ai < 0 && lv_refreshSolarChoiceIndex >= autoC5100BBE_ae) ) ; lv_refreshSolarChoiceIndex += autoC5100BBE_ai ) {
+        if (((gv_authorLabEnabled == true) || (UserDataGetInt("CampaignPerk", gv_solarCorePerks[lv_refreshSolarChoiceIndex], "State", 1) != 0))) {
+            DialogControlSetEnabled(gv_solarCoreChoiceButtons[lv_refreshSolarChoiceIndex], PlayerGroupSingle(1), true);
+            if ((gv_solarCoreSessionChoices[gv_solarCoreChoiceTiers[lv_refreshSolarChoiceIndex]] == lv_refreshSolarChoiceIndex)) {
+                DialogControlSetPropertyAsText(gv_solarCoreChoiceButtons[lv_refreshSolarChoiceIndex], c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText(gv_solarCoreActiveNames[lv_refreshSolarChoiceIndex]));
+            }
+            else {
+                DialogControlSetPropertyAsText(gv_solarCoreChoiceButtons[lv_refreshSolarChoiceIndex], c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText(gv_solarCoreChoiceNames[lv_refreshSolarChoiceIndex]));
+            }
+        }
+        else {
+            DialogControlSetEnabled(gv_solarCoreChoiceButtons[lv_refreshSolarChoiceIndex], PlayerGroupSingle(1), false);
+            DialogControlSetPropertyAsText(gv_solarCoreChoiceButtons[lv_refreshSolarChoiceIndex], c_triggerControlPropertyText, PlayerGroupSingle(1), StringToText(gv_solarCoreLockedNames[lv_refreshSolarChoiceIndex]));
+        }
+    }
+}
+
+void gf_RefreshSimulationConsole () {
+    // Automatic Variable Declarations
+    // Implementation
+    gf_RefreshSimulationConsoleMode();
+    gf_RefreshWarCouncilConsole();
+    gf_RefreshSolarCoreConsole();
+}
+
+void gf_SeedSimulationConsoleSelections () {
+    // Variable Declarations
+    int lv_seedConsoleChoiceIndex;
+    int lv_seedConsoleTierIndex;
+
+    // Automatic Variable Declarations
+    const int autoC5100C10_ae = 9;
+    const int autoC5100C10_ai = 1;
+    const int autoC5100C19_ae = 25;
+    const int autoC5100C19_ai = 1;
+    const int autoC5100C2B_ae = 5;
+    const int autoC5100C2B_ai = 1;
+    const int autoC5100C34_ae = 17;
+    const int autoC5100C34_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    lv_seedConsoleTierIndex = 0;
+    for ( ; ( (autoC5100C10_ai >= 0 && lv_seedConsoleTierIndex <= autoC5100C10_ae) || (autoC5100C10_ai < 0 && lv_seedConsoleTierIndex >= autoC5100C10_ae) ) ; lv_seedConsoleTierIndex += autoC5100C10_ai ) {
+        gv_warCouncilSessionChoices[lv_seedConsoleTierIndex] = -1;
+    }
+    lv_seedConsoleChoiceIndex = 0;
+    for ( ; ( (autoC5100C19_ai >= 0 && lv_seedConsoleChoiceIndex <= autoC5100C19_ae) || (autoC5100C19_ai < 0 && lv_seedConsoleChoiceIndex >= autoC5100C19_ae) ) ; lv_seedConsoleChoiceIndex += autoC5100C19_ai ) {
+        if ((libVoiC_gf_PC_StoryArmyUnitState(gv_warCouncilArmyUnits[lv_seedConsoleChoiceIndex]) == 2)) {
+            gv_warCouncilSessionChoices[gv_warCouncilChoiceTiers[lv_seedConsoleChoiceIndex]] = lv_seedConsoleChoiceIndex;
+        }
+
+    }
+    lv_seedConsoleTierIndex = 0;
+    for ( ; ( (autoC5100C2B_ai >= 0 && lv_seedConsoleTierIndex <= autoC5100C2B_ae) || (autoC5100C2B_ai < 0 && lv_seedConsoleTierIndex >= autoC5100C2B_ae) ) ; lv_seedConsoleTierIndex += autoC5100C2B_ai ) {
+        gv_solarCoreSessionChoices[lv_seedConsoleTierIndex] = -1;
+    }
+    lv_seedConsoleChoiceIndex = 0;
+    for ( ; ( (autoC5100C34_ai >= 0 && lv_seedConsoleChoiceIndex <= autoC5100C34_ae) || (autoC5100C34_ai < 0 && lv_seedConsoleChoiceIndex >= autoC5100C34_ae) ) ; lv_seedConsoleChoiceIndex += autoC5100C34_ai ) {
+        if ((UserDataGetInt("CampaignPerk", gv_solarCorePerks[lv_seedConsoleChoiceIndex], "State", 1) == 2)) {
+            gv_solarCoreSessionChoices[gv_solarCoreChoiceTiers[lv_seedConsoleChoiceIndex]] = lv_seedConsoleChoiceIndex;
+        }
+
+    }
+}
+
+void gf_ApplyWarCouncilSessionChoice (int lp_choiceIndex) {
+    // Variable Declarations
+    int lv_applyWarPeerIndex;
+
+    // Automatic Variable Declarations
+    const int autoC5100C59_ae = 25;
+    const int autoC5100C59_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if (((gv_authorLabEnabled == true) || (libVoiC_gf_PC_StoryArmyUnitState(gv_warCouncilArmyUnits[lp_choiceIndex]) != 0))) {
+        lv_applyWarPeerIndex = 0;
+        for ( ; ( (autoC5100C59_ai >= 0 && lv_applyWarPeerIndex <= autoC5100C59_ae) || (autoC5100C59_ai < 0 && lv_applyWarPeerIndex >= autoC5100C59_ae) ) ; lv_applyWarPeerIndex += autoC5100C59_ai ) {
+            if ((gv_warCouncilChoiceTiers[lv_applyWarPeerIndex] == gv_warCouncilChoiceTiers[lp_choiceIndex])) {
+                libVoiC_gf_EnableCampaignTechUnit(false, gv_warCouncilTechUnits[lv_applyWarPeerIndex], 1);
+            }
+
+        }
+        libVoiC_gf_EnableCampaignTechUnit(true, gv_warCouncilTechUnits[lp_choiceIndex], 1);
+        gv_warCouncilSessionChoices[gv_warCouncilChoiceTiers[lp_choiceIndex]] = lp_choiceIndex;
+        gf_RefreshSimulationConsole();
+        UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("War Council session choice applied."));
+    }
+    else {
+        UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("That War Council package is locked by campaign progression."));
+    }
+}
+
+void gf_ApplySolarCoreSessionChoice (int lp_choiceIndex) {
+    // Variable Declarations
+    int lv_applySolarPeerIndex;
+
+    // Automatic Variable Declarations
+    const int autoC5100C98_ae = 17;
+    const int autoC5100C98_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    if (((gv_authorLabEnabled == true) || (UserDataGetInt("CampaignPerk", gv_solarCorePerks[lp_choiceIndex], "State", 1) != 0))) {
+        lv_applySolarPeerIndex = 0;
+        for ( ; ( (autoC5100C98_ai >= 0 && lv_applySolarPeerIndex <= autoC5100C98_ae) || (autoC5100C98_ai < 0 && lv_applySolarPeerIndex >= autoC5100C98_ae) ) ; lv_applySolarPeerIndex += autoC5100C98_ai ) {
+            if ((gv_solarCoreChoiceTiers[lv_applySolarPeerIndex] == gv_solarCoreChoiceTiers[lp_choiceIndex])) {
+                libVoiC_gf_EnableDisableSpearofAdunAbility(false, gv_solarCorePerks[lv_applySolarPeerIndex]);
+                libNtve_gf_SetUpgradeLevelForPlayer(1, gv_solarCorePrimaryUpgrades[lv_applySolarPeerIndex], 0);
+                if ((gv_solarCoreUpgradeCounts[lv_applySolarPeerIndex] == 2)) {
+                    libNtve_gf_SetUpgradeLevelForPlayer(1, gv_solarCoreSecondaryUpgrades[lv_applySolarPeerIndex], 0);
+                }
+
+            }
+
+        }
+        libNtve_gf_SetUpgradeLevelForPlayer(1, gv_solarCorePrimaryUpgrades[lp_choiceIndex], 1);
+        if ((gv_solarCoreUpgradeCounts[lp_choiceIndex] == 2)) {
+            libNtve_gf_SetUpgradeLevelForPlayer(1, gv_solarCoreSecondaryUpgrades[lp_choiceIndex], 1);
+        }
+
+        libVoiC_gf_EnableDisableSpearofAdunAbility(true, gv_solarCorePerks[lp_choiceIndex]);
+        gv_solarCoreSessionChoices[gv_solarCoreChoiceTiers[lp_choiceIndex]] = lp_choiceIndex;
+        gf_RefreshSimulationConsole();
+        UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Solar Core session choice applied."));
+    }
+    else {
+        UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("That Solar Core power is locked by campaign progression."));
+    }
+}
+
+void gf_RestoreCampaignLoadout () {
+    // Variable Declarations
+    int lv_restoreCampaignChoiceIndex;
+    int lv_restoreCampaignTierIndex;
+
+    // Automatic Variable Declarations
+    const int autoC5100CE5_ae = 25;
+    const int autoC5100CE5_ai = 1;
+    const int autoC5100CEF_ae = 9;
+    const int autoC5100CEF_ai = 1;
+    const int autoC5100CF8_ae = 25;
+    const int autoC5100CF8_ai = 1;
+    const int autoC5100D0F_ae = 17;
+    const int autoC5100D0F_ai = 1;
+    const int autoC5100D28_ae = 5;
+    const int autoC5100D28_ai = 1;
+    const int autoC5100D31_ae = 17;
+    const int autoC5100D31_ai = 1;
+
+    // Variable Initialization
+
+    // Implementation
+    lv_restoreCampaignChoiceIndex = 0;
+    for ( ; ( (autoC5100CE5_ai >= 0 && lv_restoreCampaignChoiceIndex <= autoC5100CE5_ae) || (autoC5100CE5_ai < 0 && lv_restoreCampaignChoiceIndex >= autoC5100CE5_ae) ) ; lv_restoreCampaignChoiceIndex += autoC5100CE5_ai ) {
+        libVoiC_gf_EnableCampaignTechUnit(false, gv_warCouncilTechUnits[lv_restoreCampaignChoiceIndex], 1);
+    }
+    lv_restoreCampaignTierIndex = 0;
+    for ( ; ( (autoC5100CEF_ai >= 0 && lv_restoreCampaignTierIndex <= autoC5100CEF_ae) || (autoC5100CEF_ai < 0 && lv_restoreCampaignTierIndex >= autoC5100CEF_ae) ) ; lv_restoreCampaignTierIndex += autoC5100CEF_ai ) {
+        gv_warCouncilSessionChoices[lv_restoreCampaignTierIndex] = -1;
+    }
+    lv_restoreCampaignChoiceIndex = 0;
+    for ( ; ( (autoC5100CF8_ai >= 0 && lv_restoreCampaignChoiceIndex <= autoC5100CF8_ae) || (autoC5100CF8_ai < 0 && lv_restoreCampaignChoiceIndex >= autoC5100CF8_ae) ) ; lv_restoreCampaignChoiceIndex += autoC5100CF8_ai ) {
+        if ((libVoiC_gf_PC_StoryArmyUnitState(gv_warCouncilArmyUnits[lv_restoreCampaignChoiceIndex]) == 2)) {
+            libVoiC_gf_EnableCampaignTechUnit(true, gv_warCouncilTechUnits[lv_restoreCampaignChoiceIndex], 1);
+            gv_warCouncilSessionChoices[gv_warCouncilChoiceTiers[lv_restoreCampaignChoiceIndex]] = lv_restoreCampaignChoiceIndex;
+        }
+
+    }
+    lv_restoreCampaignChoiceIndex = 0;
+    for ( ; ( (autoC5100D0F_ai >= 0 && lv_restoreCampaignChoiceIndex <= autoC5100D0F_ae) || (autoC5100D0F_ai < 0 && lv_restoreCampaignChoiceIndex >= autoC5100D0F_ae) ) ; lv_restoreCampaignChoiceIndex += autoC5100D0F_ai ) {
+        libVoiC_gf_EnableDisableSpearofAdunAbility(false, gv_solarCorePerks[lv_restoreCampaignChoiceIndex]);
+        libNtve_gf_SetUpgradeLevelForPlayer(1, gv_solarCorePrimaryUpgrades[lv_restoreCampaignChoiceIndex], 0);
+        if ((gv_solarCoreUpgradeCounts[lv_restoreCampaignChoiceIndex] == 2)) {
+            libNtve_gf_SetUpgradeLevelForPlayer(1, gv_solarCoreSecondaryUpgrades[lv_restoreCampaignChoiceIndex], 0);
+        }
+
+    }
+    lv_restoreCampaignTierIndex = 0;
+    for ( ; ( (autoC5100D28_ai >= 0 && lv_restoreCampaignTierIndex <= autoC5100D28_ae) || (autoC5100D28_ai < 0 && lv_restoreCampaignTierIndex >= autoC5100D28_ae) ) ; lv_restoreCampaignTierIndex += autoC5100D28_ai ) {
+        gv_solarCoreSessionChoices[lv_restoreCampaignTierIndex] = -1;
+    }
+    lv_restoreCampaignChoiceIndex = 0;
+    for ( ; ( (autoC5100D31_ai >= 0 && lv_restoreCampaignChoiceIndex <= autoC5100D31_ae) || (autoC5100D31_ai < 0 && lv_restoreCampaignChoiceIndex >= autoC5100D31_ae) ) ; lv_restoreCampaignChoiceIndex += autoC5100D31_ai ) {
+        if ((UserDataGetInt("CampaignPerk", gv_solarCorePerks[lv_restoreCampaignChoiceIndex], "State", 1) == 2)) {
+            libNtve_gf_SetUpgradeLevelForPlayer(1, gv_solarCorePrimaryUpgrades[lv_restoreCampaignChoiceIndex], 1);
+            if ((gv_solarCoreUpgradeCounts[lv_restoreCampaignChoiceIndex] == 2)) {
+                libNtve_gf_SetUpgradeLevelForPlayer(1, gv_solarCoreSecondaryUpgrades[lv_restoreCampaignChoiceIndex], 1);
+            }
+
+            libVoiC_gf_EnableDisableSpearofAdunAbility(true, gv_solarCorePerks[lv_restoreCampaignChoiceIndex]);
+            gv_solarCoreSessionChoices[gv_solarCoreChoiceTiers[lv_restoreCampaignChoiceIndex]] = lv_restoreCampaignChoiceIndex;
+        }
+
+    }
+    gf_RefreshSimulationConsole();
+}
+
+void gf_DFAMarkReclamationEligible (unit lp_completedasset) {
+    // Automatic Variable Declarations
+    // Implementation
+    if (((UnitGetType(lp_completedasset) == "DFAConstructionVehicle") || (UnitGetType(lp_completedasset) == "DFAFortressMCV") || (UnitGetType(lp_completedasset) == "DFAFortressMCVMobile") || (UnitGetType(lp_completedasset) == "DFAUndergroundBunker") || (UnitGetType(lp_completedasset) == "DFAMovingBunker") || (UnitGetType(lp_completedasset) == "DFAMovingBunkerBurrowed") || (UnitGetType(lp_completedasset) == "DFARefinery") || (UnitGetType(lp_completedasset) == "DFAInfantryDepot") || (UnitGetType(lp_completedasset) == "DFAMobileFactory") || (UnitGetType(lp_completedasset) == "DFAMobileFactoryMobile") || (UnitGetType(lp_completedasset) == "DFAVulturePatrol") || (UnitGetType(lp_completedasset) == "DFAStoneGoose") || (UnitGetType(lp_completedasset) == "DFAStoneGooseBraced") || (UnitGetType(lp_completedasset) == "DFATransportTruck") || (UnitGetType(lp_completedasset) == "DFATransportTruckDeployed"))) {
+        if ((UnitBehaviorCount(lp_completedasset, "DFAReclamationEligible") == 0)) {
+            UnitBehaviorAdd(lp_completedasset, "DFAReclamationEligible", lp_completedasset, 1);
+        }
+
+    }
+
+}
+
+bool gf_MSCPursuitTargetValid (unit lp_target, bool lp_airtarget) {
+    // Automatic Variable Declarations
+    // Implementation
+    return (((UnitIsValid(lp_target) == true) && (UnitIsAlive(lp_target) == true)) && (libNtve_gf_UnitIsHidden(lp_target) == false) && (libNtve_gf_UnitIsInsideTransport(lp_target) == false) && (((lp_airtarget == true) && (UnitTestPlane(lp_target, c_planeAir) == true)) || ((lp_airtarget == false) && (UnitTestPlane(lp_target, c_planeGround) == true))));
+}
+
+void gf_MSCRunPursuitSalvo (unit lp_caster, unit lp_target) {
+    // Variable Declarations
+    point lv_mSCPursuitSamplePoint;
+    bool lv_mSCPursuitAirTarget;
+    bool lv_mSCPursuitContinuing;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Implementation
+    lv_mSCPursuitAirTarget = UnitTestPlane(lp_target, c_planeAir);
+    lv_mSCPursuitContinuing = true;
+    if (((lv_mSCPursuitContinuing == true) && ((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+        if ((lv_mSCPursuitAirTarget == true)) {
+            UnitCreateEffectUnit(lp_caster, "KoEMechaScorpaliskShoulderLaunch", lp_target);
+            Wait(0.5, c_timeGame);
+        }
+        else {
+            lv_mSCPursuitSamplePoint = UnitGetPosition(lp_target);
+            UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderWarning", lv_mSCPursuitSamplePoint);
+            Wait(0.4, c_timeGame);
+            if ((((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+                UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderGroundLaunch01", lv_mSCPursuitSamplePoint);
+            }
+            else {
+                lv_mSCPursuitContinuing = false;
+            }
+            Wait(0.1, c_timeGame);
+        }
+    }
+    else {
+        lv_mSCPursuitContinuing = false;
+    }
+    if (((lv_mSCPursuitContinuing == true) && ((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+        if ((lv_mSCPursuitAirTarget == true)) {
+            UnitCreateEffectUnit(lp_caster, "KoEMechaScorpaliskShoulderRightLaunch", lp_target);
+            Wait(0.5, c_timeGame);
+        }
+        else {
+            lv_mSCPursuitSamplePoint = UnitGetPosition(lp_target);
+            UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderWarning", lv_mSCPursuitSamplePoint);
+            Wait(0.4, c_timeGame);
+            if ((((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+                UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderGroundLaunch02", lv_mSCPursuitSamplePoint);
+            }
+            else {
+                lv_mSCPursuitContinuing = false;
+            }
+            Wait(0.1, c_timeGame);
+        }
+    }
+    else {
+        lv_mSCPursuitContinuing = false;
+    }
+    if (((lv_mSCPursuitContinuing == true) && ((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+        if ((lv_mSCPursuitAirTarget == true)) {
+            UnitCreateEffectUnit(lp_caster, "KoEMechaScorpaliskShoulderLaunch03", lp_target);
+            Wait(0.5, c_timeGame);
+        }
+        else {
+            lv_mSCPursuitSamplePoint = UnitGetPosition(lp_target);
+            UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderWarning", lv_mSCPursuitSamplePoint);
+            Wait(0.4, c_timeGame);
+            if ((((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+                UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderGroundLaunch03", lv_mSCPursuitSamplePoint);
+            }
+            else {
+                lv_mSCPursuitContinuing = false;
+            }
+            Wait(0.1, c_timeGame);
+        }
+    }
+    else {
+        lv_mSCPursuitContinuing = false;
+    }
+    if (((lv_mSCPursuitContinuing == true) && ((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+        if ((lv_mSCPursuitAirTarget == true)) {
+            UnitCreateEffectUnit(lp_caster, "KoEMechaScorpaliskShoulderLaunch04", lp_target);
+            Wait(0.5, c_timeGame);
+        }
+        else {
+            lv_mSCPursuitSamplePoint = UnitGetPosition(lp_target);
+            UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderWarning", lv_mSCPursuitSamplePoint);
+            Wait(0.4, c_timeGame);
+            if ((((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+                UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderGroundLaunch04", lv_mSCPursuitSamplePoint);
+            }
+            else {
+                lv_mSCPursuitContinuing = false;
+            }
+            Wait(0.1, c_timeGame);
+        }
+    }
+    else {
+        lv_mSCPursuitContinuing = false;
+    }
+    if (((lv_mSCPursuitContinuing == true) && ((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+        if ((lv_mSCPursuitAirTarget == true)) {
+            UnitCreateEffectUnit(lp_caster, "KoEMechaScorpaliskShoulderLaunch05", lp_target);
+            Wait(0.5, c_timeGame);
+        }
+        else {
+            lv_mSCPursuitSamplePoint = UnitGetPosition(lp_target);
+            UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderWarning", lv_mSCPursuitSamplePoint);
+            Wait(0.4, c_timeGame);
+            if ((((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+                UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderGroundLaunch05", lv_mSCPursuitSamplePoint);
+            }
+            else {
+                lv_mSCPursuitContinuing = false;
+            }
+            Wait(0.1, c_timeGame);
+        }
+    }
+    else {
+        lv_mSCPursuitContinuing = false;
+    }
+    if (((lv_mSCPursuitContinuing == true) && ((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+        if ((lv_mSCPursuitAirTarget == true)) {
+            UnitCreateEffectUnit(lp_caster, "KoEMechaScorpaliskShoulderLaunch06", lp_target);
+            Wait(0.5, c_timeGame);
+        }
+        else {
+            lv_mSCPursuitSamplePoint = UnitGetPosition(lp_target);
+            UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderWarning", lv_mSCPursuitSamplePoint);
+            Wait(0.4, c_timeGame);
+            if ((((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+                UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderGroundLaunch06", lv_mSCPursuitSamplePoint);
+            }
+            else {
+                lv_mSCPursuitContinuing = false;
+            }
+            Wait(0.1, c_timeGame);
+        }
+    }
+    else {
+        lv_mSCPursuitContinuing = false;
+    }
+    if (((lv_mSCPursuitContinuing == true) && ((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+        if ((lv_mSCPursuitAirTarget == true)) {
+            UnitCreateEffectUnit(lp_caster, "KoEMechaScorpaliskShoulderLaunch07", lp_target);
+            Wait(0.5, c_timeGame);
+        }
+        else {
+            lv_mSCPursuitSamplePoint = UnitGetPosition(lp_target);
+            UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderWarning", lv_mSCPursuitSamplePoint);
+            Wait(0.4, c_timeGame);
+            if ((((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+                UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderGroundLaunch07", lv_mSCPursuitSamplePoint);
+            }
+            else {
+                lv_mSCPursuitContinuing = false;
+            }
+            Wait(0.1, c_timeGame);
+        }
+    }
+    else {
+        lv_mSCPursuitContinuing = false;
+    }
+    if (((lv_mSCPursuitContinuing == true) && ((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+        if ((lv_mSCPursuitAirTarget == true)) {
+            UnitCreateEffectUnit(lp_caster, "KoEMechaScorpaliskShoulderLaunch08", lp_target);
+            Wait(0.5, c_timeGame);
+        }
+        else {
+            lv_mSCPursuitSamplePoint = UnitGetPosition(lp_target);
+            UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderWarning", lv_mSCPursuitSamplePoint);
+            Wait(0.4, c_timeGame);
+            if ((((UnitIsValid(lp_caster) == true) && (UnitIsAlive(lp_caster) == true)) && (gf_MSCPursuitTargetValid(lp_target, lv_mSCPursuitAirTarget) == true))) {
+                UnitCreateEffectPoint(lp_caster, "KoEMechaScorpaliskShoulderGroundLaunch08", lv_mSCPursuitSamplePoint);
+            }
+            else {
+                lv_mSCPursuitContinuing = false;
+            }
+            Wait(0.1, c_timeGame);
+        }
+    }
+    else {
+        lv_mSCPursuitContinuing = false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Load KnightBank
+//--------------------------------------------------------------------------------------------------
+bool gt_LoadKnightBank_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(libCC65E7BC_gt_BankLoad, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_LoadKnightBank_Init () {
+    gt_LoadKnightBank = TriggerCreate("gt_LoadKnightBank_Func");
+    TriggerAddEventTimeElapsed(gt_LoadKnightBank, 0.0625, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initialize Combat Simulation
+//--------------------------------------------------------------------------------------------------
+bool gt_InitializeCombatSimulation_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    playergroup auto7E9282C7_g;
+    int auto7E9282C7_var;
+    playergroup auto0570A89B_g;
+    int auto0570A89B_var;
+    playergroup autoC97980B2_g;
+    int autoC97980B2_var;
+    unitgroup auto8AD83DB5_g;
+    int auto8AD83DB5_u;
+    unit auto8AD83DB5_var;
+    unitgroup autoF97E7F78_g;
+    int autoF97E7F78_u;
+    unit autoF97E7F78_var;
+    unitgroup auto38E0CD1E_g;
+    int auto38E0CD1E_u;
+    unit auto38E0CD1E_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CameraApplyInfo(1, CameraInfoFromId(1804096209), 0.0, -1, 10.0, true);
+    libVoiC_gf_ULoadCampaignData("CombatSimulation3105");
+    libVoiC_gf_SetTechRestrictionsCallback(TriggerGetCurrent());
+    CampaignInitAI();
+    libVCMI_gf_EnableVoidCampaignAIBehaviorForAllPlayers();
+    PlayerSetRace(1, "Prot");
+    PlayerSetState(1, c_playerStateShowWorldTip, true);
+    CameraSetData(PlayerGroupAll(), "BigCamera");
+    TriggerExecute(libCC65E7BC_gt_TechAllow, true, false);
+    BankLoad(libCC65E7BC_gv_bankName, 1);
+    auto7E9282C7_g = PlayerGroupAll();
+    auto7E9282C7_var = -1;
+    while (true) {
+        auto7E9282C7_var = PlayerGroupNextPlayer(auto7E9282C7_g, auto7E9282C7_var);
+        if (auto7E9282C7_var < 0) { break; }
+        PlayerModifyPropertyInt(auto7E9282C7_var, c_playerPropMinerals, c_playerPropOperSetTo, 1000);
+        PlayerModifyPropertyInt(auto7E9282C7_var, c_playerPropVespene, c_playerPropOperSetTo, 1000);
+        AISetDifficulty(auto7E9282C7_var, c_diffRepairDamage, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffAdvancedRetreatLogic, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffPressForward, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffAllowBuildInDanger, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffAllowKiting, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffAllowLongDistanceMining, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffAllowResourceReq, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffAllowTransportGather, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffAutoBuildPrereqs, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffAutoTransport, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffAutoLoadBunkers, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffAvoidMindControlled, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffBalancePeonsAcrossBases, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffDefendWithPeons, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffDelayAdvTargetting, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffEarlyDefenseScout, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffFleeDamage, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffHoldAtIdleChokes, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffOptimizeGas, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffSplitAttacking, true);
+        AISetDifficulty(auto7E9282C7_var, c_diffUseExtraScouts, true);
+    }
+    auto0570A89B_g = PlayerGroupAlliance(c_playerGroupEnemy, 1);
+    auto0570A89B_var = -1;
+    while (true) {
+        auto0570A89B_var = PlayerGroupNextPlayer(auto0570A89B_g, auto0570A89B_var);
+        if (auto0570A89B_var < 0) { break; }
+        PlayerGroupAdd(gv_enemyPlayerGroup, auto0570A89B_var);
+    }
+    autoC97980B2_g = gv_enemyPlayerGroup;
+    autoC97980B2_var = -1;
+    while (true) {
+        autoC97980B2_var = PlayerGroupNextPlayer(autoC97980B2_g, autoC97980B2_var);
+        if (autoC97980B2_var < 0) { break; }
+        TechTreeRestrictionsEnable(autoC97980B2_var, false);
+        TechTreeRequirementsEnable(autoC97980B2_var, false);
+        AIToggleBulliesInRegion(autoC97980B2_var, RegionPlayableMap(), true);
+    }
+    libCOMI_gf_TurnPlayerFlagOnOffForGroup(PlayerGroupAlliance(c_playerGroupEnemy, 1), c_playerStateMineralCostIgnored, true);
+    libCOMI_gf_TurnPlayerFlagOnOffForGroup(PlayerGroupAlliance(c_playerGroupEnemy, 1), c_playerStateVespeneCostIgnored, true);
+    libCOMI_gf_TurnPlayerFlagOnOffForGroup(PlayerGroupAlliance(c_playerGroupEnemy, 1), c_playerStateFoodIgnored, true);
+    libCOMI_gf_TurnPlayerFlagOnOffForGroup(PlayerGroupAlliance(c_playerGroupEnemy, 1), c_playerStateFormationMove, false);
+    if ((BankValueGetAsFlag(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_storyChoices, libCC65E7BC_gv_cheatValue) == true)) {
+    }
+    else {
+        auto8AD83DB5_g = UnitGroup(null, 1, RegionFromId(1), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto8AD83DB5_u = UnitGroupCount(auto8AD83DB5_g, c_unitCountAll);
+        for (;; auto8AD83DB5_u -= 1) {
+            auto8AD83DB5_var = UnitGroupUnitFromEnd(auto8AD83DB5_g, auto8AD83DB5_u);
+            if (auto8AD83DB5_var == null) { break; }
+            UnitRemove(auto8AD83DB5_var);
+        }
+    }
+    autoF97E7F78_g = UnitGroup(null, gv_pLAYER_06_ENDLESS, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoF97E7F78_u = UnitGroupCount(autoF97E7F78_g, c_unitCountAll);
+    for (;; autoF97E7F78_u -= 1) {
+        autoF97E7F78_var = UnitGroupUnitFromEnd(autoF97E7F78_g, autoF97E7F78_u);
+        if (autoF97E7F78_var == null) { break; }
+        libVCMI_gf_SetUnitInfoTextCampaign(autoF97E7F78_var, null, StringExternal("Param/Value/4DF4D28A"), null);
+    }
+    if ((libVoiC_gf_MissionStatus("PKorhal01") == libVoiC_ge_MissionStatus_Completed)) {
+    }
+    else {
+        auto38E0CD1E_g = UnitGroup(null, gv_pLAYER_06_ENDLESS, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto38E0CD1E_u = UnitGroupCount(auto38E0CD1E_g, c_unitCountAll);
+        for (;; auto38E0CD1E_u -= 1) {
+            auto38E0CD1E_var = UnitGroupUnitFromEnd(auto38E0CD1E_g, auto38E0CD1E_u);
+            if (auto38E0CD1E_var == null) { break; }
+            UnitRemove(auto38E0CD1E_var);
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_InitializeCombatSimulation_Init () {
+    gt_InitializeCombatSimulation = TriggerCreate("gt_InitializeCombatSimulation_Func");
+    TriggerAddEventTimeElapsed(gt_InitializeCombatSimulation, 0.1625, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Apply Bank Progression
+//--------------------------------------------------------------------------------------------------
+bool gt_ApplyBankProgression_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(libCC65E7BC_gt_BankUpgradeCheck, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ApplyBankProgression_Init () {
+    gt_ApplyBankProgression = TriggerCreate("gt_ApplyBankProgression_Func");
+    TriggerAddEventTimeElapsed(gt_ApplyBankProgression, 1.5, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initialize Enemy Resources
+//--------------------------------------------------------------------------------------------------
+bool gt_InitializeEnemyResources_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    playergroup autoFEF124D2_g;
+    int autoFEF124D2_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoFEF124D2_g = gv_enemyPlayerGroup;
+    autoFEF124D2_var = -1;
+    while (true) {
+        autoFEF124D2_var = PlayerGroupNextPlayer(autoFEF124D2_g, autoFEF124D2_var);
+        if (autoFEF124D2_var < 0) { break; }
+        PlayerModifyPropertyInt(autoFEF124D2_var, c_playerPropMinerals, c_playerPropOperSetTo, 10000);
+        PlayerModifyPropertyInt(autoFEF124D2_var, c_playerPropVespene, c_playerPropOperSetTo, 10000);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_InitializeEnemyResources_Init () {
+    gt_InitializeEnemyResources = TriggerCreate("gt_InitializeEnemyResources_Func");
+    TriggerAddEventTimeElapsed(gt_InitializeEnemyResources, 0.5, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Initialize Combat Simulation Console
+//--------------------------------------------------------------------------------------------------
+bool gt_InitializeCombatSimulationConsole_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gf_InitializeSimulationConsoleData();
+    gf_BuildSimulationConsoleDialogs();
+    gf_SeedSimulationConsoleSelections();
+    gf_RefreshSimulationConsole();
+    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Combat Simulation ready. Use the Simulation Console or type -simhelp."));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_InitializeCombatSimulationConsole_Init () {
+    gt_InitializeCombatSimulationConsole = TriggerCreate("gt_InitializeCombatSimulationConsole_Func");
+    TriggerAddEventTimeElapsed(gt_InitializeCombatSimulationConsole, 2.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Open Simulation Console
+//--------------------------------------------------------------------------------------------------
+bool gt_OpenSimulationConsole_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gf_RefreshSimulationConsole();
+    gf_ShowSimulationConsoleMain();
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_OpenSimulationConsole_Init () {
+    gt_OpenSimulationConsole = TriggerCreate("gt_OpenSimulationConsole_Func");
+    TriggerAddEventChatMessage(gt_OpenSimulationConsole, 1, "-console", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Handle Simulation Console Clicks
+//--------------------------------------------------------------------------------------------------
+bool gt_HandleSimulationConsoleClicks_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_clickedConsoleChoiceIndex;
+
+    // Automatic Variable Declarations
+    const int autoC5100F50_ae = 25;
+    const int autoC5100F50_ai = 1;
+    const int autoC5100F5E_ae = 17;
+    const int autoC5100F5E_ai = 1;
+
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((EventPlayer() == 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((EventDialogControl() == gv_openConsoleButton)) {
+        gf_RefreshSimulationConsole();
+        gf_ShowSimulationConsoleMain();
+    }
+
+    if ((EventDialogControl() == gv_closeConsoleButton)) {
+        gf_ShowSimulationConsoleLauncher();
+    }
+
+    if ((EventDialogControl() == gv_openWarCouncilButton)) {
+        gf_RefreshWarCouncilConsole();
+        gf_ShowSimulationConsoleWarCouncil();
+    }
+
+    if ((EventDialogControl() == gv_openSolarCoreButton)) {
+        gf_RefreshSolarCoreConsole();
+        gf_ShowSimulationConsoleSolarCore();
+    }
+
+    if ((EventDialogControl() == gv_warCouncilBackButton)) {
+        gf_ShowSimulationConsoleMain();
+    }
+
+    if ((EventDialogControl() == gv_solarCoreBackButton)) {
+        gf_ShowSimulationConsoleMain();
+    }
+
+    if ((EventDialogControl() == gv_consoleResourcesButton)) {
+        TriggerExecute(gt_RefillPlayerResources, true, false);
+    }
+
+    if ((EventDialogControl() == gv_consoleRestoreButton)) {
+        TriggerExecute(gt_RestoreSelectedUnits, true, false);
+    }
+
+    if ((EventDialogControl() == gv_consoleWavesOffButton)) {
+        TriggerExecute(gt_PauseOpponentWaves, true, false);
+    }
+
+    if ((EventDialogControl() == gv_consoleStandardWavesButton)) {
+        TriggerExecute(gt_ResumeStandardOpponentWaves, true, false);
+    }
+
+    if ((EventDialogControl() == gv_consoleAllWavesButton)) {
+        TriggerExecute(gt_EnableAllOpponentWaves, true, false);
+    }
+
+    if ((EventDialogControl() == gv_consoleReapplyLoadoutButton)) {
+        gf_RestoreCampaignLoadout();
+        UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Campaign loadout reapplied for this session."));
+    }
+
+    if (((EventDialogControl() == gv_consoleReloadProgressButton) && (gv_authorLabEnabled == true))) {
+        TriggerExecute(gt_AuthorReloadCampaignProgression, true, false);
+    }
+
+    lv_clickedConsoleChoiceIndex = 0;
+    for ( ; ( (autoC5100F50_ai >= 0 && lv_clickedConsoleChoiceIndex <= autoC5100F50_ae) || (autoC5100F50_ai < 0 && lv_clickedConsoleChoiceIndex >= autoC5100F50_ae) ) ; lv_clickedConsoleChoiceIndex += autoC5100F50_ai ) {
+        if ((EventDialogControl() == gv_warCouncilChoiceButtons[lv_clickedConsoleChoiceIndex])) {
+            gf_ApplyWarCouncilSessionChoice(lv_clickedConsoleChoiceIndex);
+        }
+
+    }
+    lv_clickedConsoleChoiceIndex = 0;
+    for ( ; ( (autoC5100F5E_ai >= 0 && lv_clickedConsoleChoiceIndex <= autoC5100F5E_ae) || (autoC5100F5E_ai < 0 && lv_clickedConsoleChoiceIndex >= autoC5100F5E_ae) ) ; lv_clickedConsoleChoiceIndex += autoC5100F5E_ai ) {
+        if ((EventDialogControl() == gv_solarCoreChoiceButtons[lv_clickedConsoleChoiceIndex])) {
+            gf_ApplySolarCoreSessionChoice(lv_clickedConsoleChoiceIndex);
+        }
+
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_HandleSimulationConsoleClicks_Init () {
+    gt_HandleSimulationConsoleClicks = TriggerCreate("gt_HandleSimulationConsoleClicks_Func");
+    TriggerAddEventDialogControl(gt_HandleSimulationConsoleClicks, c_playerAny, c_invalidDialogControlId, c_triggerControlEventTypeClick);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Show Combat Simulation Controls
+//--------------------------------------------------------------------------------------------------
+bool gt_ShowCombatSimulationControls_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Commands: -console, -resources, -restore, -waves off, -waves standard, -waves all."));
+    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Console choices last for this session only. Standard waves keep the OG Endless encounter-gated."));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ShowCombatSimulationControls_Init () {
+    gt_ShowCombatSimulationControls = TriggerCreate("gt_ShowCombatSimulationControls_Func");
+    TriggerAddEventChatMessage(gt_ShowCombatSimulationControls, 1, "-simhelp", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Refill Player Resources
+//--------------------------------------------------------------------------------------------------
+bool gt_RefillPlayerResources_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    PlayerModifyPropertyInt(1, c_playerPropMinerals, c_playerPropOperSetTo, 10000);
+    PlayerModifyPropertyInt(1, c_playerPropVespene, c_playerPropOperSetTo, 10000);
+    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Resources refilled to 10,000 minerals and gas."));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RefillPlayerResources_Init () {
+    gt_RefillPlayerResources = TriggerCreate("gt_RefillPlayerResources_Func");
+    TriggerAddEventChatMessage(gt_RefillPlayerResources, 1, "-resources", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Restore Selected Units
+//--------------------------------------------------------------------------------------------------
+bool gt_RestoreSelectedUnits_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    unitgroup autoC5100D9C_g;
+    int autoC5100D9C_u;
+    unit autoC5100D9C_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoC5100D9C_g = UnitGroupSelected(1);
+    autoC5100D9C_u = UnitGroupCount(autoC5100D9C_g, c_unitCountAll);
+    for (;; autoC5100D9C_u -= 1) {
+        autoC5100D9C_var = UnitGroupUnitFromEnd(autoC5100D9C_g, autoC5100D9C_u);
+        if (autoC5100D9C_var == null) { break; }
+        UnitSetPropertyFixed(autoC5100D9C_var, c_unitPropLifePercent, 100.0);
+        UnitSetPropertyFixed(autoC5100D9C_var, c_unitPropShieldsPercent, 100.0);
+        UnitSetPropertyFixed(autoC5100D9C_var, c_unitPropEnergyPercent, 100.0);
+    }
+    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Selected units restored."));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_RestoreSelectedUnits_Init () {
+    gt_RestoreSelectedUnits = TriggerCreate("gt_RestoreSelectedUnits_Func");
+    TriggerAddEventChatMessage(gt_RestoreSelectedUnits, 1, "-restore", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Pause Opponent Waves
+//--------------------------------------------------------------------------------------------------
+bool gt_PauseOpponentWaves_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(gt_WaveTerran, false);
+    TriggerEnable(gt_WaveZerg, false);
+    TriggerEnable(gt_WaveProtoss, false);
+    TriggerEnable(gt_WaveUnbound, false);
+    TriggerEnable(gt_EnableOGEndlessWavesonSelection, false);
+    TriggerEnable(gt_WaveOGEndless, false);
+    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Opponent waves paused."));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_PauseOpponentWaves_Init () {
+    gt_PauseOpponentWaves = TriggerCreate("gt_PauseOpponentWaves_Func");
+    TriggerAddEventChatMessage(gt_PauseOpponentWaves, 1, "-waves off", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Resume Standard Opponent Waves
+//--------------------------------------------------------------------------------------------------
+bool gt_ResumeStandardOpponentWaves_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(gt_WaveTerran, true);
+    TriggerEnable(gt_WaveZerg, true);
+    TriggerEnable(gt_WaveProtoss, true);
+    TriggerEnable(gt_WaveUnbound, true);
+    TriggerEnable(gt_EnableOGEndlessWavesonSelection, true);
+    TriggerEnable(gt_WaveOGEndless, false);
+    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Standard opponent waves resumed. OG Endless waves remain encounter-gated."));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_ResumeStandardOpponentWaves_Init () {
+    gt_ResumeStandardOpponentWaves = TriggerCreate("gt_ResumeStandardOpponentWaves_Func");
+    TriggerAddEventChatMessage(gt_ResumeStandardOpponentWaves, 1, "-waves standard", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Enable All Opponent Waves
+//--------------------------------------------------------------------------------------------------
+bool gt_EnableAllOpponentWaves_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerEnable(gt_WaveTerran, true);
+    TriggerEnable(gt_WaveZerg, true);
+    TriggerEnable(gt_WaveProtoss, true);
+    TriggerEnable(gt_WaveUnbound, true);
+    TriggerEnable(gt_EnableOGEndlessWavesonSelection, true);
+    TriggerEnable(gt_WaveOGEndless, true);
+    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("All opponent waves enabled, including the OG Endless."));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_EnableAllOpponentWaves_Init () {
+    gt_EnableAllOpponentWaves = TriggerCreate("gt_EnableAllOpponentWaves_Func");
+    TriggerAddEventChatMessage(gt_EnableAllOpponentWaves, 1, "-waves all", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Wave: Terran
+//--------------------------------------------------------------------------------------------------
+bool gt_WaveTerran_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    AIAttackWaveSetTargetPatrol(gv_pLAYER_02_TERRAN, 1);
+    AIAttackWaveSetGatherPoint(gv_pLAYER_02_TERRAN, PointFromId(293834466));
+    AIAttackWaveAddWaypoint(gv_pLAYER_02_TERRAN, PointFromId(691191115), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_02_TERRAN, PointFromId(1296507183), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_02_TERRAN, PointFromId(2022591657), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_02_TERRAN, PointFromId(1890398259), false);
+    AIAttackWaveAddUnits4(8, 8, 8, 8, "Marine");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Marauder");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Firebat");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Goliath");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Medic");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "SiegeTank");
+    AIAttackWaveAddUnits4(2, 2, 2, 2, "Raven");
+    AIAttackWaveAddUnits4(2, 2, 2, 2, "Thor");
+    AIAttackWaveSend(gv_pLAYER_02_TERRAN, 145, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_WaveTerran_Init () {
+    gt_WaveTerran = TriggerCreate("gt_WaveTerran_Func");
+    TriggerAddEventTimePeriodic(gt_WaveTerran, 150.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Wave: Zerg
+//--------------------------------------------------------------------------------------------------
+bool gt_WaveZerg_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    AIAttackWaveSetTargetPatrol(gv_pLAYER_03_ZERG, 1);
+    AIAttackWaveSetGatherPoint(gv_pLAYER_03_ZERG, PointFromId(1450876464));
+    AIAttackWaveAddWaypoint(gv_pLAYER_03_ZERG, PointFromId(2022591657), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_03_ZERG, PointFromId(1890398259), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_03_ZERG, PointFromId(691191115), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_03_ZERG, PointFromId(1296507183), false);
+    AIAttackWaveAddUnits4(16, 16, 16, 16, "Zergling");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Roach");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Hydralisk");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Baneling");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Queen");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Ravager");
+    AIAttackWaveAddUnits4(2, 2, 2, 2, "Ultralisk");
+    AIAttackWaveAddUnits4(2, 2, 2, 2, "Overseer");
+    AIAttackWaveSend(gv_pLAYER_03_ZERG, 145, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_WaveZerg_Init () {
+    gt_WaveZerg = TriggerCreate("gt_WaveZerg_Func");
+    TriggerAddEventTimePeriodic(gt_WaveZerg, 150.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Wave: Protoss
+//--------------------------------------------------------------------------------------------------
+bool gt_WaveProtoss_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    AIAttackWaveSetTargetPatrol(gv_pLAYER_04_PROTOSS, 1);
+    AIAttackWaveSetGatherPoint(gv_pLAYER_04_PROTOSS, PointFromId(1240516662));
+    AIAttackWaveAddWaypoint(gv_pLAYER_04_PROTOSS, PointFromId(691191115), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_04_PROTOSS, PointFromId(1296507183), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_04_PROTOSS, PointFromId(2022591657), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_04_PROTOSS, PointFromId(1890398259), false);
+    AIAttackWaveAddUnits4(8, 8, 8, 8, "Zealot");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Stalker");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Adept");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Sentry");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "HighTemplar");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Immortal");
+    AIAttackWaveAddUnits4(2, 2, 2, 2, "Archon");
+    AIAttackWaveAddUnits4(2, 2, 2, 2, "Observer");
+    AIAttackWaveSend(gv_pLAYER_04_PROTOSS, 145, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_WaveProtoss_Init () {
+    gt_WaveProtoss = TriggerCreate("gt_WaveProtoss_Func");
+    TriggerAddEventTimePeriodic(gt_WaveProtoss, 150.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Wave: Unbound
+//--------------------------------------------------------------------------------------------------
+bool gt_WaveUnbound_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_randomVariable;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    AIAttackWaveSetTargetPatrol(gv_pLAYER_05_UNBOUND, 1);
+    AIAttackWaveSetGatherPoint(gv_pLAYER_05_UNBOUND, PointFromId(1013097201));
+    AIAttackWaveAddWaypoint(gv_pLAYER_05_UNBOUND, PointFromId(1296507183), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_05_UNBOUND, PointFromId(2022591657), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_05_UNBOUND, PointFromId(1890398259), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_05_UNBOUND, PointFromId(691191115), false);
+    lv_randomVariable = RandomInt(0, 5);
+    libCC65E7BC_gf_CreateRandomAttackWave(145, lv_randomVariable, 5, gv_pLAYER_05_UNBOUND);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_WaveUnbound_Init () {
+    gt_WaveUnbound = TriggerCreate("gt_WaveUnbound_Func");
+    TriggerAddEventTimePeriodic(gt_WaveUnbound, 150.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Enable OG Endless Waves on Selection
+//--------------------------------------------------------------------------------------------------
+bool gt_EnableOGEndlessWavesonSelection_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    unitgroup autoF047AFF2_g;
+    int autoF047AFF2_u;
+    unit autoF047AFF2_var;
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetOwner(EventUnit()) == gv_pLAYER_06_ENDLESS))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoF047AFF2_g = UnitGroup(null, gv_pLAYER_06_ENDLESS, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoF047AFF2_u = UnitGroupCount(autoF047AFF2_g, c_unitCountAll);
+    for (;; autoF047AFF2_u -= 1) {
+        autoF047AFF2_var = UnitGroupUnitFromEnd(autoF047AFF2_g, autoF047AFF2_u);
+        if (autoF047AFF2_var == null) { break; }
+        UnitClearInfoText(autoF047AFF2_var);
+    }
+    TriggerEnable(TriggerGetCurrent(), false);
+    TriggerEnable(gt_WaveOGEndless, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_EnableOGEndlessWavesonSelection_Init () {
+    gt_EnableOGEndlessWavesonSelection = TriggerCreate("gt_EnableOGEndlessWavesonSelection_Func");
+    TriggerAddEventUnitSelected(gt_EnableOGEndlessWavesonSelection, null, c_playerAny, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Wave: OG Endless
+//--------------------------------------------------------------------------------------------------
+bool gt_WaveOGEndless_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    AIAttackWaveSetTargetPatrol(gv_pLAYER_06_ENDLESS, 1);
+    AIAttackWaveSetGatherPoint(gv_pLAYER_06_ENDLESS, PointFromId(1323341626));
+    AIAttackWaveAddWaypoint(gv_pLAYER_06_ENDLESS, PointFromId(1890398259), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_06_ENDLESS, PointFromId(2022591657), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_06_ENDLESS, PointFromId(1296507183), false);
+    AIAttackWaveAddWaypoint(gv_pLAYER_06_ENDLESS, PointFromId(691191115), false);
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Ward");
+    AIAttackWaveAddUnits4(4, 4, 4, 4, "Conservator");
+    AIAttackWaveAddUnits4(2, 2, 2, 2, "NullShepard");
+    AIAttackWaveAddUnits4(2, 2, 2, 2, "RealityHusk");
+    AIAttackWaveAddUnits4(2, 2, 2, 2, "WitnessoftheFold");
+    AIAttackWaveSend(gv_pLAYER_06_ENDLESS, 145, true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_WaveOGEndless_Init () {
+    gt_WaveOGEndless = TriggerCreate("gt_WaveOGEndless_Func");
+    TriggerEnable(gt_WaveOGEndless, false);
+    TriggerAddEventTimePeriodic(gt_WaveOGEndless, 150.0, c_timeGame);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Enable Author Tools
+//--------------------------------------------------------------------------------------------------
+bool gt_EnableAuthorTools_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_authorLabEnabled = true;
+    TriggerEnable(gt_AuthorInitializeAMTTopbar, true);
+    TriggerEnable(gt_AuthorEnableKnightBankCheatSession, true);
+    TriggerEnable(gt_AuthorCheckKnightBankCheat, true);
+    TriggerEnable(gt_AuthorEnableAdditionalUnits, true);
+    TriggerEnable(gt_AuthorSpawnAbominationTest, true);
+    TriggerEnable(gt_AuthorTraceNarudHybridBehaviors, true);
+    TriggerEnable(gt_AuthorGenerateSubtitleTest, true);
+    TriggerEnable(gt_AuthorEnableSolaceAmongRuins, true);
+    TriggerEnable(gt_AuthorEnableShatteredReality, true);
+    TriggerEnable(gt_AuthorEnableCalltoArmsSession, true);
+    TriggerEnable(gt_AuthorEnableTemporalField, true);
+    TriggerEnable(gt_AuthorEnableChronoSurge, true);
+    TriggerEnable(gt_AuthorEnableEnhancedLogisticalProtocols, true);
+    TriggerEnable(gt_AuthorEnableAIChaseReinforcements, true);
+    TriggerEnable(gt_AuthorAddRevitalizerXP, true);
+    TriggerEnable(gt_AuthorLoadTunnelConvoyUnits, true);
+    TriggerEnable(gt_AuthorClearTunnelConvoyBankSection, true);
+    TriggerEnable(gt_AuthorReloadCampaignProgression, true);
+    gf_RefreshSimulationConsole();
+    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Author tools enabled. The Simulation Console now exposes the full implemented roster."));
+    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Use -progress reload or -lab off. Legacy tests remain available for this session."));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_EnableAuthorTools_Init () {
+    gt_EnableAuthorTools = TriggerCreate("gt_EnableAuthorTools_Func");
+    TriggerAddEventChatMessage(gt_EnableAuthorTools, 1, "-lab on", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Disable Author Tools
+//--------------------------------------------------------------------------------------------------
+bool gt_DisableAuthorTools_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gv_authorLabEnabled = false;
+    TriggerEnable(gt_AuthorInitializeAMTTopbar, false);
+    TriggerEnable(gt_AuthorEnableKnightBankCheatSession, false);
+    TriggerEnable(gt_AuthorCheckKnightBankCheat, false);
+    TriggerEnable(gt_AuthorEnableAdditionalUnits, false);
+    TriggerEnable(gt_AuthorSpawnAbominationTest, false);
+    TriggerEnable(gt_AuthorTraceNarudHybridBehaviors, false);
+    TriggerEnable(gt_AuthorGenerateSubtitleTest, false);
+    TriggerEnable(gt_AuthorEnableSolaceAmongRuins, false);
+    TriggerEnable(gt_AuthorEnableShatteredReality, false);
+    TriggerEnable(gt_AuthorEnableCalltoArmsSession, false);
+    TriggerEnable(gt_AuthorEnableTemporalField, false);
+    TriggerEnable(gt_AuthorEnableChronoSurge, false);
+    TriggerEnable(gt_AuthorEnableEnhancedLogisticalProtocols, false);
+    TriggerEnable(gt_AuthorEnableAIChaseReinforcements, false);
+    TriggerEnable(gt_AuthorAddRevitalizerXP, false);
+    TriggerEnable(gt_AuthorLoadTunnelConvoyUnits, false);
+    TriggerEnable(gt_AuthorClearTunnelConvoyBankSection, false);
+    TriggerEnable(gt_AuthorReloadCampaignProgression, false);
+    gf_RestoreCampaignLoadout();
+    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Author tools disabled. Campaign loadout restored."));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DisableAuthorTools_Init () {
+    gt_DisableAuthorTools = TriggerCreate("gt_DisableAuthorTools_Func");
+    TriggerAddEventChatMessage(gt_DisableAuthorTools, 1, "-lab off", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Reload Campaign Progression
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorReloadCampaignProgression_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(gt_LoadKnightBank, true, false);
+    TriggerExecute(gt_ApplyBankProgression, true, false);
+    gf_SeedSimulationConsoleSelections();
+    gf_RefreshSimulationConsole();
+    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("KnightBank reloaded and campaign progression reapplied for this session."));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorReloadCampaignProgression_Init () {
+    gt_AuthorReloadCampaignProgression = TriggerCreate("gt_AuthorReloadCampaignProgression_Func");
+    TriggerEnable(gt_AuthorReloadCampaignProgression, false);
+    TriggerAddEventChatMessage(gt_AuthorReloadCampaignProgression, 1, "-progress reload", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Initialize AMT Topbar
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorInitializeAMTTopbar_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libB513D0A0_gf_InitTopBarForPlayer(1, "SpearOfAdun");
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorInitializeAMTTopbar_Init () {
+    gt_AuthorInitializeAMTTopbar = TriggerCreate("gt_AuthorInitializeAMTTopbar_Func");
+    TriggerEnable(gt_AuthorInitializeAMTTopbar, false);
+    TriggerAddEventChatMessage(gt_AuthorInitializeAMTTopbar, 1, "Shooty", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Enable Knight Bank Cheat (Session)
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorEnableKnightBankCheatSession_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    BankLoad(libCC65E7BC_gv_bankName, 1);
+    BankValueSetFromFlag(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_storyChoices, libCC65E7BC_gv_cheatValue, true);
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, libNtve_gf_ConvertBooleanToText(BankValueGetAsFlag(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_storyChoices, libCC65E7BC_gv_cheatValue)));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorEnableKnightBankCheatSession_Init () {
+    gt_AuthorEnableKnightBankCheatSession = TriggerCreate("gt_AuthorEnableKnightBankCheatSession_Func");
+    TriggerEnable(gt_AuthorEnableKnightBankCheatSession, false);
+    TriggerAddEventChatMessage(gt_AuthorEnableKnightBankCheatSession, 1, "LeadTheKnights", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Check Knight Bank Cheat
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorCheckKnightBankCheat_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, libNtve_gf_ConvertBooleanToText(BankValueGetAsFlag(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_storyChoices, libCC65E7BC_gv_cheatValue)));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorCheckKnightBankCheat_Init () {
+    gt_AuthorCheckKnightBankCheat = TriggerCreate("gt_AuthorCheckKnightBankCheat_Func");
+    TriggerEnable(gt_AuthorCheckKnightBankCheat, false);
+    TriggerAddEventChatMessage(gt_AuthorCheckKnightBankCheat, 1, "CheatCheck", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Enable Additional Units
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorEnableAdditionalUnits_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libVoiC_gf_EnableCampaignTechUnit(true, "StalkerShakuras", 1);
+    libVoiC_gf_EnableCampaignTechUnit(true, "ZealotAiur", 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorEnableAdditionalUnits_Init () {
+    gt_AuthorEnableAdditionalUnits = TriggerCreate("gt_AuthorEnableAdditionalUnits_Func");
+    TriggerEnable(gt_AuthorEnableAdditionalUnits, false);
+    TriggerAddEventChatMessage(gt_AuthorEnableAdditionalUnits, 1, "MoreUnit", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Spawn Abomination Test
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorSpawnAbominationTest_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_CreateUnitsWithDefaultFacing(1, "HybridReaver2", 0, 1, PointFromId(473297419));
+    UnitCreateEffectUnit(UnitFromId(1842082792), "SpawnAbominations", UnitLastCreated());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorSpawnAbominationTest_Init () {
+    gt_AuthorSpawnAbominationTest = TriggerCreate("gt_AuthorSpawnAbominationTest_Func");
+    TriggerEnable(gt_AuthorSpawnAbominationTest, false);
+    TriggerAddEventChatMessage(gt_AuthorSpawnAbominationTest, 1, "Spawn Abom", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Trace Narud Hybrid Behaviors
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorTraceNarudHybridBehaviors_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TextExpressionSetToken("Param/Expression/07DEC4D2", "A", StringToText((EventPlayerEffectUsed())));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, TextExpressionAssemble("Param/Expression/07DEC4D2"));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorTraceNarudHybridBehaviors_Init () {
+    gt_AuthorTraceNarudHybridBehaviors = TriggerCreate("gt_AuthorTraceNarudHybridBehaviors_Func");
+    TriggerEnable(gt_AuthorTraceNarudHybridBehaviors, false);
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "AdaptiveHide");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "BloodScent");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "ButchersDividend");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "CorruptionWake");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "DeathRefusal");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "EchoofRuin");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "EssenceRavager");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "GraviticDrag");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "NeuralSuppression");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "PursuitInstinct");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "RealityInterference");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "ReflexiveRetaliation");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "SpawnAbominations");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "VoidCarapace");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "VoidDetonation");
+    TriggerAddEventPlayerEffectUsed(gt_AuthorTraceNarudHybridBehaviors, c_playerAny, "WatcherStrain");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Generate Subtitle Test
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorGenerateSubtitleTest_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    TriggerExecute(libCC65E7BC_gt_HybridUnitSubtitle_GenerateLetters, true, true);
+    TextExpressionSetToken("Param/Expression/4AD01B47", "A", libCC65E7BC_gv_koE_HybridUnitSubtitle_Letters[RandomInt(0, libCC65E7BC_gv_koE_HybridUnitSubtitle_CountLetters)]);
+    TextExpressionSetToken("Param/Expression/4AD01B47", "B", libCC65E7BC_gv_koE_HybridUnitSubtitle_Letters[RandomInt(0, libCC65E7BC_gv_koE_HybridUnitSubtitle_CountLetters)]);
+    TextExpressionSetToken("Param/Expression/4AD01B47", "C", IntToText(RandomInt(0, 9)));
+    TextExpressionSetToken("Param/Expression/4AD01B47", "D", IntToText(RandomInt(0, 9)));
+    UnitSetInfoText2(UnitFromId(647823932), TextExpressionAssemble("Param/Expression/4AD01B47"));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorGenerateSubtitleTest_Init () {
+    gt_AuthorGenerateSubtitleTest = TriggerCreate("gt_AuthorGenerateSubtitleTest_Func");
+    TriggerEnable(gt_AuthorGenerateSubtitleTest, false);
+    TriggerAddEventChatMessage(gt_AuthorGenerateSubtitleTest, 1, "SubtitleSet", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Enable Solace Among Ruins
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorEnableSolaceAmongRuins_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "SOAProxyPylon", 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorEnableSolaceAmongRuins_Init () {
+    gt_AuthorEnableSolaceAmongRuins = TriggerCreate("gt_AuthorEnableSolaceAmongRuins_Func");
+    TriggerEnable(gt_AuthorEnableSolaceAmongRuins, false);
+    TriggerAddEventChatMessage(gt_AuthorEnableSolaceAmongRuins, 1, "Ruin", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Enable Shattered Reality
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorEnableShatteredReality_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "SOAOrbitalStrike", 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorEnableShatteredReality_Init () {
+    gt_AuthorEnableShatteredReality = TriggerCreate("gt_AuthorEnableShatteredReality_Func");
+    TriggerEnable(gt_AuthorEnableShatteredReality, false);
+    TriggerAddEventChatMessage(gt_AuthorEnableShatteredReality, 1, "Reality", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Enable Call to Arms (Session)
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorEnableCalltoArmsSession_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    unitgroup auto7AE46508_g;
+    int auto7AE46508_u;
+    unit auto7AE46508_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "SOAWarpInReinforcements", 1);
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "SOAProxyPylon", 0);
+    libVoiC_gf_EnableDisableSpearofAdunAbility(true, "GPTier1Power3");
+    BankLoad(libCC65E7BC_gv_bankName, 1);
+    BankValueSetFromFlag(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_permaUpgrades, libCC65E7BC_gv_salvagedBotsAllied, true);
+    BankValueSetFromFlag(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_storyChoices, libCC65E7BC_gv_weretheCivilianssavedonMarSara, true);
+    BankValueSetFromFlag(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_storyChoices, libCC65E7BC_gv_shakurasSaved, true);
+    BankValueSetFromFlag(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_storyChoices, libCC65E7BC_gv_nerazimSavedonShakuras01, true);
+    BankValueSetFromFlag(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_permaUnits, libCC65E7BC_gv_simmonsUnlock, true);
+    auto7AE46508_g = UnitGroup("KoEGlobalCaster", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32))), 0);
+    auto7AE46508_u = UnitGroupCount(auto7AE46508_g, c_unitCountAll);
+    for (;; auto7AE46508_u -= 1) {
+        auto7AE46508_var = UnitGroupUnitFromEnd(auto7AE46508_g, auto7AE46508_u);
+        if (auto7AE46508_var == null) { break; }
+        UnitIssueOrder(auto7AE46508_var, OrderTargetingPoint(AbilityCommand("CalltoArms", 0), PointFromId(473297419)), c_orderQueueReplace);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorEnableCalltoArmsSession_Init () {
+    gt_AuthorEnableCalltoArmsSession = TriggerCreate("gt_AuthorEnableCalltoArmsSession_Func");
+    TriggerEnable(gt_AuthorEnableCalltoArmsSession, false);
+    TriggerAddEventChatMessage(gt_AuthorEnableCalltoArmsSession, 1, "Reinforcements", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Enable Temporal Field
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorEnableTemporalField_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "SOAGravitonBomb", 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorEnableTemporalField_Init () {
+    gt_AuthorEnableTemporalField = TriggerCreate("gt_AuthorEnableTemporalField_Func");
+    TriggerEnable(gt_AuthorEnableTemporalField, false);
+    TriggerAddEventChatMessage(gt_AuthorEnableTemporalField, 1, "Temporal", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Enable Chrono Surge
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorEnableChronoSurge_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "SOASuperChrono", 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorEnableChronoSurge_Init () {
+    gt_AuthorEnableChronoSurge = TriggerCreate("gt_AuthorEnableChronoSurge_Func");
+    TriggerEnable(gt_AuthorEnableChronoSurge, false);
+    TriggerAddEventChatMessage(gt_AuthorEnableChronoSurge, 1, "Surge", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Enable Enhanced Logistical Protocols
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorEnableEnhancedLogisticalProtocols_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "EnhancedLogisticalProtocols", 1);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorEnableEnhancedLogisticalProtocols_Init () {
+    gt_AuthorEnableEnhancedLogisticalProtocols = TriggerCreate("gt_AuthorEnableEnhancedLogisticalProtocols_Func");
+    TriggerEnable(gt_AuthorEnableEnhancedLogisticalProtocols, false);
+    TriggerAddEventChatMessage(gt_AuthorEnableEnhancedLogisticalProtocols, 1, "Enhance", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Enable AI Chase Reinforcements
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorEnableAIChaseReinforcements_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_SetUpgradeLevelForPlayer(1, "AIReinforcements", 1);
+    PlayerApplySkin(1, "PurifierHologram", true);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorEnableAIChaseReinforcements_Init () {
+    gt_AuthorEnableAIChaseReinforcements = TriggerCreate("gt_AuthorEnableAIChaseReinforcements_Func");
+    TriggerEnable(gt_AuthorEnableAIChaseReinforcements, false);
+    TriggerAddEventChatMessage(gt_AuthorEnableAIChaseReinforcements, 1, "Chase", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Add Revitalizer XP
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorAddRevitalizerXP_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libCC65E7BC_gv_revitalizerTowerXP += 2500.0;
+    TriggerExecute(libCC65E7BC_gt_RevitalizerTowerVetAdder, true, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorAddRevitalizerXP_Init () {
+    gt_AuthorAddRevitalizerXP = TriggerCreate("gt_AuthorAddRevitalizerXP_Func");
+    TriggerEnable(gt_AuthorAddRevitalizerXP, false);
+    TriggerAddEventChatMessage(gt_AuthorAddRevitalizerXP, 1, "RevitXp", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Load Tunnel Convoy Units
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorLoadTunnelConvoyUnits_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    string lv_unitTypeCheck;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringToText(BankValueGetAsString(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_tunnelForces, (libCC65E7BC_gv_bankTunnelUnitType + "_" + IntToString(0)))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, IntToText(BankValueGetAsInt(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_tunnelForces, (libCC65E7BC_gv_bankTunnelUnitCount + "_" + IntToString(0)))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, StringToText(BankValueGetAsString(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_tunnelForces, (libCC65E7BC_gv_bankTunnelUnitType + "_" + IntToString(1)))));
+    UIDisplayMessage(PlayerGroupAll(), c_messageAreaSubtitle, IntToText(BankValueGetAsInt(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_tunnelForces, (libCC65E7BC_gv_bankTunnelUnitCount + "_" + IntToString(1)))));
+    lv_unitTypeCheck = (BankValueGetAsString(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_tunnelForces, (libCC65E7BC_gv_bankTunnelUnitType + "_" + IntToString(0))));
+    libNtve_gf_CreateUnitsWithDefaultFacing(BankValueGetAsInt(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_tunnelForces, (libCC65E7BC_gv_bankTunnelUnitCount + "_" + IntToString(0))), (BankValueGetAsString(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_tunnelForces, (libCC65E7BC_gv_bankTunnelUnitType + "_" + IntToString(0)))), 0, 1, PointFromId(473297419));
+    libNtve_gf_CreateUnitsWithDefaultFacing(BankValueGetAsInt(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_tunnelForces, (libCC65E7BC_gv_bankTunnelUnitCount + "_" + IntToString(1))), (BankValueGetAsString(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_tunnelForces, (libCC65E7BC_gv_bankTunnelUnitType + "_" + IntToString(1)))), 0, 1, PointFromId(473297419));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorLoadTunnelConvoyUnits_Init () {
+    gt_AuthorLoadTunnelConvoyUnits = TriggerCreate("gt_AuthorLoadTunnelConvoyUnits_Func");
+    TriggerEnable(gt_AuthorLoadTunnelConvoyUnits, false);
+    TriggerAddEventChatMessage(gt_AuthorLoadTunnelConvoyUnits, 1, "LoaderGive", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Author: Clear Tunnel Convoy Bank Section
+//--------------------------------------------------------------------------------------------------
+bool gt_AuthorClearTunnelConvoyBankSection_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libCC65E7BC_gf_TunnelLoaderClearFunction();
+    BankSectionRemove(libCC65E7BC_gv_knightsBank, libCC65E7BC_gv_tunnelForces);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_AuthorClearTunnelConvoyBankSection_Init () {
+    gt_AuthorClearTunnelConvoyBankSection = TriggerCreate("gt_AuthorClearTunnelConvoyBankSection_Func");
+    TriggerEnable(gt_AuthorClearTunnelConvoyBankSection, false);
+    TriggerAddEventChatMessage(gt_AuthorClearTunnelConvoyBankSection, 1, "ClearLoader", true);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Compatibility: Void Thrasher Facing
+//--------------------------------------------------------------------------------------------------
+bool gt_CompatibilityVoidThrasherFacing_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnitTarget()) == "VoidThrasher"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libNtve_gf_MakeUnitFacePoint(EventUnitTarget(), UnitGetPosition(EventUnit()), 0.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_CompatibilityVoidThrasherFacing_Init () {
+    gt_CompatibilityVoidThrasherFacing = TriggerCreate("gt_CompatibilityVoidThrasherFacing_Func");
+    TriggerAddEventUnitStartedAttack2(gt_CompatibilityVoidThrasherFacing, null, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: DFA Reclamation Initialize Preplaced Assets
+//--------------------------------------------------------------------------------------------------
+bool gt_DFAReclamationInitializePreplacedAssets_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    unitgroup autoDFA1006D_g;
+    int autoDFA1006D_u;
+    unit autoDFA1006D_var;
+    unitgroup autoDFA10079_g;
+    int autoDFA10079_u;
+    unit autoDFA10079_var;
+    unitgroup autoDFA10085_g;
+    int autoDFA10085_u;
+    unit autoDFA10085_var;
+    unitgroup autoDFA10091_g;
+    int autoDFA10091_u;
+    unit autoDFA10091_var;
+    unitgroup autoDFA1009D_g;
+    int autoDFA1009D_u;
+    unit autoDFA1009D_var;
+    unitgroup autoDFA100A9_g;
+    int autoDFA100A9_u;
+    unit autoDFA100A9_var;
+    unitgroup autoDFA100B5_g;
+    int autoDFA100B5_u;
+    unit autoDFA100B5_var;
+    unitgroup autoDFA100C1_g;
+    int autoDFA100C1_u;
+    unit autoDFA100C1_var;
+    unitgroup autoDFA100CD_g;
+    int autoDFA100CD_u;
+    unit autoDFA100CD_var;
+    unitgroup autoDFA100D9_g;
+    int autoDFA100D9_u;
+    unit autoDFA100D9_var;
+    unitgroup autoDFA100E5_g;
+    int autoDFA100E5_u;
+    unit autoDFA100E5_var;
+    unitgroup autoDFA100F1_g;
+    int autoDFA100F1_u;
+    unit autoDFA100F1_var;
+    unitgroup autoDFA100FD_g;
+    int autoDFA100FD_u;
+    unit autoDFA100FD_var;
+    unitgroup autoDFA10109_g;
+    int autoDFA10109_u;
+    unit autoDFA10109_var;
+    unitgroup autoDFA10115_g;
+    int autoDFA10115_u;
+    unit autoDFA10115_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    autoDFA1006D_g = UnitGroup("DFAConstructionVehicle", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA1006D_u = UnitGroupCount(autoDFA1006D_g, c_unitCountAll);
+    for (;; autoDFA1006D_u -= 1) {
+        autoDFA1006D_var = UnitGroupUnitFromEnd(autoDFA1006D_g, autoDFA1006D_u);
+        if (autoDFA1006D_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA1006D_var);
+    }
+    autoDFA10079_g = UnitGroup("DFAFortressMCV", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA10079_u = UnitGroupCount(autoDFA10079_g, c_unitCountAll);
+    for (;; autoDFA10079_u -= 1) {
+        autoDFA10079_var = UnitGroupUnitFromEnd(autoDFA10079_g, autoDFA10079_u);
+        if (autoDFA10079_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA10079_var);
+    }
+    autoDFA10085_g = UnitGroup("DFAFortressMCVMobile", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA10085_u = UnitGroupCount(autoDFA10085_g, c_unitCountAll);
+    for (;; autoDFA10085_u -= 1) {
+        autoDFA10085_var = UnitGroupUnitFromEnd(autoDFA10085_g, autoDFA10085_u);
+        if (autoDFA10085_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA10085_var);
+    }
+    autoDFA10091_g = UnitGroup("DFAUndergroundBunker", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA10091_u = UnitGroupCount(autoDFA10091_g, c_unitCountAll);
+    for (;; autoDFA10091_u -= 1) {
+        autoDFA10091_var = UnitGroupUnitFromEnd(autoDFA10091_g, autoDFA10091_u);
+        if (autoDFA10091_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA10091_var);
+    }
+    autoDFA1009D_g = UnitGroup("DFAMovingBunker", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA1009D_u = UnitGroupCount(autoDFA1009D_g, c_unitCountAll);
+    for (;; autoDFA1009D_u -= 1) {
+        autoDFA1009D_var = UnitGroupUnitFromEnd(autoDFA1009D_g, autoDFA1009D_u);
+        if (autoDFA1009D_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA1009D_var);
+    }
+    autoDFA100A9_g = UnitGroup("DFAMovingBunkerBurrowed", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA100A9_u = UnitGroupCount(autoDFA100A9_g, c_unitCountAll);
+    for (;; autoDFA100A9_u -= 1) {
+        autoDFA100A9_var = UnitGroupUnitFromEnd(autoDFA100A9_g, autoDFA100A9_u);
+        if (autoDFA100A9_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA100A9_var);
+    }
+    autoDFA100B5_g = UnitGroup("DFARefinery", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA100B5_u = UnitGroupCount(autoDFA100B5_g, c_unitCountAll);
+    for (;; autoDFA100B5_u -= 1) {
+        autoDFA100B5_var = UnitGroupUnitFromEnd(autoDFA100B5_g, autoDFA100B5_u);
+        if (autoDFA100B5_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA100B5_var);
+    }
+    autoDFA100C1_g = UnitGroup("DFAInfantryDepot", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA100C1_u = UnitGroupCount(autoDFA100C1_g, c_unitCountAll);
+    for (;; autoDFA100C1_u -= 1) {
+        autoDFA100C1_var = UnitGroupUnitFromEnd(autoDFA100C1_g, autoDFA100C1_u);
+        if (autoDFA100C1_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA100C1_var);
+    }
+    autoDFA100CD_g = UnitGroup("DFAMobileFactory", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA100CD_u = UnitGroupCount(autoDFA100CD_g, c_unitCountAll);
+    for (;; autoDFA100CD_u -= 1) {
+        autoDFA100CD_var = UnitGroupUnitFromEnd(autoDFA100CD_g, autoDFA100CD_u);
+        if (autoDFA100CD_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA100CD_var);
+    }
+    autoDFA100D9_g = UnitGroup("DFAMobileFactoryMobile", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA100D9_u = UnitGroupCount(autoDFA100D9_g, c_unitCountAll);
+    for (;; autoDFA100D9_u -= 1) {
+        autoDFA100D9_var = UnitGroupUnitFromEnd(autoDFA100D9_g, autoDFA100D9_u);
+        if (autoDFA100D9_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA100D9_var);
+    }
+    autoDFA100E5_g = UnitGroup("DFAVulturePatrol", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA100E5_u = UnitGroupCount(autoDFA100E5_g, c_unitCountAll);
+    for (;; autoDFA100E5_u -= 1) {
+        autoDFA100E5_var = UnitGroupUnitFromEnd(autoDFA100E5_g, autoDFA100E5_u);
+        if (autoDFA100E5_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA100E5_var);
+    }
+    autoDFA100F1_g = UnitGroup("DFAStoneGoose", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA100F1_u = UnitGroupCount(autoDFA100F1_g, c_unitCountAll);
+    for (;; autoDFA100F1_u -= 1) {
+        autoDFA100F1_var = UnitGroupUnitFromEnd(autoDFA100F1_g, autoDFA100F1_u);
+        if (autoDFA100F1_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA100F1_var);
+    }
+    autoDFA100FD_g = UnitGroup("DFAStoneGooseBraced", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA100FD_u = UnitGroupCount(autoDFA100FD_g, c_unitCountAll);
+    for (;; autoDFA100FD_u -= 1) {
+        autoDFA100FD_var = UnitGroupUnitFromEnd(autoDFA100FD_g, autoDFA100FD_u);
+        if (autoDFA100FD_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA100FD_var);
+    }
+    autoDFA10109_g = UnitGroup("DFATransportTruck", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA10109_u = UnitGroupCount(autoDFA10109_g, c_unitCountAll);
+    for (;; autoDFA10109_u -= 1) {
+        autoDFA10109_var = UnitGroupUnitFromEnd(autoDFA10109_g, autoDFA10109_u);
+        if (autoDFA10109_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA10109_var);
+    }
+    autoDFA10115_g = UnitGroup("DFATransportTruckDeployed", c_playerAny, RegionEntireMap(), UnitFilter(0, 0, 0, (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+    autoDFA10115_u = UnitGroupCount(autoDFA10115_g, c_unitCountAll);
+    for (;; autoDFA10115_u -= 1) {
+        autoDFA10115_var = UnitGroupUnitFromEnd(autoDFA10115_g, autoDFA10115_u);
+        if (autoDFA10115_var == null) { break; }
+        gf_DFAMarkReclamationEligible(autoDFA10115_var);
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DFAReclamationInitializePreplacedAssets_Init () {
+    gt_DFAReclamationInitializePreplacedAssets = TriggerCreate("gt_DFAReclamationInitializePreplacedAssets_Func");
+    TriggerAddEventMapInit(gt_DFAReclamationInitializePreplacedAssets);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: DFA Reclamation Construction Completed
+//--------------------------------------------------------------------------------------------------
+bool gt_DFAReclamationConstructionCompleted_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gf_DFAMarkReclamationEligible(EventUnitProgressUnit());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DFAReclamationConstructionCompleted_Init () {
+    gt_DFAReclamationConstructionCompleted = TriggerCreate("gt_DFAReclamationConstructionCompleted_Func");
+    TriggerAddEventUnitConstructProgress(gt_DFAReclamationConstructionCompleted, null, c_unitProgressStageComplete);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: DFA Reclamation Training Completed
+//--------------------------------------------------------------------------------------------------
+bool gt_DFAReclamationTrainingCompleted_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gf_DFAMarkReclamationEligible(EventUnitProgressUnit());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DFAReclamationTrainingCompleted_Init () {
+    gt_DFAReclamationTrainingCompleted = TriggerCreate("gt_DFAReclamationTrainingCompleted_Func");
+    TriggerAddEventUnitTrainProgress(gt_DFAReclamationTrainingCompleted, null, c_unitProgressStageComplete);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: DFA Reclamation Casualty
+//--------------------------------------------------------------------------------------------------
+bool gt_DFAReclamationCasualty_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_dFAReclamationDeadUnit;
+    string lv_dFAReclamationDeadType;
+    int lv_dFAReclamationDeadOwner;
+    point lv_dFAReclamationDeadPosition;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitBehaviorCount(EventUnit(), "DFAReclamationEligible") >= 1))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_dFAReclamationDeadUnit = EventUnit();
+    lv_dFAReclamationDeadType = UnitGetType(lv_dFAReclamationDeadUnit);
+    lv_dFAReclamationDeadOwner = UnitGetOwner(lv_dFAReclamationDeadUnit);
+    lv_dFAReclamationDeadPosition = UnitGetPosition(lv_dFAReclamationDeadUnit);
+    if ((lv_dFAReclamationDeadType == "DFAConstructionVehicle")) {
+        UnitCreate(1, "DFAWreckConstructionVehicle", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+    }
+    else {
+        if ((lv_dFAReclamationDeadType == "DFAFortressMCV")) {
+            UnitCreate(1, "DFAWreckFortressMCV", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+        }
+        else {
+            if ((lv_dFAReclamationDeadType == "DFAFortressMCVMobile")) {
+                UnitCreate(1, "DFAWreckFortressMCV", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+            }
+            else {
+                if ((lv_dFAReclamationDeadType == "DFAUndergroundBunker")) {
+                    UnitCreate(1, "DFAWreckUndergroundBunker", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+                }
+                else {
+                    if ((lv_dFAReclamationDeadType == "DFAMovingBunker")) {
+                        UnitCreate(1, "DFAWreckMovingBunker", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+                    }
+                    else {
+                        if ((lv_dFAReclamationDeadType == "DFAMovingBunkerBurrowed")) {
+                            UnitCreate(1, "DFAWreckMovingBunker", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+                        }
+                        else {
+                            if ((lv_dFAReclamationDeadType == "DFARefinery")) {
+                                UnitCreate(1, "DFAWreckRefinery", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+                            }
+                            else {
+                                if ((lv_dFAReclamationDeadType == "DFAInfantryDepot")) {
+                                    UnitCreate(1, "DFAWreckInfantryDepot", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+                                }
+                                else {
+                                    if ((lv_dFAReclamationDeadType == "DFAMobileFactory")) {
+                                        UnitCreate(1, "DFAWreckMobileFactory", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+                                    }
+                                    else {
+                                        if ((lv_dFAReclamationDeadType == "DFAMobileFactoryMobile")) {
+                                            UnitCreate(1, "DFAWreckMobileFactory", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+                                        }
+                                        else {
+                                            if ((lv_dFAReclamationDeadType == "DFAVulturePatrol")) {
+                                                UnitCreate(1, "DFAWreckVulturePatrol", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+                                            }
+                                            else {
+                                                if ((lv_dFAReclamationDeadType == "DFAStoneGoose")) {
+                                                    UnitCreate(1, "DFAWreckStoneGoose", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+                                                }
+                                                else {
+                                                    if ((lv_dFAReclamationDeadType == "DFAStoneGooseBraced")) {
+                                                        UnitCreate(1, "DFAWreckStoneGoose", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+                                                    }
+                                                    else {
+                                                        if ((lv_dFAReclamationDeadType == "DFATransportTruck")) {
+                                                            UnitCreate(1, "DFAWreckTransportTruck", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+                                                        }
+                                                        else {
+                                                            if ((lv_dFAReclamationDeadType == "DFATransportTruckDeployed")) {
+                                                                UnitCreate(1, "DFAWreckTransportTruck", c_unitCreateIgnorePlacement, lv_dFAReclamationDeadOwner, lv_dFAReclamationDeadPosition, 0.0);
+                                                            }
+
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_DFAReclamationCasualty_Init () {
+    gt_DFAReclamationCasualty = TriggerCreate("gt_DFAReclamationCasualty_Func");
+    TriggerAddEventUnitDied(gt_DFAReclamationCasualty, null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: MSC Shoulder Salvo Fired
+//--------------------------------------------------------------------------------------------------
+bool gt_MSCShoulderSalvoFired_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(EventUnit()) == "KoEMechaScorpalisk"))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    gf_MSCRunPursuitSalvo(EventUnit(), EventUnitTargetUnit());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void gt_MSCShoulderSalvoFired_Init () {
+    gt_MSCShoulderSalvoFired = TriggerCreate("gt_MSCShoulderSalvoFired_Func");
+    TriggerAddEventUnitAbility(gt_MSCShoulderSalvoFired, null, AbilityCommand("KoEMechaScorpaliskShoulderAbility", 0), c_unitAbilStageComplete, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Tyrador top bar demonstration
+//--------------------------------------------------------------------------------------------------
+bool gt_TyradorTopBarCreate_Func (bool testConds, bool runActions) {
+    int lv_holder;
+    int lv_index;
+    int lv_validSegments;
+
+    if (!runActions) {
+        return true;
+    }
+
+    gv_tyradorCaster = gf_TyradorTopBarFindCaster();
+    if ((gv_tyradorCaster == null)) {
+        UnitCreate(1, "KoEGlobalCaster", c_unitCreateIgnorePlacement, 1, Point(0.0, 0.0), 0.0);
+        gv_tyradorCaster = UnitLastCreated();
+        if ((gv_tyradorCaster == null)) {
+            return true;
+        }
+        UnitSetPropertyFixed(gv_tyradorCaster, c_unitPropEnergyPercent, 75.0);
+        TriggerDebugOutput(7, StringToText("Created a player-1 KoEGlobalCaster for this standalone demo."), false);
+    }
+
+    DialogControlHookupStandard(c_triggerControlTypePanel, "UIContainer/FullscreenUpperContainer");
+    lv_holder = DialogControlLastCreated();
+    DialogControlCreateInPanelFromTemplate(lv_holder, c_triggerControlTypePanel, "Tyrador_TopBar/TyradorTopBar");
+    gv_tyradorTopBarPanel = DialogControlLastCreated();
+
+    DialogControlHookup(gv_tyradorTopBarPanel, c_triggerControlTypeCommandPanel, "TyradorGlobalCommandPanel");
+    gv_tyradorTopBarCommandPanel = DialogControlLastCreated();
+    UnitGroupAdd(gv_tyradorCasterGroup, gv_tyradorCaster);
+    libNtve_gf_SetDialogItemUnitGroup(gv_tyradorTopBarCommandPanel, gv_tyradorCasterGroup, PlayerGroupSingle(1));
+
+    lv_index = 0;
+    lv_validSegments = 0;
+    while ((lv_index < 10)) {
+        DialogControlHookup(gv_tyradorTopBarPanel, c_triggerControlTypeProgressBar, "EnergySegments/EnergySegment0" + IntToString(lv_index));
+        gv_tyradorEnergySegments[lv_index] = DialogControlLastCreated();
+        if ((gv_tyradorEnergySegments[lv_index] != c_invalidDialogControlId)) {
+            lv_validSegments += 1;
+        }
+        lv_index += 1;
+    }
+    DialogControlHookup(gv_tyradorTopBarPanel, c_triggerControlTypeLabel, "EnergyValueLabel");
+    gv_tyradorEnergyLabel = DialogControlLastCreated();
+
+    DialogControlSetVisible(gv_tyradorTopBarPanel, PlayerGroupSingle(1), true);
+    TriggerEnable(gt_TyradorTopBarCreate, false);
+    gf_TyradorTopBarUpdate();
+    TriggerDebugOutput(7, StringToText("Created panel=" + IntToString(gv_tyradorTopBarPanel) +
+        " commandPanel=" + IntToString(gv_tyradorTopBarCommandPanel) +
+        " energyLabel=" + IntToString(gv_tyradorEnergyLabel) +
+        " validSegments=" + IntToString(lv_validSegments) + "/10" +
+        " segment00=" + IntToString(gv_tyradorEnergySegments[0]) +
+        " segment09=" + IntToString(gv_tyradorEnergySegments[9]) +
+        " caster=" + UnitGetType(gv_tyradorCaster) +
+        " energy=" + FixedToString(UnitGetPropertyFixed(gv_tyradorCaster, c_unitPropEnergy, c_unitPropCurrent), 2)), false);
+    UIDisplayMessage(PlayerGroupSingle(1), c_messageAreaChat, StringToText("Tyrador top bar demo loaded. The center milestones are bound to KoEGlobalCaster energy."));
+    return true;
+}
+
+void gt_TyradorTopBarCreate_Init () {
+    TriggerDebugOutputEnable(true);
+    TriggerDebugEnableType(7, true);
+    TriggerDebugSetTypeName(7, StringToText("TYRADOR TOP BAR"));
+    TriggerDebugSetTypeFile(7, "TyradorTopBarDemo.txt");
+    TriggerDebugOutput(7, StringToText("Create trigger armed; waiting for KoEGlobalCaster."), false);
+    gt_TyradorTopBarCreate = TriggerCreate("gt_TyradorTopBarCreate_Func");
+    TriggerAddEventTimePeriodic(gt_TyradorTopBarCreate, 0.25, c_timeReal);
+}
+
+bool gt_TyradorTopBarUpdate_Func (bool testConds, bool runActions) {
+    if (!runActions) {
+        return true;
+    }
+    gf_TyradorTopBarUpdate();
+    return true;
+}
+
+void gt_TyradorTopBarUpdate_Init () {
+    gt_TyradorTopBarUpdate = TriggerCreate("gt_TyradorTopBarUpdate_Func");
+    TriggerAddEventTimePeriodic(gt_TyradorTopBarUpdate, 0.0625, c_timeReal);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger Initialization
+//--------------------------------------------------------------------------------------------------
+void InitTriggers () {
+    gt_LoadKnightBank_Init();
+    gt_InitializeCombatSimulation_Init();
+    gt_ApplyBankProgression_Init();
+    gt_InitializeEnemyResources_Init();
+    gt_InitializeCombatSimulationConsole_Init();
+    gt_OpenSimulationConsole_Init();
+    gt_HandleSimulationConsoleClicks_Init();
+    gt_ShowCombatSimulationControls_Init();
+    gt_RefillPlayerResources_Init();
+    gt_RestoreSelectedUnits_Init();
+    gt_PauseOpponentWaves_Init();
+    gt_ResumeStandardOpponentWaves_Init();
+    gt_EnableAllOpponentWaves_Init();
+    gt_WaveTerran_Init();
+    gt_WaveZerg_Init();
+    gt_WaveProtoss_Init();
+    gt_WaveUnbound_Init();
+    gt_EnableOGEndlessWavesonSelection_Init();
+    gt_WaveOGEndless_Init();
+    gt_EnableAuthorTools_Init();
+    gt_DisableAuthorTools_Init();
+    gt_AuthorReloadCampaignProgression_Init();
+    gt_AuthorInitializeAMTTopbar_Init();
+    gt_AuthorEnableKnightBankCheatSession_Init();
+    gt_AuthorCheckKnightBankCheat_Init();
+    gt_AuthorEnableAdditionalUnits_Init();
+    gt_AuthorSpawnAbominationTest_Init();
+    gt_AuthorTraceNarudHybridBehaviors_Init();
+    gt_AuthorGenerateSubtitleTest_Init();
+    gt_AuthorEnableSolaceAmongRuins_Init();
+    gt_AuthorEnableShatteredReality_Init();
+    gt_AuthorEnableCalltoArmsSession_Init();
+    gt_AuthorEnableTemporalField_Init();
+    gt_AuthorEnableChronoSurge_Init();
+    gt_AuthorEnableEnhancedLogisticalProtocols_Init();
+    gt_AuthorEnableAIChaseReinforcements_Init();
+    gt_AuthorAddRevitalizerXP_Init();
+    gt_AuthorLoadTunnelConvoyUnits_Init();
+    gt_AuthorClearTunnelConvoyBankSection_Init();
+    gt_CompatibilityVoidThrasherFacing_Init();
+    gt_DFAReclamationInitializePreplacedAssets_Init();
+    gt_DFAReclamationConstructionCompleted_Init();
+    gt_DFAReclamationTrainingCompleted_Init();
+    gt_DFAReclamationCasualty_Init();
+    gt_MSCShoulderSalvoFired_Init();
+    gt_TyradorTopBarCreate_Init();
+    gt_TyradorTopBarUpdate_Init();
+}
+
+//--------------------------------------------------------------------------------------------------
+// Map Initialization
+//--------------------------------------------------------------------------------------------------
+void InitMap () {
+    InitLibs();
+    InitGlobals();
+    InitTriggers();
+    gt_TyradorTopBarCreate_Func(false, true);
+}

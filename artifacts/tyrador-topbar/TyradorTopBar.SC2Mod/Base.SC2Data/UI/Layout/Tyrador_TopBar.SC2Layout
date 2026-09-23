@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<Desc>
+    <!--
+        Knights of Tyrador global-caster top bar.
+
+        Command card contract:
+          Column 0-3: four active commander abilities.
+          Column 4-5: two passive information buttons.
+
+        Runtime contract:
+          Hook TyradorGlobalCommandPanel to the global caster unit group.
+          Hook EnergySegment00 through EnergySegment09 as ProgressBar controls.
+          Hook EnergyValueLabel as a Label control.
+    -->
+
+    <Constant name="TyradorTopBarWidth" val="900"/>
+    <Constant name="TyradorTopBarHeight" val="114"/>
+    <Constant name="TyradorEnergySegmentWidth" val="15"/>
+    <Constant name="TyradorEnergySegmentHeight" val="31"/>
+
+    <Frame type="CommandButton" name="TyradorAbilityButtonTemplate" template="CommandButton/CommandButtonTemplate">
+        <Width val="60"/>
+        <Height val="58"/>
+        <ClickSound val="@UI_GenericButton"/>
+
+        <Frame type="Image" name="GameButtonBorderImage">
+            <Visible val="false"/>
+        </Frame>
+
+        <Frame type="Image" name="TyradorButtonBacking">
+            <Anchor relative="$parent"/>
+            <Texture val="Assets/Textures/tyrador_button_backing.dds"/>
+            <RenderPriority val="511"/>
+        </Frame>
+
+        <Frame type="Image" name="TyradorButtonFrame">
+            <Anchor relative="$parent"/>
+            <Texture val="Assets/Textures/tyrador_button_frame.dds"/>
+            <RenderPriority val="513"/>
+        </Frame>
+
+        <Frame type="Image" name="TyradorHoverFrame">
+            <Anchor relative="$parent"/>
+            <Texture val="Assets/Textures/tyrador_button_hover.dds"/>
+            <RenderPriority val="519"/>
+            <Visible val="false"/>
+
+            <Animation name="Hover">
+                <Event event="OnMouseEnter" action="Reset,Play" frame="$parent"/>
+                <Event event="OnMouseExit" action="Reset" frame="$parent"/>
+                <Controller type="Visibility" end="Pause">
+                    <Key type="Bool" time="0" value="true"/>
+                </Controller>
+            </Animation>
+        </Frame>
+    </Frame>
+
+    <Frame type="CommandButton" name="TyradorPassiveButtonTemplate" template="CommandButton/CommandButtonTemplate">
+        <Width val="36"/>
+        <Height val="34"/>
+        <ClickSound val="@UI_GenericButton"/>
+
+        <Frame type="Image" name="GameButtonBorderImage">
+            <Visible val="false"/>
+        </Frame>
+
+        <Frame type="Image" name="TyradorButtonBacking">
+            <Anchor relative="$parent"/>
+            <Texture val="Assets/Textures/tyrador_button_backing.dds"/>
+            <RenderPriority val="511"/>
+        </Frame>
+
+        <Frame type="Image" name="TyradorButtonFrame">
+            <Anchor relative="$parent"/>
+            <Texture val="Assets/Textures/tyrador_button_frame.dds"/>
+            <RenderPriority val="513"/>
+        </Frame>
+
+        <Frame type="Image" name="TyradorHoverFrame">
+            <Anchor relative="$parent"/>
+            <Texture val="Assets/Textures/tyrador_button_hover.dds"/>
+            <RenderPriority val="519"/>
+            <Visible val="false"/>
+
+            <Animation name="Hover">
+                <Event event="OnMouseEnter" action="Reset,Play" frame="$parent"/>
+                <Event event="OnMouseExit" action="Reset" frame="$parent"/>
+                <Controller type="Visibility" end="Pause">
+                    <Key type="Bool" time="0" value="true"/>
+                </Controller>
+            </Animation>
+        </Frame>
+    </Frame>
+
+    <Frame type="ProgressBar" name="TyradorEnergySegmentTemplate">
+        <Width val="#TyradorEnergySegmentWidth"/>
+        <Height val="#TyradorEnergySegmentHeight"/>
+        <MinValue val="0"/>
+        <MaxValue val="100"/>
+        <Value val="100"/>
+        <UseFillContainer val="true"/>
+        <Vertical val="true"/>
+
+        <Frame type="Frame" name="FillImageContainer">
+            <Anchor side="Bottom" relative="$parent" pos="Max" offset="0"/>
+            <Anchor side="Left" relative="$parent" pos="Min" offset="0"/>
+            <Anchor side="Right" relative="$parent" pos="Max" offset="0"/>
+
+            <Frame type="Image" name="FillImage">
+                <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+                <Anchor side="Bottom" relative="$parent" pos="Max" offset="0"/>
+                <Anchor side="Left" relative="$parent" pos="Min" offset="0"/>
+                <Anchor side="Right" relative="$parent" pos="Max" offset="0"/>
+                <Width val="#TyradorEnergySegmentWidth"/>
+                <Height val="#TyradorEnergySegmentHeight"/>
+                <Texture val="Assets/Textures/tyrador_energy_fill.dds"/>
+                <Alpha val="245"/>
+                <BlendMode val="Add"/>
+                <RenderPriority val="505"/>
+
+                <Animation name="EnergyPulse" speed="1">
+                    <Event event="OnShown" action="Reset,Play"/>
+                    <Controller type="Fade" end="Loop">
+                        <Key type="Curve" time="0" value="190" inout="Smooth"/>
+                        <Key type="Curve" time="1.25" value="255" inout="Smooth"/>
+                        <Key type="Curve" time="2.5" value="190" inout="Smooth"/>
+                    </Controller>
+                </Animation>
+            </Frame>
+
+        </Frame>
+
+    </Frame>
+
+    <Frame type="CommandPanel" name="TyradorGlobalCommandPanelTemplate" template="CommandPanel/CommandPanelTemplate">
+        <Width val="#TyradorTopBarWidth"/>
+        <Height val="#TyradorTopBarHeight"/>
+        <Anchor relative="$parent"/>
+        <HideUnusedButtons val="true"/>
+        <DisplayCancelCommandCard val="false"/>
+        <UseGridHotkeys val="false"/>
+
+        <Frame type="CommandTooltip" name="TyradorCommandTooltip" template="CommandButton/CommandTooltipTemplate">
+            <Anchor side="Top" relative="$parent" pos="Min" offset="104"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="-225"/>
+        </Frame>
+
+        <Frame type="CommandButton" name="CommandButton00" template="Tyrador_TopBar/TyradorAbilityButtonTemplate">
+            <Anchor side="Top" relative="$parent" pos="Min" offset="29"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="-358"/>
+            <TooltipFrame val="TyradorCommandTooltip"/>
+            <HotkeyUse val="CommanderAbility0"/>
+        </Frame>
+
+        <Frame type="CommandButton" name="CommandButton01" template="Tyrador_TopBar/TyradorAbilityButtonTemplate">
+            <Anchor side="Top" relative="$parent/CommandButton00" pos="Min" offset="0"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="-272"/>
+            <TooltipFrame val="TyradorCommandTooltip"/>
+            <HotkeyUse val="CommanderAbility1"/>
+        </Frame>
+
+        <Frame type="CommandButton" name="CommandButton02" template="Tyrador_TopBar/TyradorAbilityButtonTemplate">
+            <Anchor side="Top" relative="$parent/CommandButton00" pos="Min" offset="0"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="212"/>
+            <TooltipFrame val="TyradorCommandTooltip"/>
+            <HotkeyUse val="CommanderAbility2"/>
+        </Frame>
+
+        <Frame type="CommandButton" name="CommandButton03" template="Tyrador_TopBar/TyradorAbilityButtonTemplate">
+            <Anchor side="Top" relative="$parent/CommandButton00" pos="Min" offset="0"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="297"/>
+            <TooltipFrame val="TyradorCommandTooltip"/>
+            <HotkeyUse val="CommanderAbility3"/>
+        </Frame>
+
+        <Frame type="CommandButton" name="CommandButton04" template="Tyrador_TopBar/TyradorPassiveButtonTemplate">
+            <Anchor side="Top" relative="$parent" pos="Min" offset="44"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="-431"/>
+            <TooltipFrame val="TyradorCommandTooltip"/>
+        </Frame>
+
+        <Frame type="CommandButton" name="CommandButton05" template="Tyrador_TopBar/TyradorPassiveButtonTemplate">
+            <Anchor side="Top" relative="$parent/CommandButton04" pos="Min" offset="0"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="396"/>
+            <TooltipFrame val="TyradorCommandTooltip"/>
+        </Frame>
+
+        <Frame type="CommandButton" name="CommandButton06" template="Tyrador_TopBar/TyradorAbilityButtonTemplate"><Visible val="false"/></Frame>
+        <Frame type="CommandButton" name="CommandButton07" template="Tyrador_TopBar/TyradorAbilityButtonTemplate"><Visible val="false"/></Frame>
+        <Frame type="CommandButton" name="CommandButton08" template="Tyrador_TopBar/TyradorAbilityButtonTemplate"><Visible val="false"/></Frame>
+        <Frame type="CommandButton" name="CommandButton09" template="Tyrador_TopBar/TyradorAbilityButtonTemplate"><Visible val="false"/></Frame>
+        <Frame type="CommandButton" name="CommandButton10" template="Tyrador_TopBar/TyradorAbilityButtonTemplate"><Visible val="false"/></Frame>
+        <Frame type="CommandButton" name="CommandButton11" template="Tyrador_TopBar/TyradorAbilityButtonTemplate"><Visible val="false"/></Frame>
+        <Frame type="CommandButton" name="CommandButton12" template="Tyrador_TopBar/TyradorAbilityButtonTemplate"><Visible val="false"/></Frame>
+        <Frame type="CommandButton" name="CommandButton13" template="Tyrador_TopBar/TyradorAbilityButtonTemplate"><Visible val="false"/></Frame>
+        <Frame type="CommandButton" name="CommandButton14" template="Tyrador_TopBar/TyradorAbilityButtonTemplate"><Visible val="false"/></Frame>
+
+        <Frame type="Label" name="RowText0"><Visible val="false"/></Frame>
+        <Frame type="Label" name="RowText1"><Visible val="false"/></Frame>
+        <Frame type="Label" name="RowText2"><Visible val="false"/></Frame>
+        <Frame type="Image" name="CommandTargetImage"><Visible val="false"/></Frame>
+        <Frame type="Label" name="CommandTargetName"><Visible val="false"/></Frame>
+        <Frame type="Label" name="CommandTargetPrompt"><Visible val="false"/></Frame>
+        <Frame type="Frame" name="UncontrollableUnitFrame"><Visible val="false"/></Frame>
+    </Frame>
+
+    <Frame type="Frame" name="TyradorTopBar">
+        <Width val="#TyradorTopBarWidth"/>
+        <Height val="#TyradorTopBarHeight"/>
+        <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+        <Anchor side="Left" relative="$parent" pos="Mid" offset="-450"/>
+        <RenderPriority val="500"/>
+
+        <Animation name="Deploy">
+            <Event event="OnShown" action="Reset,Play"/>
+            <Controller type="Fade" end="Pause">
+                <Key type="Curve" time="0" value="0" out="Slow"/>
+                <Key type="Curve" time="0.3" value="255" in="Slow"/>
+            </Controller>
+            <Controller type="Anchor" end="Pause" side="Top" relative="true">
+                <Key type="Curve" time="0" value="-22" out="Slow"/>
+                <Key type="Curve" time="0.3" value="0" in="Slow"/>
+            </Controller>
+        </Animation>
+
+        <!-- Purpose-built Tyrador shell; every live control remains a real frame above it. -->
+        <Frame type="Image" name="TopBarShell">
+            <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+            <Anchor side="Left" relative="$parent" pos="Min" offset="0"/>
+            <Width val="#TyradorTopBarWidth"/>
+            <Height val="#TyradorTopBarHeight"/>
+            <Texture val="Assets/Textures/tyrador_topbar_shell.dds"/>
+        </Frame>
+
+        <Frame type="Image" name="EnergyFullGlow">
+            <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="-155"/>
+            <Width val="310"/>
+            <Height val="#TyradorTopBarHeight"/>
+            <Texture val="Assets/Textures/tyrador_topbar_shell.dds"/>
+            <TextureCoords top="0" left="0.33" bottom="1" right="0.67"/>
+            <Color val="215,167,255"/>
+            <Alpha val="0"/>
+            <BlendMode val="Add"/>
+            <RenderPriority val="503"/>
+
+            <Animation name="FullEnergyPulse" speed="1">
+                <Event event="TyradorEnergyFull" frame="$ancestor[@name=UIContainer]" action="Reset,Play"/>
+                <Event event="TyradorEnergyNotFull" frame="$ancestor[@name=UIContainer]" action="Reset,Stop"/>
+                <Controller type="Fade" end="Loop">
+                    <Key type="Curve" time="0" value="0" inout="Smooth"/>
+                    <Key type="Curve" time="0.8" value="115" inout="Smooth"/>
+                    <Key type="Curve" time="1.6" value="0" inout="Smooth"/>
+                </Controller>
+            </Animation>
+        </Frame>
+
+        <Frame type="Frame" name="EnergySegments">
+            <Width val="190"/>
+            <Height val="#TyradorEnergySegmentHeight"/>
+            <Anchor side="Top" relative="$parent" pos="Min" offset="39"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="-119"/>
+
+            <Frame type="ProgressBar" name="EnergySegment00" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
+                <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+                <Anchor side="Left" relative="$parent" pos="Min" offset="0"/>
+            </Frame>
+            <Frame type="ProgressBar" name="EnergySegment01" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
+                <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+                <Anchor side="Left" relative="$parent" pos="Min" offset="20"/>
+            </Frame>
+            <Frame type="ProgressBar" name="EnergySegment02" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
+                <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+                <Anchor side="Left" relative="$parent" pos="Min" offset="40"/>
+            </Frame>
+            <Frame type="ProgressBar" name="EnergySegment03" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
+                <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+                <Anchor side="Left" relative="$parent" pos="Min" offset="58"/>
+            </Frame>
+            <Frame type="ProgressBar" name="EnergySegment04" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
+                <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+                <Anchor side="Left" relative="$parent" pos="Min" offset="78"/>
+            </Frame>
+            <Frame type="ProgressBar" name="EnergySegment05" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
+                <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+                <Anchor side="Left" relative="$parent" pos="Min" offset="96"/>
+            </Frame>
+            <Frame type="ProgressBar" name="EnergySegment06" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
+                <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+                <Anchor side="Left" relative="$parent" pos="Min" offset="116"/>
+            </Frame>
+            <Frame type="ProgressBar" name="EnergySegment07" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
+                <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+                <Anchor side="Left" relative="$parent" pos="Min" offset="135"/>
+                <Value val="50"/>
+            </Frame>
+            <Frame type="ProgressBar" name="EnergySegment08" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
+                <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+                <Anchor side="Left" relative="$parent" pos="Min" offset="155"/>
+                <Value val="0"/>
+            </Frame>
+            <Frame type="ProgressBar" name="EnergySegment09" template="Tyrador_TopBar/TyradorEnergySegmentTemplate">
+                <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+                <Anchor side="Left" relative="$parent" pos="Min" offset="175"/>
+                <Value val="0"/>
+
+                <StateGroup name="EnergyFullState">
+                    <DefaultState val="NotFull"/>
+                    <State name="Full">
+                        <When type="Property" frame="$this" Value="{$this/@MaxValue}"/>
+                        <Action type="SendEvent" frame="$ancestor[@name=UIContainer]" event="TyradorEnergyFull" on="Enter"/>
+                        <Action type="SendEvent" frame="$ancestor[@name=UIContainer]" event="TyradorEnergyNotFull" on="Exit"/>
+                    </State>
+                    <State name="NotFull"/>
+                </StateGroup>
+            </Frame>
+        </Frame>
+
+        <Frame type="Label" name="EnergyValueLabel">
+            <Anchor side="Top" relative="$parent" pos="Min" offset="39"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="79"/>
+            <Width val="40"/>
+            <Height val="31"/>
+            <Text val="225"/>
+            <Style val="@Coop_TopBar_Mengsk_Energy"/>
+            <Color val="215,167,255"/>
+            <RenderPriority val="517"/>
+        </Frame>
+
+        <Frame type="Frame" name="EnergyTooltipHitFrame">
+            <Anchor side="Top" relative="$parent" pos="Min" offset="35"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="-125"/>
+            <Width val="250"/>
+            <Height val="42"/>
+            <AcceptsMouse val="true"/>
+            <AcceptsMouseTooltip val="true"/>
+            <TooltipAnchorPosition val="TopToBottom | HCenterToCenter"/>
+        </Frame>
+
+        <Frame type="CommandPanel" name="TyradorGlobalCommandPanel" template="Tyrador_TopBar/TyradorGlobalCommandPanelTemplate"/>
+    </Frame>
+</Desc>

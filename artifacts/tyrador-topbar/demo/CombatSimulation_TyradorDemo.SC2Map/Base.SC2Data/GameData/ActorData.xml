@@ -1,0 +1,1295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CActorUnit id="HybridProteus">
+        <WalkAnimMoveSpeed value="3.8515" />
+    </CActorUnit>
+    <CActorUnit id="DFAConstructionVehicle" parent="GenericUnitBase" unitName="DFAConstructionVehicle">
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready" />
+        <On Terms="WeaponStart.DFAConstructionVehicleCutter.AttackStart" Send="AnimBracketStart Attack Attack,01" />
+        <On Terms="WeaponStart.DFAConstructionVehicleCutter.AttackStart; AnimPlaying Birth" Send="AnimClear Birth" />
+        <On Terms="WeaponStop.DFAConstructionVehicleCutter.AttackStop" Send="AnimBracketStop Attack" />
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready" />
+        <On Terms="Abil.SCVHarvest.Start" Send="TimerSet 0.000000,0.300000 Gather" />
+        <On Terms="Abil.SCVHarvest.Stop" Send="AnimClear Gather" />
+        <On Terms="Abil.SCVHarvest.Stop" Send="TimerKill Gather" />
+        <On Terms="AnimDone.*.Complete; AnimName Gather" Send="TimerSet 0.000000,0.300000 Gather" />
+        <On Terms="TimerExpired; TimerName Gather" Send="AnimPlay Gather Spell,C NonLooping" />
+        <On Terms="TimerExpired; TimerName Gather" Send="Create SCVGatherSound" />
+        <On Terms="Abil.Repair.SourceChannelStart" Send="TimerSet 0.000000,0.300000 Repair" />
+        <On Terms="Abil.Repair.SourceChannelStop" Send="TimerKill Repair" />
+        <On Terms="Abil.Repair.SourceChannelStop" Send="AnimClear Repair" />
+        <On Terms="AnimDone.*.Complete; AnimName Repair" Send="TimerSet 0.000000,0.300000 Repair" />
+        <On Terms="TimerExpired; TimerName Repair" Send="AnimPlay Repair Spell,C NonLooping" />
+        <On Terms="TimerExpired; TimerName Repair" Send="Create SCVRepairSound" />
+        <On Terms="Abil.*.WorkerStart" Send="TimerSet 0.000000,0.300000 Build" />
+        <On Terms="Abil.*.WorkerStop" Send="TimerKill Build" />
+        <On Terms="Abil.*.WorkerStop" Send="AnimClear Build" />
+        <On Terms="Abil.*.WorkerCancel" Send="TimerKill Build" />
+        <On Terms="Abil.*.WorkerCancel" Send="AnimClear Build" />
+        <On Terms="AnimDone.*.Complete; AnimName Build" Send="TimerSet 0.000000,0.300000 Build" />
+        <On Terms="TimerExpired; TimerName Build" Send="AnimPlay Build Spell,C NonLooping" />
+        <On Terms="TimerExpired; TimerName Build" Send="Create SCVBuildSound" />
+        <On Terms="Abil.DFAFieldReclamation.SourcePrepStart" Send="AnimPlay Reclaim Spell,A PlayForever" />
+        <On Terms="Abil.DFAFieldReclamation.SourcePrepStop" Send="AnimClear Reclaim" />
+        <Model value="DFAConstructionVehicleModel" />
+        <ModelFlags index="OutlineEmitter" value="1" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+        <DeathArray index="Normal" ModelLink="DFAConstructionVehicleModel" SoundLink="SCV_Explode">
+            <AnimProps value="Death" />
+        </DeathArray>
+        <DeathCustoms ModelLink="TerranSmallUnitDeathLow" Name="AntiGravTerran" />
+        <PortraitModel value="SCVPortrait" />
+        <Macros value="CarryAnim" />
+        <Macros value="UnloadDropAnim" />
+        <Macros value="MacroWorkerHat" />
+        <UnitFlags index="StandAnimBirthVariation" value="0" />
+        <WalkAnimMoveSpeed value="2.75" />
+        <AnimBlendTime value="0.150000" />
+        <UnitIcon value="Assets\Textures\btn-units-dominion-constructionvehicle-icon.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-dominion-constructionvehicle-wire.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-dominion-constructionvehicle-wire.dds" />
+        </Wireframe>
+        <SoundArray index="Ready" value="SCV_Ready" />
+        <SoundArray index="Help" value="SCV_Help" />
+        <SoundArray index="What" value="SCV_What" />
+        <SoundArray index="Yes" value="SCV_Yes" />
+        <SoundArray index="Attack" value="SCV_Attack" />
+        <SoundArray index="Pissed" value="SCV_Pissed" />
+        <SoundArray index="Movement" value="SCV_Yes" />
+        <SoundArray index="Turning" value="SCV_Yes" />
+        <SoundArray index="Board" value="SCV_Yes" />
+        <HighlightTooltip value="Unit/Name/DFAConstructionVehicle" />
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds" />
+        <BarWidth value="52" />
+        <BarOffset value="52" />
+        <Aliases value="_UnitLarge" />
+    </CActorUnit>
+    <CActorAction id="DFAConstructionVehicleCutterAction" parent="GenericAttack" effectAttack="DFAConstructionVehicleCutterDamage">
+        <LaunchAttachQuery Methods="AMFilterWeaponLeft" />
+        <LaunchAssets Model="DFAConstructionVehicleLaunchModel" Sound="SCV_AttackLaunch" />
+        <ImpactMap index="None" Model="DFAConstructionVehicleImpactModel" />
+        <ImpactMap index="Shield" Model="DFAConstructionVehicleImpactModel" />
+    </CActorAction>
+    <CActorUnit id="DFAFortressMCV" parent="TerranBuildingEx" unitName="DFAFortressMCV">
+        <On Terms="UnitBirth.DFAFortressMCVMobile" Send="Create" />
+        <Remove Terms="WeaponStart.*.AttackStart" Send="AnimBracketStart Attack Attack" />
+        <Remove Terms="WeaponStop.*.AttackStop" Send="AnimBracketStop Attack" />
+        <On Terms="Effect.DFAFortressMCVLeftCannonDamage.Start; At Caster" Send="AnimPlay AttackLeft Attack,01" />
+        <On Terms="Effect.DFAFortressMCVRightCannonDamage.Start; At Caster" Send="AnimPlay AttackRight Attack,03" />
+        <On Terms="UnitBirth.DFAFortressMCV" Send="AnimBracketStart DeployedBody Spell,A,Start Spell,A,Channel Spell,A,End Instant" />
+        <On Terms="UnitBirth.DFAFortressMCV" Send="AnimBracketStart DeployedGuns Spell,B,Start Spell,B,Channel Spell,B,End Instant" />
+        <On Terms="AbilMorph.*.Start; MorphTo DFAFortressMCV" Send="AnimBracketStart DeployedBody Spell,A,Start Spell,A,Channel Spell,A,End" />
+        <On Terms="AbilMorph.*.Start; MorphTo DFAFortressMCV" Send="AnimBracketStart DeployedGuns Spell,B,Start Spell,B,Channel Spell,B,End" />
+        <On Terms="AbilMorph.*.Cancel; MorphTo DFAFortressMCV" Send="AnimBracketStop DeployedBody" />
+        <On Terms="AbilMorph.*.Cancel; MorphTo DFAFortressMCV" Send="AnimBracketStop DeployedGuns" />
+        <On Terms="AbilMorph.*.Start; MorphTo DFAFortressMCVMobile" Send="AnimBracketStop DeployedBody" />
+        <On Terms="AbilMorph.*.Start; MorphTo DFAFortressMCVMobile" Send="AnimBracketStop DeployedGuns" />
+        <On Terms="AbilMorph.*.Cancel; MorphTo DFAFortressMCVMobile" Send="AnimBracketStart DeployedBody Spell,A,Start Spell,A,Channel Spell,A,End Instant" />
+        <On Terms="AbilMorph.*.Cancel; MorphTo DFAFortressMCVMobile" Send="AnimBracketStart DeployedGuns Spell,B,Start Spell,B,Channel Spell,B,End Instant" />
+        <Model value="DFAFortressMCVModel" />
+        <ModelFlags index="OutlineEmitter" value="1" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+        <Macros value="QueueAnim" />
+        <BuildModel value="Invisible" />
+        <On Terms="Abil.DFAProductionQueue.Start" Send="StatusIncrement Queuing" />
+        <On Terms="Abil.DFAProductionQueue.Stop" Send="StatusDecrement Queuing" />
+        <DeathArray index="Normal" ModelLink="TerranLargeBuildingDeath" SoundLink="PlanetaryFortress_Explode" />
+        <DeathArray index="UnderConstruction" ModelLink="TerranLargeBuildingDeath" SoundLink="PlanetaryFortress_Explode" />
+        <PortraitModel value="CommandCenterPortrait" />
+        <PlacementActorModel value="DFAFortressMCVPlacement" />
+        <PlaceholderActorModel value="DFAFortressMCVPlaceholder" />
+        <UnitIcon value="Assets\Textures\btn-units-terran-fortress_mcv-icon.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-units-terran-fortress_mcv-wire.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-units-terran-fortress_mcv-wire.dds" />
+        </Wireframe>
+        <UnitFlags index="StandAnimBirthVariation" value="0" />
+        <WalkAnimMoveSpeed value="1.8" />
+        <AnimBlendTime value="0.200000" />
+        <StandAnimTurnTime value="5" />
+        <SoundArray index="Ready" value="Thor_Ready" />
+        <SoundArray index="Help" value="Thor_Help" />
+        <SoundArray index="What" value="Thor_What" />
+        <SoundArray index="Yes" value="Thor_Yes" />
+        <SoundArray index="Attack" value="Thor_Attack" />
+        <SoundArray index="Pissed" value="Thor_Pissed" />
+        <SoundArray index="Movement" value="Thor_Movement" />
+        <SoundArray index="Turning" value="Thor_Movement" />
+        <HighlightTooltip value="Unit/Name/DFAFortressMCV" />
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds" />
+        <BarWidth value="190" />
+        <BarOffset value="175" />
+        <NameOffset value="145" />
+        <Aliases value="_UnitHuge" />
+    </CActorUnit>
+    <CActorTurret id="DFAFortressMCVTurret">
+        <On Terms="TurretEnable.DFAFortressMCVTurret" Send="Create" />
+        <YawQuery Methods="TurretZ" />
+    </CActorTurret>
+    <CActorAction id="DFAFortressMCVLeftCannonAction" parent="GenericAttack" effectAttack="DFAFortressMCVLeftCannonDamage">
+        <LaunchAttachQuery Methods="AMFilterWeapon00" />
+        <LaunchAssets Model="DFAFortressMCVLaunchModel" Sound="PlanetaryFortress_AttackLaunch" />
+        <ImpactMap index="None" Model="DFAFortressMCVImpactModel" Sound="PlanetaryFortress_AttackImpact" />
+        <ImpactMap index="Shield" Model="DFAFortressMCVImpactModel" Sound="PlanetaryFortress_AttackImpact" />
+    </CActorAction>
+    <CActorAction id="DFAFortressMCVRightCannonAction" parent="GenericAttack" effectAttack="DFAFortressMCVRightCannonDamage">
+        <LaunchAttachQuery Methods="AMFilterWeapon01" />
+        <LaunchAssets Model="DFAFortressMCVLaunchModel" />
+        <ImpactMap index="None" Model="DFAFortressMCVImpactModel" />
+        <ImpactMap index="Shield" Model="DFAFortressMCVImpactModel" />
+    </CActorAction>
+    <CActorModel id="DFAFortressMCVBuild" parent="TerranBuildingBuild">
+        <Model value="CommandCenterBuild" />
+    </CActorModel>
+    <CActorModel id="DFAFortressMCVPlacement" parent="PlacementModel">
+        <Model value="CommandCenterPlacement" />
+    </CActorModel>
+    <CActorModel id="DFAFortressMCVPlaceholder" parent="PlaceholderModel">
+        <Model value="CommandCenterPlacement" />
+    </CActorModel>
+    <CActorUnit id="DFAUndergroundBunker" parent="TerranBuildingEx" unitName="DFAUndergroundBunker">
+        <Model value="DFAUndergroundBunkerModel" />
+        <ModelFlags index="OutlineEmitter" value="1" />
+        <BuildModel value="Invisible" />
+        <DeathArray index="Normal" ModelLink="TerranBuildingDeath" SoundLink="Bunker_Explode" VoiceLink="##unitName##DeathVoice" />
+        <DeathArray index="UnderConstruction" ModelLink="TerranBuildingDeath" SoundLink="Bunker_Explode" />
+        <PortraitModel value="BunkerPortrait" />
+        <PlacementActorModel value="DFAUndergroundBunkerPlacement" />
+        <PlaceholderActorModel value="DFAUndergroundBunkerPlaceholder" />
+        <UnitIcon value="Assets\Textures\btn-buildings-dominion-bunkerunder_icon.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-buildings-bunkerunder_wire.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-buildings-bunkerunder_wire.dds" />
+        </Wireframe>
+        <SoundArray index="Birth" value="##unitName##_Birth" />
+        <SoundArray index="Ready" value="Bunker_Ready" />
+        <SoundArray index="Help" value="##unitName##_Help" />
+        <SoundArray index="What" value="Bunker_What" />
+        <SoundArray index="Yes" value="##unitName##_Yes" />
+        <SoundArray index="Attack" value="##unitName##_Attack" />
+        <SoundArray index="Pissed" value="##unitName##_Pissed" />
+        <SoundArray index="Movement" value="##unitName##_Movement" />
+        <SoundArray index="Turning" value="##unitName##_Turning" />
+        <SoundArray index="Board" value="##unitName##_Board" />
+        <SoundArray index="Click" value="##unitName##_Click" />
+        <SoundArray index="ClickError" value="##unitName##_ClickError" />
+        <SoundArray index="Highlight" value="##unitName##_Highlight" />
+        <BarWidth value="95" />
+        <BarOffset value="80" />
+        <NameOffset value="70" />
+        <Aliases value="_UnitHuge" />
+        <GroupSoundArray index="What" value="##unitName##_GroupWhat" />
+        <GroupSoundArray index="Yes" value="##unitName##_GroupYes" />
+        <GroupSoundArray index="Attack" value="##unitName##_GroupAttack" />
+        <GroupSoundArray index="Board" value="##unitName##_GroupBoard" />
+    </CActorUnit>
+    <CActorUnit id="DFAMovingBunker" parent="GenericUnitBase" unitName="DFAMovingBunker">
+        <On Terms="UnitBirth.DFAMovingBunkerBurrowed" Send="Create" />
+        <On Terms="UnitBirth.DFAMovingBunkerBurrowed" Send="AnimPlay Burrow Burrow,01 PlayForever,NonLooping" />
+        <On Terms="AbilMorph.*.Start; MorphTo DFAMovingBunkerBurrowed" Send="AnimPlay Burrow Burrow,01 PlayForever,NonLooping" />
+        <On Terms="AbilMorph.*.Start; MorphTo DFAMovingBunkerBurrowed" Send="AnimClear Unburrow" />
+        <On Terms="AbilMorph.*.Start; MorphTo DFAMovingBunker" Send="AnimClear Burrow" />
+        <On Terms="AbilMorph.*.Start; MorphTo DFAMovingBunker" Send="AnimPlay Unburrow Unburrow" />
+        <On Terms="AbilMorph.*.Finish; MorphTo DFAMovingBunker" Send="AnimClear Unburrow" />
+        <On Terms="Abil.DFAMovingBunkerTransport.TransportUnloadStart" Send="AnimBracketStart Unload Unload Unload Unload,End" />
+        <On Terms="Abil.DFAMovingBunkerTransport.TransportUnloadStop" Send="AnimBracketStop Unload" />
+        <Model value="DFAMovingBunkerModel" />
+        <ModelFlags index="OutlineEmitter" value="1" />
+        <UnitFlags index="StandAnimBirthVariation" value="0" />
+        <DeathArray index="Normal" ModelLink="HellionDeath" SoundLink="Hellion_Explode" VoiceLink="##unitName##DeathVoice" />
+        <WalkAnimMoveSpeed value="2.25" />
+        <AnimBlendTime value="0.175000" />
+        <PortraitModel value="BunkerPortrait" />
+        <UnitIcon value="Assets\Textures\btn-units-terran-move_bunker-icon.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-units-terran-move_bunker-wire.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-units-terran-move_bunker-wire.dds" />
+        </Wireframe>
+        <SoundArray index="Birth" value="##unitName##_Birth" />
+        <SoundArray index="Ready" value="Hellion_Ready" />
+        <SoundArray index="Help" value="Hellion_Help" />
+        <SoundArray index="What" value="Hellion_What" />
+        <SoundArray index="Yes" value="Hellion_Yes" />
+        <SoundArray index="Attack" value="Hellion_Attack" />
+        <SoundArray index="Pissed" value="Hellion_Pissed" />
+        <SoundArray index="Movement" value="Hellion_Movement" />
+        <SoundArray index="Turning" value="Hellion_Movement" />
+        <SoundArray index="Board" value="##unitName##_Board" />
+        <SoundArray index="Click" value="##unitName##_Click" />
+        <SoundArray index="ClickError" value="##unitName##_ClickError" />
+        <SoundArray index="Highlight" value="##unitName##_Highlight" />
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds" />
+        <BarWidth value="95" />
+        <BarOffset value="75" />
+        <NameOffset value="65" />
+        <Aliases value="_UnitHuge" />
+        <GroupSoundArray index="What" value="##unitName##_GroupWhat" />
+        <GroupSoundArray index="Yes" value="##unitName##_GroupYes" />
+        <GroupSoundArray index="Attack" value="##unitName##_GroupAttack" />
+        <GroupSoundArray index="Board" value="##unitName##_GroupBoard" />
+    </CActorUnit>
+    <CActorModel id="DFAUndergroundBunkerBuild" parent="TerranBuildingBuild">
+        <Model value="BunkerBuild" />
+    </CActorModel>
+    <CActorModel id="DFAUndergroundBunkerPlacement" parent="PlacementModel">
+        <Model value="BunkerPlacement" />
+    </CActorModel>
+    <CActorModel id="DFAUndergroundBunkerPlaceholder" parent="PlaceholderModel">
+        <Model value="BunkerPlacement" />
+    </CActorModel>
+    <CActorUnit id="DFARefinery" parent="TerranBuildingEx" unitName="DFARefinery">
+        <On Terms="Behavior.HarvestableVespeneGeyserGas.Deplete" Send="SetTintColor 255,170,170" />
+        <On Terms="Behavior.HarvestableVespeneGeyserGas.Deplete" Send="AnimGroupRemove D" />
+        <On Terms="Behavior.HarvestableVespeneGeyserGas.Deplete" Send="AnimGroupApply B" />
+        <On Terms="Behavior.HarvestableVespeneGeyserGas.Restore" Send="SetTintColor 255,255,255" />
+        <On Terms="Behavior.HarvestableVespeneGeyserGas.Restore" Send="AnimGroupRemove B" />
+        <On Terms="Behavior.HarvestableVespeneGeyserGas.Restore" Send="AnimGroupApply D" />
+        <Model value="DFARefineryModel" />
+        <ModelFlags index="OutlineEmitter" value="1" />
+        <Macros value="ExtractAnim" />
+        <BuildModel value="Invisible" />
+        <DeathArray index="Normal" ModelLink="TerranLargeBuildingDeath" SoundLink="Refinery_Explode" VoiceLink="##unitName##DeathVoice" />
+        <DeathArray index="UnderConstruction" ModelLink="TerranBuildingDeath" SoundLink="Refinery_Explode" />
+        <DeathCustoms ModelLink="RefineryEmptyDeath" Name="Empty" />
+        <PlacementActorModel value="RefineryPlacementModel" />
+        <PortraitModel value="RefineryPortrait" />
+        <UnitIcon value="Assets\Textures\btn-building-terran-refinery.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-Refinery.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-Refinery.dds" />
+        </Wireframe>
+        <SoundArray index="Birth" value="##unitName##_Birth" />
+        <SoundArray index="Ready" value="Refinery_Ready" />
+        <SoundArray index="Help" value="##unitName##_Help" />
+        <SoundArray index="What" value="Refinery_What" />
+        <SoundArray index="Yes" value="##unitName##_Yes" />
+        <SoundArray index="Attack" value="##unitName##_Attack" />
+        <SoundArray index="Pissed" value="##unitName##_Pissed" />
+        <SoundArray index="Movement" value="##unitName##_Movement" />
+        <SoundArray index="Turning" value="##unitName##_Turning" />
+        <SoundArray index="Board" value="##unitName##_Board" />
+        <SoundArray index="Click" value="##unitName##_Click" />
+        <SoundArray index="ClickError" value="##unitName##_ClickError" />
+        <SoundArray index="Highlight" value="##unitName##_Highlight" />
+        <StatusHarvesterData Text="UI/HarvesterCountVespene" />
+        <BarOffset value="160" />
+        <BarWidth value="120" />
+        <NameOffset value="110" />
+        <Aliases value="_UnitHuge" />
+        <GroupSoundArray index="What" value="##unitName##_GroupWhat" />
+        <GroupSoundArray index="Yes" value="##unitName##_GroupYes" />
+        <GroupSoundArray index="Attack" value="##unitName##_GroupAttack" />
+        <GroupSoundArray index="Board" value="##unitName##_GroupBoard" />
+    </CActorUnit>
+    <CActorModel id="DFARefineryBuild" parent="TerranBuildingBuildRefinery">
+        <Model value="RefineryBuild" />
+    </CActorModel>
+    <CActorUnit id="DFAInfantryDepot" parent="TerranBuildingEx" unitName="DFAInfantryDepot">
+        <Model value="DFAInfantryDepotModel" />
+        <ModelFlags index="OutlineEmitter" value="1" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+        <Macros value="QueueAnim" />
+        <Macros value="MengskUnitColorMacro" />
+        <BuildModel value="Invisible" />
+        <On Terms="Abil.DFAProductionQueue.Start" Send="StatusIncrement Queuing" />
+        <On Terms="Abil.DFAProductionQueue.Stop" Send="StatusDecrement Queuing" />
+        <DeathArray index="Normal" ModelLink="TerranLargeBuildingDeath" SoundLink="Barracks_Explode" />
+        <DeathArray index="UnderConstruction" ModelLink="TerranLargeBuildingDeath" SoundLink="Barracks_Explode" />
+        <PortraitModel value="BarracksPortrait" />
+        <PlacementModel value="BarracksMengskPlacement" />
+        <UnitIcon value="Assets\Textures\btn-building-terran-Barracksmengsk.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-Terran-Barracks.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-Terran-Barracks.dds" />
+        </Wireframe>
+        <SoundArray index="Ready" value="Barracks_Ready" />
+        <SoundArray index="What" value="Barracks_What" />
+        <HighlightTooltip value="Unit/Name/DFAInfantryDepot" />
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-buildingarmor.dds" />
+        <BarOffset value="155" />
+        <BarWidth value="160" />
+        <NameOffset value="110" />
+        <Aliases value="_UnitHuge" />
+    </CActorUnit>
+    <CActorModel id="DFAInfantryDepotBuild" parent="BarracksMengskBuild">
+        <Model value="BarracksMengskBuild" />
+    </CActorModel>
+    <CActorRange id="DFAPreparedGroundRange" parent="RangeBehavior" behavior="DFAPreparedGroundEmitter" />
+    <CActorRange id="DFAMobileCoverRange" parent="RangeBehavior" behavior="DFAMobileCoverEmitter" />
+    <CActorSimple id="DFAPreparedGroundBuffVisual">
+        <On Terms="Behavior.DFAPreparedGroundBuff.On" Send="Create" />
+        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 180,220,255 0.150000 OneShot DFAPrepared" />
+        <On Terms="Behavior.DFAPreparedGroundBuff.Off" Target="_Unit" Send="ClearTintColor 0.150000 DFAPrepared" />
+        <On Terms="Behavior.DFAPreparedGroundBuff.Off" Send="Destroy" />
+        <On Terms="ActorOrphan" Send="Destroy" />
+    </CActorSimple>
+    <CActorSimple id="DFAMobileCoverBuffVisual">
+        <On Terms="Behavior.DFAMobileCoverBuff.On" Send="Create" />
+        <On Terms="ActorCreation" Target="_Unit" Send="SetTintColor 110,185,255 0.150000 OneShot DFAMobileCover" />
+        <On Terms="Behavior.DFAMobileCoverBuff.Off" Target="_Unit" Send="ClearTintColor 0.150000 DFAMobileCover" />
+        <On Terms="Behavior.DFAMobileCoverBuff.Off" Send="Destroy" />
+        <On Terms="ActorOrphan" Send="Destroy" />
+    </CActorSimple>
+    <CActorBeamSimple id="DFAFieldReclamationBeam" parent="BeamSimpleAnimationStyleContinuous">
+        <Model value="NanoRepairBeam" />
+        <On Terms="Abil.DFAFieldReclamation.TargetPrepStart" Send="Create" />
+        <On Terms="Abil.DFAFieldReclamation.TargetPrepStop" Send="Destroy" />
+        <On Terms="ActorOrphan" Send="Destroy" />
+        <HostForProps Subject="_Unit" Scope="Caster" Actor="Find" />
+        <HostLaunch Subject="_Unit" Scope="Caster" Actor="Find" />
+        <HostImpact Subject="_Unit" Scope="Target" Actor="Find" />
+        <HostLaunchSiteOps Ops="SOpAttachWeapon" />
+        <HostImpactSiteOps Ops="SOpAttachCenter" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+        <Inherits index="Visibility" value="1" />
+    </CActorBeamSimple>
+    <CActorModel id="DFAFieldReclamationImpact" parent="ModelAnimationStyleContinuous">
+        <Model value="NanoRepairBeamImpact" />
+        <On Terms="Abil.DFAFieldReclamation.TargetPrepStart; At Target" Send="Create" />
+        <On Terms="Abil.DFAFieldReclamation.TargetPrepStop; At Target" Send="Destroy" />
+        <On Terms="ActorOrphan" Send="Destroy" />
+        <Host Subject="_Selectable" />
+        <HostSiteOps Ops="SOpAttachCenter" />
+        <Scale value="0.650000" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+    </CActorModel>
+    <CActorSound id="DFAFieldReclamationSound" parent="SoundContinuous">
+        <Sound value="Medivac_HealLoop" />
+        <On Terms="Abil.DFAFieldReclamation.TargetPrepStart; At Target" Send="Create" />
+        <On Terms="ActorCreation" Send="Create NanoRepairSoundStart" />
+        <On Terms="ActorDestruction" Send="Create NanoRepairSoundStop" />
+        <On Terms="Abil.DFAFieldReclamation.TargetPrepStop; At Target" Send="Destroy" />
+        <On Terms="ActorOrphan" Send="Destroy" />
+        <Host Subject="_Selectable" />
+        <HostSiteOps Ops="SOpAttachCenter" />
+    </CActorSound>
+    <CActorUnit id="DFAWreckConstructionVehicle" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DFAWreckConstructionVehicle">
+        <Model value="ScrapCube" />
+        <BuildModel value="ScrapCube" />
+        <PlacementModel value="ScrapCube" />
+        <StatusBarFlags index="Shields" value="0" />
+        <StatusBarFlags index="Life" value="0" />
+        <StatusBarFlags index="Energy" value="0" />
+        <StatusBarFlags index="Cargo" value="0" />
+        <StatusBarFlags index="Progress" value="0" />
+        <StatusBarFlags index="Duration" value="0" />
+        <UnitIcon value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        </Wireframe>
+        <HighlightTooltip value="Unit/Name/DFAWreckConstructionVehicle" />
+    </CActorUnit>
+    <CActorUnit id="DFAWreckFortressMCV" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DFAWreckFortressMCV">
+        <Model value="ScrapCubeLarge" />
+        <BuildModel value="ScrapCubeLarge" />
+        <PlacementModel value="ScrapCubeLarge" />
+        <StatusBarFlags index="Shields" value="0" />
+        <StatusBarFlags index="Life" value="0" />
+        <StatusBarFlags index="Energy" value="0" />
+        <StatusBarFlags index="Cargo" value="0" />
+        <StatusBarFlags index="Progress" value="0" />
+        <StatusBarFlags index="Duration" value="0" />
+        <UnitIcon value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        </Wireframe>
+        <HighlightTooltip value="Unit/Name/DFAWreckFortressMCV" />
+    </CActorUnit>
+    <CActorUnit id="DFAWreckUndergroundBunker" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DFAWreckUndergroundBunker">
+        <Model value="ScrapCubeMedium" />
+        <BuildModel value="ScrapCubeMedium" />
+        <PlacementModel value="ScrapCubeMedium" />
+        <StatusBarFlags index="Shields" value="0" />
+        <StatusBarFlags index="Life" value="0" />
+        <StatusBarFlags index="Energy" value="0" />
+        <StatusBarFlags index="Cargo" value="0" />
+        <StatusBarFlags index="Progress" value="0" />
+        <StatusBarFlags index="Duration" value="0" />
+        <UnitIcon value="Assets\Textures\Wireframe-terran-scrapcubemedium.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcubemedium.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcubemedium.dds" />
+        </Wireframe>
+        <DeathArray index="Normal" SoundLink="##unitName##Death" VoiceLink="##unitName##DeathVoice" />
+    </CActorUnit>
+    <CActorUnit id="DFAWreckRefinery" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DFAWreckRefinery">
+        <Model value="ScrapCubeMedium" />
+        <BuildModel value="ScrapCubeMedium" />
+        <PlacementModel value="ScrapCubeMedium" />
+        <StatusBarFlags index="Shields" value="0" />
+        <StatusBarFlags index="Life" value="0" />
+        <StatusBarFlags index="Energy" value="0" />
+        <StatusBarFlags index="Cargo" value="0" />
+        <StatusBarFlags index="Progress" value="0" />
+        <StatusBarFlags index="Duration" value="0" />
+        <UnitIcon value="Assets\Textures\Wireframe-terran-scrapcubemedium.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcubemedium.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcubemedium.dds" />
+        </Wireframe>
+        <DeathArray index="Normal" SoundLink="##unitName##Death" VoiceLink="##unitName##DeathVoice" />
+    </CActorUnit>
+    <CActorUnit id="DFAWreckInfantryDepot" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DFAWreckInfantryDepot">
+        <Model value="ScrapCubeMedium" />
+        <BuildModel value="ScrapCubeMedium" />
+        <PlacementModel value="ScrapCubeMedium" />
+        <StatusBarFlags index="Shields" value="0" />
+        <StatusBarFlags index="Life" value="0" />
+        <StatusBarFlags index="Energy" value="0" />
+        <StatusBarFlags index="Cargo" value="0" />
+        <StatusBarFlags index="Progress" value="0" />
+        <StatusBarFlags index="Duration" value="0" />
+        <UnitIcon value="Assets\Textures\Wireframe-terran-scrapcubemedium.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcubemedium.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcubemedium.dds" />
+        </Wireframe>
+        <HighlightTooltip value="Unit/Name/DFAWreckInfantryDepot" />
+    </CActorUnit>
+    <CActorUnit id="DFALineTrooper" parent="GenericUnitBase" unitName="DFALineTrooper">
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready" />
+        <On Terms="WeaponStart.DFALineTrooperRifle.AttackStart" Send="AnimBracketStart Attack Attack" />
+        <On Terms="WeaponStart.DFALineTrooperRifle.AttackStart; AnimPlaying Birth" Send="AnimClear Birth" />
+        <On Terms="WeaponStop.DFALineTrooperRifle.AttackStop" Send="AnimBracketStop Attack" />
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready" />
+        <Model value="DFALineTrooperModel" />
+        <ModelFlags index="OutlineEmitter" value="1" />
+        <DeathArray index="Normal" ModelLink="DFALineTrooperModel" SoundLink="Marine_DeathFXBloodSpray" VoiceLink="##unitName##DeathVoice" />
+        <DeathCustoms ModelLink="TerranSmallBiologicalUnitDeathLow" Name="AntiGravTerran" />
+        <PortraitModel value="MarinePortrait" />
+        <Macros value="UnloadDropAnim" />
+        <Macros value="TerrainSquibAnimations" />
+        <UnitFlags index="StandAnimBirthVariation" value="0" />
+        <WalkAnimMoveSpeed value="2.75" />
+        <AnimBlendTime value="0.150000" />
+        <UnitIcon value="Assets\Textures\btn-units-tosh-silon-armoredmarine-icon.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-tosh-silon-armoredmarine-wire.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-tosh-silon-armoredmarine-wire.dds" />
+        </Wireframe>
+        <SoundArray index="Birth" value="##unitName##_Birth" />
+        <SoundArray index="Ready" value="Marine_Ready" />
+        <SoundArray index="Help" value="Marine_Help" />
+        <SoundArray index="What" value="Marine_What" />
+        <SoundArray index="Yes" value="Marine_Yes" />
+        <SoundArray index="Attack" value="Marine_Attack" />
+        <SoundArray index="Pissed" value="Marine_Pissed" />
+        <SoundArray index="Movement" value="Marine_Yes" />
+        <SoundArray index="Turning" value="Marine_Yes" />
+        <SoundArray index="Board" value="Marine_Yes" />
+        <SoundArray index="Click" value="##unitName##_Click" />
+        <SoundArray index="ClickError" value="##unitName##_ClickError" />
+        <SoundArray index="Highlight" value="##unitName##_Highlight" />
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds" />
+        <BarWidth value="42" />
+        <BarOffset value="45" />
+        <Aliases value="_UnitSmall" />
+        <GroupSoundArray index="What" value="##unitName##_GroupWhat" />
+        <GroupSoundArray index="Yes" value="##unitName##_GroupYes" />
+        <GroupSoundArray index="Attack" value="##unitName##_GroupAttack" />
+        <GroupSoundArray index="Board" value="##unitName##_GroupBoard" />
+    </CActorUnit>
+    <CActorAction id="DFALineTrooperRifleAction" parent="GenericAttack" effectAttack="DFALineTrooperRifleDamage">
+        <LaunchAssets Model="DFALineTrooperLaunchModel" Sound="Marine_AttackLaunch" />
+        <ContainerAssets Model="MarineBunkerAttackLaunch" Sound="Marine_BunkerAttackLaunch" />
+        <ImpactMap index="None" Model="DFALineTrooperImpactModel" Sound="Marine_AttackImpact" />
+        <ImpactMap index="Shield" Model="DFALineTrooperImpactModel" Sound="Marine_AttackImpact" />
+        <DamageMap index="None" Sound="##id##Damage" />
+        <DamageMap index="Shield" Sound="##id##DamageShield" />
+    </CActorAction>
+    <CActorUnit id="DFAShielder" parent="GenericUnitBase" unitName="DFAShielder">
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready" />
+        <On Terms="WeaponStart.DFAShielderAxe.AttackStart" Send="AnimBracketStart Attack Attack" />
+        <On Terms="WeaponStart.DFAShielderAxe.AttackStart; AnimPlaying Birth" Send="AnimClear Birth" />
+        <On Terms="WeaponStop.DFAShielderAxe.AttackStop" Send="AnimBracketStop Attack" />
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready" />
+        <Model value="DFAShielderModel" />
+        <ModelFlags index="OutlineEmitter" value="1" />
+        <DeathArray index="Normal" ModelLink="MarauderDeath" SoundLink="Marauder_Explode" VoiceLink="##unitName##DeathVoice" />
+        <DeathCustoms ModelLink="TerranSmallBiologicalUnitDeathLow" Name="AntiGravTerran" />
+        <PortraitModel value="MarauderPortrait" />
+        <Macros value="UnloadDropAnim" />
+        <Macros value="TerrainSquibAnimations" />
+        <UnitFlags index="StandAnimBirthVariation" value="0" />
+        <WalkAnimMoveSpeed value="2.5" />
+        <AnimBlendTime value="0.150000" />
+        <UnitIcon value="Assets\Textures\btn-units-dominion-shielder-icon.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-dominion-shielder-wire.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-dominion-shielder-wire.dds" />
+        </Wireframe>
+        <SoundArray index="Birth" value="##unitName##_Birth" />
+        <SoundArray index="Ready" value="Marauder_Ready" />
+        <SoundArray index="Help" value="Marauder_Help" />
+        <SoundArray index="What" value="Marauder_What" />
+        <SoundArray index="Yes" value="Marauder_Yes" />
+        <SoundArray index="Attack" value="Marauder_Attack" />
+        <SoundArray index="Pissed" value="Marauder_Pissed" />
+        <SoundArray index="Movement" value="Marauder_Yes" />
+        <SoundArray index="Turning" value="Marauder_Yes" />
+        <SoundArray index="Board" value="Marauder_Yes" />
+        <SoundArray index="Click" value="##unitName##_Click" />
+        <SoundArray index="ClickError" value="##unitName##_ClickError" />
+        <SoundArray index="Highlight" value="##unitName##_Highlight" />
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds" />
+        <BarWidth value="50" />
+        <BarOffset value="60" />
+        <Aliases value="_UnitMedium" />
+        <GroupSoundArray index="What" value="##unitName##_GroupWhat" />
+        <GroupSoundArray index="Yes" value="##unitName##_GroupYes" />
+        <GroupSoundArray index="Attack" value="##unitName##_GroupAttack" />
+        <GroupSoundArray index="Board" value="##unitName##_GroupBoard" />
+    </CActorUnit>
+    <CActorUnit id="DFAFieldEngineer" parent="GenericUnitBase" unitName="DFAFieldEngineer">
+        <On Terms="Abil.attack.ReadyStart" Send="AnimGroupApply Ready" />
+        <On Terms="WeaponStart.DFAFieldEngineerPistol.AttackStart" Send="AnimBracketStart Attack Attack" />
+        <On Terms="WeaponStart.DFAFieldEngineerPistol.AttackStart; AnimPlaying Birth" Send="AnimClear Birth" />
+        <On Terms="WeaponStop.DFAFieldEngineerPistol.AttackStop" Send="AnimBracketStop Attack" />
+        <On Terms="Abil.attack.ReadyStop" Send="AnimGroupRemove Ready" />
+        <On Terms="Abil.Repair.SourceChannelStart" Send="AnimBracketStart Repair Work" />
+        <On Terms="Abil.Repair.SourceChannelStop" Send="AnimBracketStop Repair" />
+        <On Terms="Abil.DFAFieldReclamation.SourcePrepStart" Send="AnimPlay Reclaim Spell,A PlayForever" />
+        <On Terms="Abil.DFAFieldReclamation.SourcePrepStop" Send="AnimClear Reclaim" />
+        <Model value="DFAFieldEngineerModel" />
+        <ModelFlags index="OutlineEmitter" value="1" />
+        <DeathArray index="Normal" ModelLink="MarineDeath" SoundLink="Marine_DeathFXBloodSpray" VoiceLink="##unitName##DeathVoice" />
+        <DeathCustoms ModelLink="TerranSmallBiologicalUnitDeathLow" Name="AntiGravTerran" />
+        <PortraitModel value="MarinePortrait" />
+        <Macros value="UnloadDropAnim" />
+        <Macros value="TerrainSquibAnimations" />
+        <UnitFlags index="StandAnimBirthVariation" value="0" />
+        <WalkAnimMoveSpeed value="2.75" />
+        <AnimBlendTime value="0.150000" />
+        <UnitIcon value="Assets\Textures\btn-units-dominion-fieldengineer.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-dominion-fieldengineer_wire.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-dominion-fieldengineer_wire.dds" />
+        </Wireframe>
+        <SoundArray index="Birth" value="##unitName##_Birth" />
+        <SoundArray index="Ready" value="Marine_Ready" />
+        <SoundArray index="Help" value="Marine_Help" />
+        <SoundArray index="What" value="Marine_What" />
+        <SoundArray index="Yes" value="Marine_Yes" />
+        <SoundArray index="Attack" value="Marine_Attack" />
+        <SoundArray index="Pissed" value="Marine_Pissed" />
+        <SoundArray index="Movement" value="Marine_Yes" />
+        <SoundArray index="Turning" value="Marine_Yes" />
+        <SoundArray index="Board" value="Marine_Yes" />
+        <SoundArray index="Click" value="##unitName##_Click" />
+        <SoundArray index="ClickError" value="##unitName##_ClickError" />
+        <SoundArray index="Highlight" value="##unitName##_Highlight" />
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-infantryarmorlevel0.dds" />
+        <BarWidth value="42" />
+        <BarOffset value="45" />
+        <Aliases value="_UnitSmall" />
+        <GroupSoundArray index="What" value="##unitName##_GroupWhat" />
+        <GroupSoundArray index="Yes" value="##unitName##_GroupYes" />
+        <GroupSoundArray index="Attack" value="##unitName##_GroupAttack" />
+        <GroupSoundArray index="Board" value="##unitName##_GroupBoard" />
+    </CActorUnit>
+    <CActorUnit id="DFAWreckMovingBunker" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DFAWreckMovingBunker">
+        <Model value="ScrapCubeMedium" />
+        <BuildModel value="ScrapCubeMedium" />
+        <PlacementModel value="ScrapCubeMedium" />
+        <StatusBarFlags index="Shields" value="0" />
+        <StatusBarFlags index="Life" value="0" />
+        <StatusBarFlags index="Energy" value="0" />
+        <StatusBarFlags index="Cargo" value="0" />
+        <StatusBarFlags index="Progress" value="0" />
+        <StatusBarFlags index="Duration" value="0" />
+        <UnitIcon value="Assets\Textures\Wireframe-terran-scrapcubemedium.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcubemedium.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcubemedium.dds" />
+        </Wireframe>
+        <DeathArray index="Normal" SoundLink="##unitName##Death" VoiceLink="##unitName##DeathVoice" />
+    </CActorUnit>
+    <CActorAction id="DFAShielderAxeAction" parent="GenericAttack" effectAttack="DFAShielderAxeDamage">
+        <LaunchAssets Sound="Zealot_AttackLaunch" />
+        <ImpactMap index="None" Sound="Zealot_AttackImpact" />
+        <ImpactMap index="Shield" Sound="Zealot_AttackImpact" />
+        <ContainerAssets Sound="##effectAttack##BunkerAttackLaunch" />
+        <DamageMap index="None" Sound="##id##Damage" />
+        <DamageMap index="Shield" Sound="##id##DamageShield" />
+    </CActorAction>
+    <CActorAction id="DFAFieldEngineerPistolAction" parent="GenericAttack" effectAttack="DFAFieldEngineerPistolDamage">
+        <LaunchAttachQuery Methods="AMFilterWeapon01" />
+        <LaunchAssets Model="DFAFieldEngineerPistolLaunchModel" Sound="Reaper_AttackLaunch" />
+        <ContainerAssets Model="ReaperBunkerAttackLaunch" Sound="Reaper_BunkerAttackLaunch" />
+        <ImpactMap index="None" Model="DFAFieldEngineerPistolImpactModel" Sound="Reaper_AttackImpact" />
+        <ImpactMap index="Shield" Model="DFAFieldEngineerPistolImpactModel" Sound="Reaper_AttackImpact" />
+        <DamageMap index="None" Sound="##id##Damage" />
+        <DamageMap index="Shield" Sound="##id##DamageShield" />
+    </CActorAction>
+    <CActorUnit id="DFAMobileFactory" parent="TerranBuildingEx" unitName="DFAMobileFactory">
+        <On Terms="UnitBirth.DFAMobileFactoryMobile" Send="Create" />
+        <On Terms="UnitBirth.DFAMobileFactory" Send="AnimBracketStart Deployed Spell,A,Start Spell,A,Stand Spell,A,End Instant" />
+        <On Terms="AbilMorph.*.Start; MorphTo DFAMobileFactory" Send="AnimBracketStart Deployed Spell,A,Start Spell,A,Stand Spell,A,End" />
+        <On Terms="AbilMorph.*.Cancel; MorphTo DFAMobileFactory" Send="AnimBracketStop Deployed" />
+        <On Terms="AbilMorph.*.Start; MorphTo DFAMobileFactoryMobile" Send="AnimBracketStop Deployed" />
+        <On Terms="AbilMorph.*.Cancel; MorphTo DFAMobileFactoryMobile" Send="AnimBracketStart Deployed Spell,A,Start Spell,A,Stand Spell,A,End Instant" />
+        <On Terms="Abil.DFAVehicleProductionQueue.Start" Send="StatusIncrement DFAVehicleQueuing" />
+        <On Terms="Abil.DFAVehicleProductionQueue.Stop" Send="StatusDecrement DFAVehicleQueuing" />
+        <On Terms="StatusOn.*.DFAVehicleQueuing" Send="AnimPlay Production Spell,A,Work PlayForever" />
+        <On Terms="StatusOff.*.DFAVehicleQueuing" Send="AnimClear Production" />
+        <Model value="DFAMobileFactoryModel" />
+        <ModelFlags index="OutlineEmitter" value="1" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+        <BuildModel value="Invisible" />
+        <DeathArray index="Normal" ModelLink="TerranLargeBuildingDeath" SoundLink="Factory_Explode" />
+        <DeathArray index="UnderConstruction" ModelLink="TerranBuildingDeath" SoundLink="Factory_Explode" />
+        <PortraitModel value="FactoryPortrait" />
+        <PlacementModel value="FactoryPlacement" />
+        <UnitFlags index="StandAnimBirthVariation" value="0" />
+        <WalkAnimMoveSpeed value="2.25" />
+        <AnimBlendTime value="0.175" />
+        <UnitIcon value="Assets\Textures\btn-buildings-dominion-mobilefactoy_land-icon.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-dominion-mobilefactory_land-wire.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-dominion-mobilefactory_land-wire.dds" />
+        </Wireframe>
+        <SoundArray index="Ready" value="Thor_Ready" />
+        <SoundArray index="Help" value="Thor_Help" />
+        <SoundArray index="What" value="Thor_What" />
+        <SoundArray index="Yes" value="Thor_Yes" />
+        <SoundArray index="Movement" value="Thor_Movement" />
+        <HighlightTooltip value="Unit/Name/DFAMobileFactory" />
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds" />
+        <BarWidth value="145" />
+        <BarOffset value="135" />
+        <NameOffset value="105" />
+        <Aliases value="_UnitHuge" />
+    </CActorUnit>
+    <CActorModel id="DFAMobileFactoryBuild" parent="TerranBuildingBuild">
+        <Model value="FactoryBuild" />
+    </CActorModel>
+    <CActorModel id="DFAMobileFactoryPlacement" parent="PlacementModel">
+        <Model value="FactoryPlacement" />
+    </CActorModel>
+    <CActorModel id="DFAMobileFactoryPlaceholder" parent="PlaceholderModel">
+        <Model value="FactoryPlacement" />
+    </CActorModel>
+    <CActorUnit id="DFAVulturePatrol" parent="GenericUnitBase" unitName="DFAVulturePatrol">
+        <On Terms="WeaponStart.DFAVulturePatrolGuns.AttackStart" Send="AnimBracketStart Attack Attack,Start Attack Attack,End" />
+        <On Terms="WeaponStop.DFAVulturePatrolGuns.AttackStop" Send="AnimBracketStop Attack" />
+        <Model value="DFAVulturePatrolModel" />
+        <ModelFlags index="OutlineEmitter" value="1" />
+        <UnitFlags index="StandAnimBirthVariation" value="0" />
+        <DeathArray index="Normal" ModelLink="VultureDeath" SoundLink="Vulture_Explode" VoiceLink="##unitName##DeathVoice" />
+        <WalkAnimMoveSpeed value="4.25" />
+        <AnimBlendTime value="0.150000" />
+        <PortraitModel value="VulturePortrait" />
+        <UnitIcon value="Assets\Textures\btn-units-dominion-troopervulture-icon.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-dominion-troopervulture-wire.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-dominion-troopervulture-wire.dds" />
+        </Wireframe>
+        <SoundArray index="Birth" value="##unitName##_Birth" />
+        <SoundArray index="Ready" value="Vulture_Ready" />
+        <SoundArray index="Help" value="Vulture_Help" />
+        <SoundArray index="What" value="Vulture_What" />
+        <SoundArray index="Yes" value="Vulture_Yes" />
+        <SoundArray index="Attack" value="Vulture_Attack" />
+        <SoundArray index="Pissed" value="Vulture_Pissed" />
+        <SoundArray index="Movement" value="Vulture_Yes" />
+        <SoundArray index="Turning" value="##unitName##_Turning" />
+        <SoundArray index="Board" value="##unitName##_Board" />
+        <SoundArray index="Click" value="##unitName##_Click" />
+        <SoundArray index="ClickError" value="##unitName##_ClickError" />
+        <SoundArray index="Highlight" value="##unitName##_Highlight" />
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds" />
+        <BarWidth value="62" />
+        <BarOffset value="55" />
+        <Aliases value="_UnitMedium" />
+        <GroupSoundArray index="What" value="##unitName##_GroupWhat" />
+        <GroupSoundArray index="Yes" value="##unitName##_GroupYes" />
+        <GroupSoundArray index="Attack" value="##unitName##_GroupAttack" />
+        <GroupSoundArray index="Board" value="##unitName##_GroupBoard" />
+    </CActorUnit>
+    <CActorAction id="DFAVulturePatrolLeftAction" parent="GenericAttack" effectAttack="DFAVulturePatrolLeftDamage">
+        <LaunchAttachQuery Methods="DFAAttachVultureLeft" />
+        <LaunchAssets Model="DFAVulturePatrolLaunchModel" Sound="Marine_AttackLaunch" />
+        <ImpactMap index="None" Model="DFAVulturePatrolImpactModel" Sound="Marine_AttackImpact" />
+        <ImpactMap index="Shield" Model="DFAVulturePatrolImpactModel" Sound="Marine_AttackImpact" />
+        <ContainerAssets Sound="##effectAttack##BunkerAttackLaunch" />
+        <DamageMap index="None" Sound="##id##Damage" />
+        <DamageMap index="Shield" Sound="##id##DamageShield" />
+    </CActorAction>
+    <CActorAction id="DFAVulturePatrolRightAction" parent="GenericAttack" effectAttack="DFAVulturePatrolRightDamage">
+        <LaunchAttachQuery Methods="DFAAttachVultureRight" />
+        <LaunchAssets Model="DFAVulturePatrolLaunchModel" Sound="Marine_AttackLaunch" />
+        <ImpactMap index="None" Model="DFAVulturePatrolImpactModel" Sound="Marine_AttackImpact" />
+        <ImpactMap index="Shield" Model="DFAVulturePatrolImpactModel" Sound="Marine_AttackImpact" />
+        <ContainerAssets Sound="##effectAttack##BunkerAttackLaunch" />
+        <DamageMap index="None" Sound="##id##Damage" />
+        <DamageMap index="Shield" Sound="##id##DamageShield" />
+    </CActorAction>
+    <CActorUnit id="DFAStoneGoose" parent="GenericUnitBase" unitName="DFAStoneGoose">
+        <On Terms="WeaponStart.DFAStoneGooseAutocannons.AttackStart" Send="AnimPlay AttackRanged Spell,C" />
+        <On Terms="WeaponStart.DFAStoneGooseMelee.AttackStart" Send="AnimPlay AttackMelee Attack" />
+        <On Terms="Behavior.DFAStoneGooseMeleeModeBehavior.On" Send="AnimBracketStart MeleeMode Spell,A,Start Spell,A,Channel Spell,A,End" />
+        <On Terms="Behavior.DFAStoneGooseMeleeModeBehavior.Off" Send="AnimBracketStop MeleeMode" />
+        <Model value="DFAStoneGooseModel" />
+        <ModelFlags index="OutlineEmitter" value="1" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+        <UnitFlags index="StandAnimBirthVariation" value="0" />
+        <DeathArray index="Normal" ModelLink="GoliathDeath" SoundLink="Goliath_Explode" />
+        <WalkAnimMoveSpeed value="3" />
+        <AnimBlendTime value="0.15" />
+        <PortraitModel value="GoliathPortrait" />
+        <UnitIcon value="Assets\Textures\btn-units-terran-stone_goose-icon.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-units-terran-stone_goose-wire.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-units-terran-stone_goose-wire.dds" />
+        </Wireframe>
+        <SoundArray index="Ready" value="Goliath_Ready" />
+        <SoundArray index="Help" value="Goliath_Help" />
+        <SoundArray index="What" value="Goliath_What" />
+        <SoundArray index="Yes" value="Goliath_Yes" />
+        <SoundArray index="Attack" value="Goliath_Attack" />
+        <SoundArray index="Pissed" value="Goliath_Pissed" />
+        <SoundArray index="Movement" value="Goliath_Movement" />
+        <HighlightTooltip value="Unit/Name/DFAStoneGoose" />
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds" />
+        <BarWidth value="80" />
+        <BarOffset value="70" />
+        <Aliases value="_UnitLarge" />
+    </CActorUnit>
+    <CActorUnit id="DFATransportTruck" parent="GenericUnitBase" unitName="DFATransportTruck">
+        <On Terms="UnitBirth.DFATransportTruckDeployed" Send="Create" />
+        <On Terms="WeaponStart.DFATransportTruckDefenseGuns.AttackStart" Send="AnimBracketStart Attack Attack" />
+        <On Terms="WeaponStop.DFATransportTruckDefenseGuns.AttackStop" Send="AnimBracketStop Attack" />
+        <On Terms="UnitBirth.DFATransportTruckDeployed" Send="AnimBracketStart Deployed Spell,A,Start Spell,A,Channel Spell,A,End Instant" />
+        <On Terms="UnitBirth.DFATransportTruckDeployed" Send="AnimPlay Dish GLstand PlayForever" />
+        <On Terms="AbilMorph.*.Start; MorphTo DFATransportTruckDeployed" Send="AnimBracketStart Deployed Spell,A,Start Spell,A,Channel Spell,A,End" />
+        <On Terms="AbilMorph.*.Finish; MorphTo DFATransportTruckDeployed" Send="AnimPlay Dish GLstand PlayForever" />
+        <On Terms="AbilMorph.*.Cancel; MorphTo DFATransportTruckDeployed" Send="AnimBracketStop Deployed" />
+        <On Terms="AbilMorph.*.Start; MorphTo DFATransportTruck" Send="AnimClear Dish" />
+        <On Terms="AbilMorph.*.Start; MorphTo DFATransportTruck" Send="AnimBracketStop Deployed" />
+        <On Terms="AbilMorph.*.Cancel; MorphTo DFATransportTruck" Send="AnimBracketStart Deployed Spell,A,Start Spell,A,Channel Spell,A,End Instant" />
+        <On Terms="AbilMorph.*.Cancel; MorphTo DFATransportTruck" Send="AnimPlay Dish GLstand PlayForever" />
+        <Model value="DFATransportTruckModel" />
+        <ModelFlags index="OutlineEmitter" value="1" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+        <UnitFlags index="StandAnimBirthVariation" value="0" />
+        <DeathArray index="Normal" ModelLink="TerranLargeUnitDeath" SoundLink="Hellion_Explode" />
+        <WalkAnimMoveSpeed value="3" />
+        <AnimBlendTime value="0.175" />
+        <PortraitModel value="TransportPilotPortrait" />
+        <UnitIcon value="Assets\Textures\btn-buildings-terran-transport_truck-icon.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\wireframe-buildings-terran-transport_truck-wire.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\wireframe-buildings-terran-transport_truck-wire.dds" />
+        </Wireframe>
+        <SoundArray index="Ready" value="Hellion_Ready" />
+        <SoundArray index="Help" value="Hellion_Help" />
+        <SoundArray index="What" value="Hellion_What" />
+        <SoundArray index="Yes" value="Hellion_Yes" />
+        <SoundArray index="Attack" value="Hellion_Attack" />
+        <SoundArray index="Pissed" value="Hellion_Pissed" />
+        <SoundArray index="Movement" value="Hellion_Movement" />
+        <HighlightTooltip value="Unit/Name/DFATransportTruck" />
+        <LifeArmorIcon value="Assets\Textures\btn-upgrade-terran-vehicleplatinglevel0.dds" />
+        <BarWidth value="110" />
+        <BarOffset value="100" />
+        <Aliases value="_UnitHuge" />
+    </CActorUnit>
+    <CActorTurret id="DFATransportTruckTurret">
+        <On Terms="TurretEnable.DFATransportTruckTurret" Send="Create" />
+    </CActorTurret>
+    <CActorAction id="DFATransportTruckGun1Action" parent="GenericAttack" effectAttack="DFATransportTruckGun1Damage">
+        <LaunchAttachQuery Methods="DFAAttachTransportGun1" />
+        <LaunchAssets Model="DFATransportTruckLaunchModel" Sound="Raven_AutoTurretAttackLaunch" />
+        <ImpactMap index="None" Model="DFATransportTruckImpactModel" Sound="Marine_AttackImpact" />
+        <ImpactMap index="Shield" Model="DFATransportTruckImpactModel" Sound="Marine_AttackImpact" />
+    </CActorAction>
+    <CActorAction id="DFATransportTruckGun2Action" parent="GenericAttack" effectAttack="DFATransportTruckGun2Damage">
+        <LaunchAttachQuery Methods="DFAAttachTransportGun2" />
+        <LaunchAssets Model="DFATransportTruckLaunchModel" Sound="Raven_AutoTurretAttackLaunch" />
+        <ImpactMap index="None" Model="DFATransportTruckImpactModel" Sound="Marine_AttackImpact" />
+        <ImpactMap index="Shield" Model="DFATransportTruckImpactModel" Sound="Marine_AttackImpact" />
+    </CActorAction>
+    <CActorAction id="DFATransportTruckGun3Action" parent="GenericAttack" effectAttack="DFATransportTruckGun3Damage">
+        <LaunchAttachQuery Methods="DFAAttachTransportGun3" />
+        <LaunchAssets Model="DFATransportTruckLaunchModel" Sound="Raven_AutoTurretAttackLaunch" />
+        <ImpactMap index="None" Model="DFATransportTruckImpactModel" Sound="Marine_AttackImpact" />
+        <ImpactMap index="Shield" Model="DFATransportTruckImpactModel" Sound="Marine_AttackImpact" />
+    </CActorAction>
+    <CActorAction id="DFATransportTruckGun4Action" parent="GenericAttack" effectAttack="DFATransportTruckGun4Damage">
+        <LaunchAttachQuery Methods="DFAAttachTransportGun4" />
+        <LaunchAssets Model="DFATransportTruckLaunchModel" Sound="Raven_AutoTurretAttackLaunch" />
+        <ImpactMap index="None" Model="DFATransportTruckImpactModel" Sound="Marine_AttackImpact" />
+        <ImpactMap index="Shield" Model="DFATransportTruckImpactModel" Sound="Marine_AttackImpact" />
+    </CActorAction>
+    <CActorRange id="DFAFieldServiceRange" parent="RangeBehavior" behavior="DFAFieldServiceEmitter" />
+    <CActorModel id="DFAFieldServiceRecoveryVisual" parent="ModelAnimationStyleContinuous">
+        <Model value="NanoRepairBeamImpact" />
+        <On Terms="Behavior.DFAFieldServiceRecovery.On" Send="Create" />
+        <On Terms="Behavior.DFAFieldServiceRecovery.Off" Send="Destroy" />
+        <On Terms="ActorOrphan" Send="Destroy" />
+        <Host Subject="_Selectable" />
+        <HostSiteOps Ops="SOpAttachCenter" />
+        <Scale value="0.35" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+    </CActorModel>
+    <CActorSound id="DFATransportTruckLoadSound" parent="SoundOneShot">
+        <On Terms="AbilTransport.DFATransportTruckTransport.TransportLoad" Send="Create" />
+        <Host Subject="_Unit" />
+        <HostSiteOps Ops="SOpAttachOriginStationary" />
+        <Sound value="TransportTruckTransportLoadSound" />
+    </CActorSound>
+    <CActorSound id="DFATransportTruckUnloadSound" parent="SoundOneShot">
+        <On Terms="AbilTransport.DFATransportTruckTransport.TransportUnload" Send="Create" />
+        <Host Subject="_Unit" />
+        <HostSiteOps Ops="SOpAttachOriginStationary" />
+        <Sound value="ColonistShip_Unload" />
+    </CActorSound>
+    <CActorUnit id="DFAWreckMobileFactory" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DFAWreckMobileFactory">
+        <Model value="ScrapCubeLarge" />
+        <BuildModel value="ScrapCubeLarge" />
+        <PlacementModel value="ScrapCubeLarge" />
+        <StatusBarFlags index="Shields" value="0" />
+        <StatusBarFlags index="Life" value="0" />
+        <StatusBarFlags index="Energy" value="0" />
+        <StatusBarFlags index="Cargo" value="0" />
+        <StatusBarFlags index="Progress" value="0" />
+        <StatusBarFlags index="Duration" value="0" />
+        <UnitIcon value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        </Wireframe>
+        <HighlightTooltip value="Unit/Name/DFAWreckMobileFactory" />
+    </CActorUnit>
+    <CActorUnit id="DFAWreckVulturePatrol" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DFAWreckVulturePatrol">
+        <Model value="ScrapCube" />
+        <BuildModel value="ScrapCube" />
+        <PlacementModel value="ScrapCube" />
+        <StatusBarFlags index="Shields" value="0" />
+        <StatusBarFlags index="Life" value="0" />
+        <StatusBarFlags index="Energy" value="0" />
+        <StatusBarFlags index="Cargo" value="0" />
+        <StatusBarFlags index="Progress" value="0" />
+        <StatusBarFlags index="Duration" value="0" />
+        <UnitIcon value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        </Wireframe>
+        <DeathArray index="Normal" SoundLink="##unitName##Death" VoiceLink="##unitName##DeathVoice" />
+    </CActorUnit>
+    <CActorUnit id="DFAWreckStoneGoose" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DFAWreckStoneGoose">
+        <Model value="ScrapCubeMedium" />
+        <BuildModel value="ScrapCubeMedium" />
+        <PlacementModel value="ScrapCubeMedium" />
+        <StatusBarFlags index="Shields" value="0" />
+        <StatusBarFlags index="Life" value="0" />
+        <StatusBarFlags index="Energy" value="0" />
+        <StatusBarFlags index="Cargo" value="0" />
+        <StatusBarFlags index="Progress" value="0" />
+        <StatusBarFlags index="Duration" value="0" />
+        <UnitIcon value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        </Wireframe>
+        <HighlightTooltip value="Unit/Name/DFAWreckStoneGoose" />
+    </CActorUnit>
+    <CActorUnit id="DFAWreckTransportTruck" parent="GenericUnitStandardNoAutoSoundLinks" unitName="DFAWreckTransportTruck">
+        <Model value="ScrapCubeLarge" />
+        <BuildModel value="ScrapCubeLarge" />
+        <PlacementModel value="ScrapCubeLarge" />
+        <StatusBarFlags index="Shields" value="0" />
+        <StatusBarFlags index="Life" value="0" />
+        <StatusBarFlags index="Energy" value="0" />
+        <StatusBarFlags index="Cargo" value="0" />
+        <StatusBarFlags index="Progress" value="0" />
+        <StatusBarFlags index="Duration" value="0" />
+        <UnitIcon value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        <GroupIcon>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\Wireframe-terran-scrapcube.dds" />
+        </Wireframe>
+        <HighlightTooltip value="Unit/Name/DFAWreckTransportTruck" />
+    </CActorUnit>
+    <CActorAction id="DFAStoneGooseMeleeAction" parent="GenericAttack" effectAttack="DFAStoneGooseMeleeDamage">
+        <ShieldFlashType value="Header" />
+        <ImpactMap index="None" Sound="WarHound_MeleeAttackLaunch" />
+        <ImpactMap index="Shield" Sound="WarHound_MeleeAttackLaunch" />
+    </CActorAction>
+    <CActorAction id="DFAStoneGooseLeftAction" parent="GenericAttack" effectAttack="DFAStoneGooseLeftDamage">
+        <LaunchAttachQuery Methods="DFAAttachStoneGooseLeft" />
+        <LaunchAssets Model="DFAStoneGooseLaunchModel" Sound="VikingAssault_AttackLaunch" />
+        <ImpactMap index="None" Model="DFAStoneGooseImpactModel" Sound="Viking_AssaultAttackImpact" />
+        <ImpactMap index="Shield" Model="DFAStoneGooseImpactModel" Sound="Viking_AssaultAttackImpact" />
+    </CActorAction>
+    <CActorAction id="DFAStoneGooseRightAction" parent="GenericAttack" effectAttack="DFAStoneGooseRightDamage">
+        <LaunchAttachQuery Methods="DFAAttachStoneGooseRight" />
+        <LaunchAssets Model="DFAStoneGooseLaunchModel" Sound="VikingAssault_AttackLaunch" />
+        <ImpactMap index="None" Model="DFAStoneGooseImpactModel" Sound="Viking_AssaultAttackImpact" />
+        <ImpactMap index="Shield" Model="DFAStoneGooseImpactModel" Sound="Viking_AssaultAttackImpact" />
+    </CActorAction>
+    <CActorUnit id="KoEMechaScorpalisk" parent="GenericUnitBase" unitName="KoEMechaScorpalisk">
+        <Aliases value="_UnitHuge" />
+        <Model value="KoEMechaScorpaliskModel" />
+        <BuildModel value="" />
+        <PlacementModel value="KoEMechaScorpaliskModel" />
+        <PortraitModel value="KoEMechaScorpaliskPortrait" />
+        <WalkAnimMoveSpeed value="2.8125" />
+        <AnimBlendTime value="0.15" />
+        <BarWidth value="160" />
+        <BarOffset value="75" />
+        <NameOffset value="65" />
+        <UnitIcon value="Assets\Textures\MechaScorpalisk\icon.dds" />
+        <HeroIcon value="Assets\Textures\MechaScorpalisk\icon.dds" />
+        <LifeArmorIcon value="Assets\Textures\MechaScorpalisk\armor.dds" />
+        <ShieldArmorIcon value="" />
+        <HighlightTooltip value="Unit/Name/KoEMechaScorpalisk" />
+        <CustomUnitStatusFrame value="LotV_UnitStatus/HeroUnitEnergyStatusFrameTemplate" />
+        <DeathActorModel value="UnitDeathModel" />
+        <DeathActorModelLow value="UnitDeathModel" />
+        <GroupIcon>
+            <Image value="Assets\Textures\MechaScorpalisk\group.dds" />
+        </GroupIcon>
+        <Wireframe>
+            <Image value="Assets\Textures\MechaScorpalisk\wireframe.dds" />
+        </Wireframe>
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+        <UnitFlags index="StandAnimBirthVariation" value="0" />
+        <UnitFlags index="SuppressDefaultStatusBar" value="1" />
+        <StatusBarFlags index="Custom" value="1" />
+        <StatusBarFlags index="Life" value="0" />
+        <StatusBarFlags index="Shields" value="0" />
+        <StatusBarFlags index="Energy" value="0" />
+        <StatusBarFlags index="Cargo" value="0" />
+        <StatusBarFlags index="Progress" value="0" />
+        <StatusBarFlags index="Duration" value="0" />
+        <StatusBarFlags index="Magazine" value="0" />
+        <StatusBarFlags index="Workers" value="0" />
+        <Remove Terms="UnitBirth.##unitName##" Send="Create SoundEmitter ##unitName##_Ambience" />
+        <EventDataFootprint Actor="" Model="" />
+        <EventDataSound Name="ScorpaliskPincerSweep" Actor="UnitSound" Sound="Ultralisk_AttackLaunch" />
+        <DeathArray index="Normal" ModelLink="KoEMechaScorpaliskModel" SoundLink="Ultralisk_Mecha_Death" VoiceLink="" AnimProps="Death" />
+        <DeathArray index="Eat" ModelLink="KoEMechaScorpaliskModel" SoundLink="Ultralisk_Mecha_Death" VoiceLink="" AnimProps="Death" />
+        <DeathArray index="Eviscerate" ModelLink="KoEMechaScorpaliskModel" SoundLink="Ultralisk_Mecha_Death" VoiceLink="" AnimProps="Death" />
+        <DeathArray index="Fire" ModelLink="KoEMechaScorpaliskModel" SoundLink="Ultralisk_Mecha_Death" VoiceLink="" AnimProps="Death" />
+        <DeathArray index="Silentkill" ModelLink="KoEMechaScorpaliskModel" SoundLink="Ultralisk_Mecha_Death" VoiceLink="" AnimProps="Death" />
+        <DeathArray index="Squish" ModelLink="KoEMechaScorpaliskModel" SoundLink="Ultralisk_Mecha_Death" VoiceLink="" AnimProps="Death" />
+        <DeathArray index="UnderConstruction" ModelLink="KoEMechaScorpaliskModel" SoundLink="Ultralisk_Mecha_Death" VoiceLink="" AnimProps="Death" />
+        <DeathArray index="Disintegrate" ModelLink="KoEMechaScorpaliskModel" SoundLink="Ultralisk_Mecha_Death" VoiceLink="" AnimProps="Death" />
+        <DeathCustoms index="0" ModelLink="KoEMechaScorpaliskModel" SoundLink="Ultralisk_Mecha_Death" VoiceLink="" Name="AntiGravGeneric" />
+        <DeathCustoms index="1" ModelLink="KoEMechaScorpaliskModel" SoundLink="Ultralisk_Mecha_Death" VoiceLink="" Name="AntiGravProtoss" />
+        <DeathCustoms index="2" ModelLink="KoEMechaScorpaliskModel" SoundLink="Ultralisk_Mecha_Death" VoiceLink="" Name="AntiGravTerran" />
+        <DeathCustoms index="3" ModelLink="KoEMechaScorpaliskModel" SoundLink="Ultralisk_Mecha_Death" VoiceLink="" Name="AntiGravZerg" />
+        <SoundArray index="Birth" value="" />
+        <SoundArray index="Ready" value="Ultralisk_Mecha_Birth" />
+        <SoundArray index="Help" value="" />
+        <SoundArray index="What" value="Ultralisk_What" />
+        <SoundArray index="Yes" value="Ultralisk_Yes" />
+        <SoundArray index="Attack" value="Ultralisk_Attack" />
+        <SoundArray index="Pissed" value="Ultralisk_Pissed" />
+        <SoundArray index="Movement" value="" />
+        <SoundArray index="Turning" value="" />
+        <SoundArray index="Board" value="" />
+        <SoundArray index="Click" value="" />
+        <SoundArray index="ClickError" value="" />
+        <SoundArray index="Highlight" value="" />
+        <GroupSoundArray index="What" value="" />
+        <GroupSoundArray index="Yes" value="" />
+        <GroupSoundArray index="Attack" value="" />
+        <GroupSoundArray index="Board" value="" />
+        <On Terms="WeaponStart.KoEMechaScorpaliskPincerMaul.AttackStart" Send="AnimBracketStart Attack Attack,01" />
+        <On Terms="WeaponStop.KoEMechaScorpaliskPincerMaul.AttackStop" Send="AnimBracketStop Attack" />
+    </CActorUnit>
+    <CActorAction id="KoEMechaScorpaliskPincerMaulAction" parent="GenericAttack" effectAttack="KoEMechaScorpaliskPincerMaulDamage">
+        <ShieldFlashType value="Full" />
+        <Beam value="" />
+        <Missile value="" />
+        <LaunchSiteOps Ops="SOpAttachHarness" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskPincerAttachment" />
+        <LaunchAssets Model="" Sound="" />
+        <ContainerAssets Model="" Sound="" />
+        <ImpactModel value="KoEMechaScorpaliskPincerMaulImpactActor" />
+        <ImpactMap index="None" Model="KoEMechaScorpaliskPincerMaulImpactModel" Sound="Ultralisk_AttackImpact" ModelReaction="" />
+        <DamageMap index="None" Model="" Sound="" ModelReaction="" />
+        <ImpactMap index="Shield" Model="KoEMechaScorpaliskPincerMaulImpactModel" Sound="Ultralisk_AttackImpact" ModelReaction="" />
+        <DamageMap index="Shield" Model="" Sound="" ModelReaction="" />
+    </CActorAction>
+    <CActorModel id="KoEMechaScorpaliskPincerMaulImpactActor" parent="GenericAttackImpactModel">
+        <Model value="KoEMechaScorpaliskPincerMaulImpactModel" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+        <Remove Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death ContentPlayOnce" />
+        <Remove Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy" />
+        <On Terms="ActorCreation" Send="AnimPlay Contact Death" />
+        <On Terms="ActorCreation" Send="TimerSet 1.500000 ContactEnd" />
+        <On Terms="TimerExpired; TimerName ContactEnd" Send="Destroy" />
+    </CActorModel>
+    <CActorMissile id="KoEMechaScorpaliskShoulderMissileActor" parent="GenericAttackMissile" unitName="KoEMechaScorpaliskShoulderMissile">
+        <Model value="KoEMechaScorpaliskShoulderMissileModel" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+        <Remove Terms="UnitBirth" Send="AnimBracketStart Lifetime Birth Stand" />
+        <On Terms="UnitBirth" Send="AnimPlay Lifetime Stand PlayForever" />
+    </CActorMissile>
+    <CActorAction id="KoEMechaScorpaliskShoulderAction" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderDamage" effectLaunch="KoEMechaScorpaliskShoulderLaunch">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="Cyclone_Missile_Launch" />
+        <ContainerAssets Model="" Sound="" />
+        <ImpactMap index="None" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="Cyclone_Missile_Impact" ModelReaction="" />
+        <DamageMap index="None" Model="" Sound="" ModelReaction="" />
+        <ImpactMap index="Shield" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="Cyclone_Missile_Impact" ModelReaction="" />
+        <DamageMap index="Shield" Model="" Sound="" ModelReaction="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+        <ImpactModel value="KoEMechaScorpaliskShoulderImpactActor" />
+    </CActorAction>
+    <CActorModel id="KoEMechaScorpaliskShoulderLaunchActor" parent="GenericAttackLaunchModel">
+        <Model value="KoEMechaScorpaliskShoulderLaunchModel" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+        <Remove Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death ContentPlayOnce" />
+        <Remove Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy" />
+        <On Terms="ActorCreation" Send="AnimPlay Visual Birth" />
+        <On Terms="ActorCreation" Send="TimerSet 1.1 VisualEnd" />
+        <On Terms="TimerExpired; TimerName VisualEnd" Send="Destroy" />
+    </CActorModel>
+    <CActorModel id="KoEMechaScorpaliskShoulderImpactActor" parent="GenericAttackImpactModel">
+        <Model value="KoEMechaScorpaliskShoulderImpactModel" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+        <Remove Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death ContentPlayOnce" />
+        <Remove Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy" />
+        <On Terms="ActorCreation" Send="AnimPlay Visual Death" />
+        <On Terms="ActorCreation" Send="TimerSet 5.1 VisualEnd" />
+        <On Terms="TimerExpired; TimerName VisualEnd" Send="Destroy" />
+    </CActorModel>
+    <CActorAction id="KoEMechaScorpaliskShoulderRightAction" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderDamage" effectLaunch="KoEMechaScorpaliskShoulderRightLaunch">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderRightAttachment" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="" />
+        <ContainerAssets Model="" Sound="" />
+        <ImpactMap index="None" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="" ModelReaction="" />
+        <DamageMap index="None" Model="" Sound="" ModelReaction="" />
+        <ImpactMap index="Shield" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="" ModelReaction="" />
+        <DamageMap index="Shield" Model="" Sound="" ModelReaction="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+        <ImpactModel value="KoEMechaScorpaliskShoulderImpactActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderGroundAction01" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderGroundSearch" effectLaunch="KoEMechaScorpaliskShoulderGroundLaunch01">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="Cyclone_Missile_Launch" />
+        <ContainerAssets Model="" Sound="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderGroundAction02" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderGroundSearch" effectLaunch="KoEMechaScorpaliskShoulderGroundLaunch02">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderRightAttachment" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="" />
+        <ContainerAssets Model="" Sound="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderAction03" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderDamage" effectLaunch="KoEMechaScorpaliskShoulderLaunch03">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment03" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="" />
+        <ContainerAssets Model="" Sound="" />
+        <ImpactMap index="None" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="" ModelReaction="" />
+        <DamageMap index="None" Model="" Sound="" ModelReaction="" />
+        <ImpactMap index="Shield" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="" ModelReaction="" />
+        <DamageMap index="Shield" Model="" Sound="" ModelReaction="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+        <ImpactModel value="KoEMechaScorpaliskShoulderImpactActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderGroundAction03" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderGroundSearch" effectLaunch="KoEMechaScorpaliskShoulderGroundLaunch03">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment03" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="" />
+        <ContainerAssets Model="" Sound="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderAction04" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderDamage" effectLaunch="KoEMechaScorpaliskShoulderLaunch04">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment04" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="" />
+        <ContainerAssets Model="" Sound="" />
+        <ImpactMap index="None" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="" ModelReaction="" />
+        <DamageMap index="None" Model="" Sound="" ModelReaction="" />
+        <ImpactMap index="Shield" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="" ModelReaction="" />
+        <DamageMap index="Shield" Model="" Sound="" ModelReaction="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+        <ImpactModel value="KoEMechaScorpaliskShoulderImpactActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderGroundAction04" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderGroundSearch" effectLaunch="KoEMechaScorpaliskShoulderGroundLaunch04">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment04" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="" />
+        <ContainerAssets Model="" Sound="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderAction05" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderDamage" effectLaunch="KoEMechaScorpaliskShoulderLaunch05">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment05" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="" />
+        <ContainerAssets Model="" Sound="" />
+        <ImpactMap index="None" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="" ModelReaction="" />
+        <DamageMap index="None" Model="" Sound="" ModelReaction="" />
+        <ImpactMap index="Shield" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="" ModelReaction="" />
+        <DamageMap index="Shield" Model="" Sound="" ModelReaction="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+        <ImpactModel value="KoEMechaScorpaliskShoulderImpactActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderGroundAction05" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderGroundSearch" effectLaunch="KoEMechaScorpaliskShoulderGroundLaunch05">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment05" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="" />
+        <ContainerAssets Model="" Sound="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderAction06" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderDamage" effectLaunch="KoEMechaScorpaliskShoulderLaunch06">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment06" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="" />
+        <ContainerAssets Model="" Sound="" />
+        <ImpactMap index="None" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="" ModelReaction="" />
+        <DamageMap index="None" Model="" Sound="" ModelReaction="" />
+        <ImpactMap index="Shield" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="" ModelReaction="" />
+        <DamageMap index="Shield" Model="" Sound="" ModelReaction="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+        <ImpactModel value="KoEMechaScorpaliskShoulderImpactActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderGroundAction06" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderGroundSearch" effectLaunch="KoEMechaScorpaliskShoulderGroundLaunch06">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment06" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="" />
+        <ContainerAssets Model="" Sound="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderAction07" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderDamage" effectLaunch="KoEMechaScorpaliskShoulderLaunch07">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment07" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="" />
+        <ContainerAssets Model="" Sound="" />
+        <ImpactMap index="None" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="" ModelReaction="" />
+        <DamageMap index="None" Model="" Sound="" ModelReaction="" />
+        <ImpactMap index="Shield" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="" ModelReaction="" />
+        <DamageMap index="Shield" Model="" Sound="" ModelReaction="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+        <ImpactModel value="KoEMechaScorpaliskShoulderImpactActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderGroundAction07" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderGroundSearch" effectLaunch="KoEMechaScorpaliskShoulderGroundLaunch07">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment07" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="" />
+        <ContainerAssets Model="" Sound="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderAction08" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderDamage" effectLaunch="KoEMechaScorpaliskShoulderLaunch08">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment08" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="Cyclone_Missile_Launch" />
+        <ContainerAssets Model="" Sound="" />
+        <ImpactMap index="None" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="Cyclone_Missile_Impact" ModelReaction="" />
+        <DamageMap index="None" Model="" Sound="" ModelReaction="" />
+        <ImpactMap index="Shield" Model="KoEMechaScorpaliskShoulderImpactModel" Sound="Cyclone_Missile_Impact" ModelReaction="" />
+        <DamageMap index="Shield" Model="" Sound="" ModelReaction="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+        <ImpactModel value="KoEMechaScorpaliskShoulderImpactActor" />
+    </CActorAction>
+    <CActorAction id="KoEMechaScorpaliskShoulderGroundAction08" parent="GenericAttack" effectImpact="KoEMechaScorpaliskShoulderGroundSearch" effectLaunch="KoEMechaScorpaliskShoulderGroundLaunch08">
+        <Missile value="KoEMechaScorpaliskShoulderMissileActor" />
+        <Beam value="" />
+        <LaunchAttachQuery Methods="KoEMechaScorpaliskShoulderAttachment08" />
+        <LaunchAssets Model="KoEMechaScorpaliskShoulderLaunchModel" Sound="Cyclone_Missile_Launch" />
+        <ContainerAssets Model="" Sound="" />
+        <LaunchModel value="KoEMechaScorpaliskShoulderLaunchActor" />
+    </CActorAction>
+    <CActorModel id="KoEMechaScorpaliskShoulderWarningActor" parent="ModelAnimationStyleContinuous">
+        <FogVisibility value="Visible" />
+        <ScopeBearingsTracking value="ForceOff" />
+        <Model value="KoEMechaScorpaliskShoulderWarningModel" />
+        <HostSiteOps Ops="SOpTargetPointStationary SOpShadow" />
+        <Scale value="1" />
+        <ModelFlags index="AutomateGlobalLoops" value="1" />
+        <On Terms="Effect.KoEMechaScorpaliskShoulderWarning.Start; At Effect" Send="Create" />
+        <On Terms="ActorCreation" Send="AnimBracketStart Warning Birth Stand Death" />
+        <On Terms="ActorCreation" Send="SetTintColor {255,96,32 0.150000}" />
+        <On Terms="ActorCreation" Send="TimerSet 0.550000 WarningEnd" />
+        <On Terms="TimerExpired; TimerName WarningEnd" Send="Destroy" />
+        <On Terms="ActorOrphan" Send="Destroy" />
+    </CActorModel>
+    <CActorSound id="KoEMechaScorpaliskShoulderAcquireSound" parent="SoundOneShot">
+        <Sound value="Cyclone_TargetLock_On" />
+        <On Terms="Effect.KoEMechaScorpaliskShoulderSalvo.Start; At Caster" Send="Create" />
+        <On Terms="SoundDone; SoundIsFinalSound" Send="Destroy" />
+    </CActorSound>
+    <CActorModel id="KoEMechaScorpaliskShoulderGroundImpactActor" parent="ModelAnimationStyleOneShot">
+        <Model value="KoEMechaScorpaliskShoulderGroundImpactModel" />
+        <On Terms="Effect.KoEMechaScorpaliskShoulderGroundSearch.Start" Send="Create" />
+    </CActorModel>
+    <CActorSound id="KoEMechaScorpaliskShoulderGroundImpactSound" parent="SoundOneShot">
+        <Sound value="BansheeCarpetBombImpact" />
+        <On Terms="Effect.KoEMechaScorpaliskShoulderGroundSearch.Start" Send="Create" />
+    </CActorSound>
+</Catalog>

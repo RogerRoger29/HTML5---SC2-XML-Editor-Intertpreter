@@ -1,0 +1,17 @@
+﻿DocInfo/DescLong=У каждого игрока есть удобное место для первой дополнительной базы, однако остальные дополнительные базы удержать будет трудно. Скооперируйтесь для атаки и грамотно распоряжайтесь своими ресурсами.
+DocInfo/DescShort=3х3
+DocInfo/Name=Заброшенный лагерь
+MapInfo/Player00/Name=Нейтральный
+MapInfo/Player01/Name=Игрок 1
+MapInfo/Player02/Name=Игрок 2
+MapInfo/Player03/Name=Игрок 3
+MapInfo/Player04/Name=Игрок 4
+MapInfo/Player05/Name=Игрок 5
+MapInfo/Player06/Name=Игрок 6
+MapInfo/Player07/Name=Враг
+MapInfo/Team00/Name=1х1 1
+MapInfo/Team01/Name=1х1 2
+MapInfo/Team02/Name=2х2 1
+MapInfo/Team03/Name=2х2 2
+MapInfo/Team04/Name=3х3 1
+MapInfo/Team05/Name=3х3 2

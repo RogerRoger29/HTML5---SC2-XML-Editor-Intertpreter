@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Catalog>
+    <CModel id="DFAConstructionVehicleModel" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\DominionFieldArmy\ConstructionVehicle\ConstructionVehicle.m3" />
+        <AttachProps Id="Ref_Weapon Left">
+            <Keys index="Weapon" value="0" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon Right">
+            <Keys index="Weapon" value="1" />
+        </AttachProps>
+        <ScaleMin value="0.65,0.65,0.65" />
+        <ScaleMax value="0.65,0.65,0.65" />
+        <Radius value="1.75" />
+        <RadiusLoose value="1.85" />
+        <SelectionRadius value="0.62" />
+        <ShadowRadius value="0.62" />
+        <Occlusion value="Show" />
+    </CModel>
+    <CModel id="DFAFortressMCVModel" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\DominionFieldArmy\FortressMCV\FortressMCV.m3" />
+        <AttachProps Id="Ref_TurretZ">
+            <Keys index="TurretZ" value="0" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 02">
+            <Keys index="Weapon" value="0" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 03">
+            <Keys index="Weapon" value="1" />
+        </AttachProps>
+        <ScaleMin value="0.75,0.75,0.75" />
+        <ScaleMax value="0.75,0.75,0.75" />
+        <Radius value="4.2" />
+        <RadiusLoose value="4.5" />
+        <SelectionRadius value="2.45" />
+        <ShadowRadius value="2.5" />
+        <Occlusion value="Show" />
+    </CModel>
+    <CModel id="DFAUndergroundBunkerModel" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\DominionFieldArmy\UndergroundBunker\UndergroundBunker.m3" />
+        <AttachProps Id="Ref_Weapon 01">
+            <Keys index="Weapon" value="0" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 02">
+            <Keys index="Weapon" value="1" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 03">
+            <Keys index="Weapon" value="2" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 04">
+            <Keys index="Weapon" value="3" />
+        </AttachProps>
+        <ScaleMin value="0.72,0.72,0.72" />
+        <ScaleMax value="0.72,0.72,0.72" />
+        <Radius value="2.38" />
+        <RadiusLoose value="2.5" />
+        <SelectionRadius value="1.45" />
+        <ShadowRadius value="1.5" />
+        <Occlusion value="Show" />
+    </CModel>
+    <CModel id="DFAMovingBunkerModel" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\DominionFieldArmy\MovingBunker\MovingBunker.m3" />
+        <AttachProps Id="Ref_Weapon 01">
+            <Keys index="Weapon" value="0" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 02">
+            <Keys index="Weapon" value="1" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 03">
+            <Keys index="Weapon" value="2" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 04">
+            <Keys index="Weapon" value="3" />
+        </AttachProps>
+        <ScaleMin value="0.9,0.9,0.9" />
+        <ScaleMax value="0.9,0.9,0.9" />
+        <Radius value="2.25" />
+        <RadiusLoose value="2.4" />
+        <SelectionRadius value="1.15" />
+        <ShadowRadius value="1.2" />
+        <Occlusion value="Show" />
+    </CModel>
+    <CModel id="DFARefineryModel" parent="Refinery" />
+    <CModel id="DFAInfantryDepotModel" parent="BarracksMengsk" />
+    <CModel id="DFALineTrooperLaunchModel" parent="MarineAttackLaunch">
+        <ScaleMin value="0.9,0.9,0.9" />
+        <ScaleMax value="0.9,0.9,0.9" />
+    </CModel>
+    <CModel id="DFALineTrooperImpactModel" parent="MarineAttackImpact">
+        <ScaleMin value="0.9,0.9,0.9" />
+        <ScaleMax value="0.9,0.9,0.9" />
+    </CModel>
+    <CModel id="DFAConstructionVehicleLaunchModel" parent="SCVAttackLaunch">
+        <ScaleMin value="0.8,0.8,0.8" />
+        <ScaleMax value="0.8,0.8,0.8" />
+    </CModel>
+    <CModel id="DFAConstructionVehicleImpactModel" parent="SCVAttack">
+        <ScaleMin value="0.8,0.8,0.8" />
+        <ScaleMax value="0.8,0.8,0.8" />
+    </CModel>
+    <CModel id="DFAFortressMCVLaunchModel" parent="PlanetaryFortressAttackLaunch">
+        <ScaleMin value="0.65,0.65,0.65" />
+        <ScaleMax value="0.65,0.65,0.65" />
+    </CModel>
+    <CModel id="DFAFortressMCVImpactModel" parent="PlanetaryFortressAttackImpact">
+        <ScaleMin value="0.65,0.65,0.65" />
+        <ScaleMax value="0.65,0.65,0.65" />
+    </CModel>
+    <CModel id="DFALineTrooperModel" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\DominionFieldArmy\LineTrooper\LineTrooper.m3" />
+        <AttachProps Id="Ref_Weapon 01">
+            <Keys index="Weapon" value="0" />
+        </AttachProps>
+        <ScaleMin value="0.9,0.9,0.9" />
+        <ScaleMax value="0.9,0.9,0.9" />
+        <Radius value="1.55" />
+        <RadiusLoose value="1.55" />
+        <SelectionRadius value="0.48" />
+        <ShadowRadius value="0.48" />
+        <Occlusion value="Show" />
+    </CModel>
+    <CModel id="DFAShielderModel" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\DominionFieldArmy\Shielder\Shielder.m3" />
+        <AttachProps Id="Ref_Weapon">
+            <Keys index="Weapon" value="0" />
+        </AttachProps>
+        <ScaleMin value="1.15,1.15,1.15" />
+        <ScaleMax value="1.15,1.15,1.15" />
+        <Radius value="1.45" />
+        <RadiusLoose value="1.45" />
+        <SelectionRadius value="0.62" />
+        <ShadowRadius value="0.62" />
+        <Occlusion value="Show" />
+    </CModel>
+    <CModel id="DFAFieldEngineerModel" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\DominionFieldArmy\FieldEngineer\FieldEngineer.m3" />
+        <AttachProps Id="Ref_Weapon 02">
+            <Keys index="Weapon" value="0" />
+        </AttachProps>
+        <ScaleMin value="0.82,0.82,0.82" />
+        <ScaleMax value="0.82,0.82,0.82" />
+        <Radius value="1.5" />
+        <RadiusLoose value="1.5" />
+        <SelectionRadius value="0.48" />
+        <ShadowRadius value="0.48" />
+        <Occlusion value="Show" />
+    </CModel>
+    <CModel id="DFAFieldEngineerPistolLaunchModel" parent="ReaperAttackLaunch">
+        <ScaleMin value="0.65,0.65,0.65" />
+        <ScaleMax value="0.65,0.65,0.65" />
+    </CModel>
+    <CModel id="DFAFieldEngineerPistolImpactModel" parent="ReaperAttackImpact">
+        <ScaleMin value="0.65,0.65,0.65" />
+        <ScaleMax value="0.65,0.65,0.65" />
+    </CModel>
+    <CModel id="DFAFortressMCV" parent="DFAFortressMCVModel" />
+    <CModel id="DFAFortressMCVMobile" parent="DFAFortressMCVModel" />
+    <CModel id="DFAUndergroundBunker" parent="DFAUndergroundBunkerModel" />
+    <CModel id="DFARefinery" parent="DFARefineryModel" />
+    <CModel id="DFAInfantryDepot" parent="DFAInfantryDepotModel" />
+    <CModel id="DFAMobileFactoryModel" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\DominionFieldArmy\MobileFactory\MobileFactory.m3" />
+        <ScaleMin value="0.65,0.65,0.65" />
+        <ScaleMax value="0.65,0.65,0.65" />
+        <Radius value="3.66" />
+        <RadiusLoose value="3.9" />
+        <SelectionRadius value="1.75" />
+        <ShadowRadius value="1.8" />
+        <Occlusion value="Show" />
+    </CModel>
+    <CModel id="DFAMobileFactory" parent="DFAMobileFactoryModel" />
+    <CModel id="DFAMobileFactoryMobile" parent="DFAMobileFactoryModel" />
+    <CModel id="DFAVulturePatrolModel" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\DominionFieldArmy\VulturePatrol\VulturePatrol.m3" />
+        <AttachProps Id="Ref_Weapon">
+            <Keys index="Weapon" value="0" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 02">
+            <Keys index="Weapon" value="1" />
+        </AttachProps>
+        <ScaleMin value="1.05,1.05,1.05" />
+        <ScaleMax value="1.05,1.05,1.05" />
+        <Radius value="1.99" />
+        <RadiusLoose value="2.1" />
+        <SelectionRadius value="0.75" />
+        <ShadowRadius value="0.8" />
+        <Occlusion value="Show" />
+    </CModel>
+    <CModel id="DFAStoneGooseModel" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\DominionFieldArmy\StoneGoose\StoneGoose.m3" />
+        <ScaleMin value="0.8,0.8,0.8" />
+        <ScaleMax value="0.8,0.8,0.8" />
+        <Radius value="1.84" />
+        <RadiusLoose value="2" />
+        <SelectionRadius value="1" />
+        <ShadowRadius value="1.05" />
+        <Occlusion value="Show" />
+    </CModel>
+    <CModel id="DFAStoneGoose" parent="DFAStoneGooseModel" />
+    <CModel id="DFATransportTruckModel" parent="Unit" Race="Terran">
+        <Model value="Assets\Units\DominionFieldArmy\TransportTruck\TransportTruck.m3" />
+        <AttachProps Id="Ref_TurretZ">
+            <Keys index="TurretZ" value="0" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 01">
+            <Keys index="Weapon" value="0" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 02">
+            <Keys index="Weapon" value="1" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 03">
+            <Keys index="Weapon" value="2" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 04">
+            <Keys index="Weapon" value="3" />
+        </AttachProps>
+        <ScaleMin value="0.5,0.5,0.5" />
+        <ScaleMax value="0.5,0.5,0.5" />
+        <Radius value="2.99" />
+        <RadiusLoose value="3.2" />
+        <SelectionRadius value="1.7" />
+        <ShadowRadius value="1.75" />
+        <Occlusion value="Show" />
+    </CModel>
+    <CModel id="DFATransportTruck" parent="DFATransportTruckModel" />
+    <CModel id="DFATransportTruckDeployed" parent="DFATransportTruckModel" />
+    <CModel id="DFAVulturePatrolLaunchModel" parent="MarineAttackLaunch">
+        <ScaleMin value="0.7,0.7,0.7" />
+        <ScaleMax value="0.7,0.7,0.7" />
+    </CModel>
+    <CModel id="DFAVulturePatrolImpactModel" parent="MarineAttackImpact">
+        <ScaleMin value="0.7,0.7,0.7" />
+        <ScaleMax value="0.7,0.7,0.7" />
+    </CModel>
+    <CModel id="DFAStoneGooseLaunchModel" parent="WreckingCrewAssaultAttackLaunch">
+        <ScaleMin value="0.8,0.8,0.8" />
+        <ScaleMax value="0.8,0.8,0.8" />
+    </CModel>
+    <CModel id="DFAStoneGooseImpactModel" parent="WreckingCrewAssaultAttackImpact">
+        <ScaleMin value="0.8,0.8,0.8" />
+        <ScaleMax value="0.8,0.8,0.8" />
+    </CModel>
+    <CModel id="DFATransportTruckLaunchModel" parent="AutoTurretAttackLaunch">
+        <ScaleMin value="0.55,0.55,0.55" />
+        <ScaleMax value="0.55,0.55,0.55" />
+    </CModel>
+    <CModel id="DFATransportTruckImpactModel" parent="AutoTurretAttackImpact">
+        <ScaleMin value="0.55,0.55,0.55" />
+        <ScaleMax value="0.55,0.55,0.55" />
+    </CModel>
+    <CModel id="KoEMechaScorpaliskModel" parent="Unit">
+        <Occlusion value="Show" />
+        <Tipability value="0.750000" />
+        <TipabilityWidth value="1.000000" />
+        <TipabilityLength value="1.000000" />
+        <TechPurchaseCamera value="Star2CameraHigh13" />
+        <UnitGlossaryCamera value="Star2CameraHigh13" />
+        <PlanetPanelCamera value="Star2CameraHigh13" />
+        <Model value="Assets\Units\MechaScorpalisk\MechaScorpalisk.m3" />
+        <ScaleMin value="1.65,1.65,1.65" />
+        <ScaleMax value="1.65,1.65,1.65" />
+        <AnimSpeed value="1" />
+        <SelectionRadius value="1.25" />
+        <ShadowRadius value="1.25" />
+        <Radius value="2.2" />
+        <SquibTypeDefault value="Metal" />
+        <EditorCategories value="Race:Terran" />
+        <Events>
+            <Anim value="Attack,01" />
+            <Name value="ScorpaliskPincerSweep" />
+            <Type value="Sound" />
+            <Time value="0.2" />
+        </Events>
+        <AttachProps Id="Ref_Weapon Left">
+            <Keys index="SetA" value="0" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon">
+            <Keys index="SetB" value="0" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 08">
+            <Keys index="SetB" value="1" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 02">
+            <Keys index="SetB" value="2" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 07">
+            <Keys index="SetB" value="3" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 03">
+            <Keys index="SetB" value="4" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 06">
+            <Keys index="SetB" value="5" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 04">
+            <Keys index="SetB" value="6" />
+        </AttachProps>
+        <AttachProps Id="Ref_Weapon 05">
+            <Keys index="SetB" value="7" />
+        </AttachProps>
+    </CModel>
+    <CModel id="KoEMechaScorpaliskPincerMaulImpactModel" parent="ImpactFX">
+        <Model value="Assets\Effects\Other\MetalImpactSmear\MetalImpactSmear.m3" />
+        <EditorCategories value="Race:Neutral" />
+        <Flags index="Ignorable" value="1" />
+        <ScaleMin value="0.7,0.7,0.7" />
+        <ScaleMax value="0.7,0.7,0.7" />
+    </CModel>
+    <CModel id="KoEMechaScorpaliskPortrait" parent="StaticPortrait">
+        <Image value="Assets\Textures\MechaScorpalisk\portrait.dds" />
+    </CModel>
+    <CModel id="KoEMechaScorpaliskShoulderMissileModel" parent="MissileFX">
+        <Model value="Assets\Effects\Terran\Cyclone_BigMissile\Cyclone_BigMissile.m3" />
+        <EditorCategories value="Race:Terran" />
+    </CModel>
+    <CModel id="KoEMechaScorpaliskShoulderLaunchModel" parent="LaunchFX">
+        <Model value="Assets\Effects\Terran\Cyclone_Missile_Launch\Cyclone_Missile_Launch.m3" />
+        <EditorCategories value="Race:Terran" />
+        <ScaleMin value="0.75,0.75,0.75" />
+        <ScaleMax value="0.75,0.75,0.75" />
+    </CModel>
+    <CModel id="KoEMechaScorpaliskShoulderImpactModel" parent="ImpactFX">
+        <Model value="Assets\Effects\Terran\Cyclone_BigMissile_Impact\Cyclone_BigMissile_Impact.m3" />
+        <EditorCategories value="Race:Terran" />
+    </CModel>
+    <CModel id="KoEMechaScorpaliskShoulderWarningModel" parent="UI">
+        <Model value="Assets\UI\Cursors\TerranAOECursor\TerranAOECursor.m3" />
+        <EditorCategories value="Race:Terran" />
+        <ScaleMin value="2.2,2.2,2.2" />
+        <ScaleMax value="2.2,2.2,2.2" />
+        <SelectionRadius value="1" />
+        <ShadowRadius value="1" />
+        <Radius value="1" />
+    </CModel>
+    <CModel id="KoEMechaScorpaliskShoulderGroundImpactModel" parent="ImpactFX">
+        <Model value="Assets\Effects\Terran\BansheeMissileImpact\BansheeMissileImpact.m3" />
+        <EditorCategories value="Race:Terran" />
+        <ScaleMin value="1.6,1.6,1.6" />
+        <ScaleMax value="1.6,1.6,1.6" />
+    </CModel>
+</Catalog>
