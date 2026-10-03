@@ -5,7 +5,7 @@ them in a browser, save them back. Windows only; ships as a single 13 MB exe.
 
 ## Get it
 
-Grab `SC2UIEditor.exe` from the [latest release](https://github.com/RogerRoger29/HTML5---SC2-XML-Editor-Intertpreter/releases).
+Grab `SC2UIEditor.exe` from the [latest release](https://github.com/RogerRoger29/HTML5---SC2-XML-Editor-Intertpreter/releases/latest).
 Double-click it. A browser tab opens — that's the editor.
 
 The first time you run it, Windows SmartScreen will warn that the file is

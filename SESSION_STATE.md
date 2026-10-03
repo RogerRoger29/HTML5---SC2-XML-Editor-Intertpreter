@@ -16,6 +16,9 @@ file is the "what we haven't done yet + why" companion.
   `python build.py`. Lives at `sc2-ui-editor/dist/SC2UIEditor.exe`.
 - **Repo:** Posted to GitHub. README.md is the user-facing landing page.
   Tester feedback is the next signal.
+- **Release:** v0.9.2 published on October 2, 2026, with a fresh Windows build.
+  The repository contains the editor and its tests; separate layout handoffs,
+  mod projects, demo maps, and their texture-generation scripts are excluded.
 - The user's stance: ready to circulate for community testing, willing
   to iterate on real-world bug reports.
 
