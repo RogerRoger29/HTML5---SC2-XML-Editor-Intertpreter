@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
+    <!-- Deterministic full-topbar fixtures. These inherit the real KoE
+         abilities and change only the campaign-loadout Show requirement. -->
+    <CAbilEffectTarget id="TyradorDemoDeployAssistanceDrone" parent="DeployAssistanceDrone">
+        <CmdButtonArray index="Execute" DefaultButtonFace="TyradorTopBarDeployAssistanceDrone" Requirements="" />
+    </CAbilEffectTarget>
+    <CAbilBuild id="TyradorDemoCalltoArms" parent="CalltoArms">
+        <InfoArray index="Build1">
+            <Button DefaultButtonFace="TyradorTopBarCalltoArms" Requirements="" />
+        </InfoArray>
+    </CAbilBuild>
     <CAbilBuild id="CalltoArms">
         <InfoArray index="Build1">
             <Button Requirements="" />

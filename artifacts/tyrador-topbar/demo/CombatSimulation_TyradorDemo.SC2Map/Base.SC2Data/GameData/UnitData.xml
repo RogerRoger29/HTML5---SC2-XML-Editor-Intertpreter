@@ -36,13 +36,20 @@
     <!-- Deterministic visual fixture made only from genuine KoE choices. The
          production mod keeps its normal overlapping bank-selected card. -->
     <CUnit id="KoEGlobalCaster">
+        <AbilArray Link="TyradorDemoDeployAssistanceDrone" />
+        <AbilArray Link="TyradorDemoCalltoArms" />
         <CardLayouts index="0">
             <LayoutButtons index="0" Face="SolaceAmongRuin" Type="AbilCmd" AbilCmd="SolaceAmongRuin,Build1" Requirements="" Row="0" Column="0" />
             <LayoutButtons index="1" Face="ShatteredReality" Type="AbilCmd" AbilCmd="ShatteredRealityActivate,On" Requirements="" Row="0" Column="1" />
-            <LayoutButtons index="2" removed="1" />
-            <LayoutButtons index="3" removed="1" />
+            <!-- Demo-only full-bar fixtures. These use their real KoE ability
+                 commands. Demo startup enables the ability-level requirements
+                 that normally come from the selected campaign loadout. -->
+            <LayoutButtons index="2" Face="TyradorTopBarDeployAssistanceDrone" Type="AbilCmd" AbilCmd="TyradorDemoDeployAssistanceDrone,Execute" Requirements="" Row="0" Column="2" />
+            <LayoutButtons index="3" Face="TyradorTopBarCalltoArms" Type="AbilCmd" AbilCmd="TyradorDemoCalltoArms,Build1" Requirements="" Row="0" Column="3" />
             <LayoutButtons index="4" Face="FrontlineProtocol" Type="Passive" AbilCmd="" Requirements="" Row="0" Column="4" />
-            <LayoutButtons index="5" removed="1" />
+            <!-- CommandButton05 reads row 1, column 0. Use a second genuine
+                 KoE passive here so both end sockets can be reviewed. -->
+            <LayoutButtons index="5" Face="BattlefieldAdaptation" Type="Passive" AbilCmd="" Requirements="" Row="1" Column="0" />
             <LayoutButtons index="6" removed="1" />
             <LayoutButtons index="7" removed="1" />
             <LayoutButtons index="8" removed="1" />

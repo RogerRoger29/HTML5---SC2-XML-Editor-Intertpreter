@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Catalog>
+    <!-- Topbar-only faces deliberately omit Hotkey and HotkeyAlias. The
+         Tyrador layout's CommanderAbility2/3 bindings then own both the
+         displayed shortcut and input, instead of leaking the source faces'
+         ordinary command-card R/X keys into the global caster bar. -->
+    <CButton id="TyradorTopBarDeployAssistanceDrone">
+        <Icon value="Assets\Textures\Talent-Swann-Level05-VespeneDrone.dds" />
+        <AlertIcon value="Assets\Textures\Talent-Swann-Level05-VespeneDrone.dds" />
+        <Name value="Button/Name/DeployAssistanceDrone" />
+        <Tooltip value="Button/Tooltip/DeployAssistanceDrone" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
+    <CButton id="TyradorTopBarCalltoArms">
+        <Icon value="Assets\Textures\btn-ability-spearofadun-massrecall.dds" />
+        <AlertIcon value="Assets\Textures\btn-ability-spearofadun-massrecall.dds" />
+        <Name value="Button/Name/CalltoArms" />
+        <Tooltip value="Button/Tooltip/CalltoArms" />
+        <TooltipFlags index="ShowLevel" value="0" />
+    </CButton>
     <CButton id="DFABuildStructures">
         <Icon value="Assets\Textures\BTN-Command-Terran-BuildStructure.dds" />
         <AlertIcon value="Assets\Textures\BTN-Command-Terran-BuildStructure.dds" />

@@ -16,7 +16,9 @@ This package contains a complete SC2 global-caster top bar with:
 - `Tyrador_TopBar.SC2Layout` is the editable source layout.
 - `Tyrador_TopBar_Integration.galaxy` is the runtime hookup reference.
 - `demo/CombatSimulation_TyradorDemo.SC2Map` is the unpacked, directly
-  launchable Combat Simulation demonstration copy.
+  launchable Combat Simulation demonstration copy. It uses demo-only
+  catalog entries to fill all four active and both passive wells, making
+  the complete bar easy to inspect without changing KoE's campaign loadout.
 - `assets/tyrador_topbar_shell.png` is the final transparent texture source.
 - `assets/tyrador_topbar_shell.dds` is the DXT5 game texture.
 - `assets/tyrador_button_backing.*` is the recessed layer below command icons.
@@ -61,3 +63,9 @@ other wells correctly remain empty. Future catalog work can use columns 2 and
 3 for two more active groups and row 1, column 0 for a second passive group.
 Do not populate that second passive well with a stock SoA choice unless KoE's
 caster and campaign-perk data explicitly add that choice group.
+
+The demonstration map is deliberately different from that production setup.
+Its extra active buttons call KoE's Assistance Drone and Call to Arms abilities
+through demo-only ability and button records. The second passive well displays
+Battlefield Adaptation for visual inspection. Those fixtures belong to the
+demo map and are not added to `TyradorTopBar.SC2Mod`.

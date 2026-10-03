@@ -20,6 +20,15 @@
     <Constant name="TyradorEnergySegmentWidth" val="15"/>
     <Constant name="TyradorEnergySegmentHeight" val="31"/>
 
+    <!-- AMT's stock host is only 786px wide. Tyrador's 900px shell was being
+         clipped by 57px on each side, removing both passive sockets. -->
+    <Frame type="Frame" name="GameUI/UIContainer/FullscreenUpperContainer" file="GameUI">
+        <Frame type="Frame" name="AMTGlobalCastingPanel">
+            <Width val="#TyradorTopBarWidth"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="-450"/>
+        </Frame>
+    </Frame>
+
     <Frame type="CommandButton" name="TyradorAbilityButtonTemplate" template="CommandButton/CommandButtonTemplate">
         <Width val="60"/>
         <Height val="58"/>
@@ -57,41 +66,20 @@
         </Frame>
     </Frame>
 
-    <Frame type="CommandButton" name="TyradorPassiveButtonTemplate" template="CommandButton/CommandButtonTemplate">
-        <Width val="36"/>
-        <Height val="34"/>
+    <!-- Keep the stock SoA passive control at its authored 42px size. SC2
+         catalog icons are 76px textures with a small transparent rim; shrinking
+         the control to 28px made the painted art only about 24px wide and left
+         it floating inside Tyrador's end socket. -->
+    <Frame type="CommandButton" name="TyradorPassiveLeftButtonTemplate" template="LotV_SoAMissionUIPanel/SoACommandPassiveTemplate">
+        <Width val="42"/>
+        <Height val="42"/>
         <ClickSound val="@UI_GenericButton"/>
+    </Frame>
 
-        <Frame type="Image" name="GameButtonBorderImage">
-            <Visible val="false"/>
-        </Frame>
-
-        <Frame type="Image" name="TyradorButtonBacking">
-            <Anchor relative="$parent"/>
-            <Texture val="Assets/Textures/tyrador_button_backing.dds"/>
-            <RenderPriority val="511"/>
-        </Frame>
-
-        <Frame type="Image" name="TyradorButtonFrame">
-            <Anchor relative="$parent"/>
-            <Texture val="Assets/Textures/tyrador_button_frame.dds"/>
-            <RenderPriority val="513"/>
-        </Frame>
-
-        <Frame type="Image" name="TyradorHoverFrame">
-            <Anchor relative="$parent"/>
-            <Texture val="Assets/Textures/tyrador_button_hover.dds"/>
-            <RenderPriority val="519"/>
-            <Visible val="false"/>
-
-            <Animation name="Hover">
-                <Event event="OnMouseEnter" action="Reset,Play" frame="$parent"/>
-                <Event event="OnMouseExit" action="Reset" frame="$parent"/>
-                <Controller type="Visibility" end="Pause">
-                    <Key type="Bool" time="0" value="true"/>
-                </Controller>
-            </Animation>
-        </Frame>
+    <Frame type="CommandButton" name="TyradorPassiveRightButtonTemplate" template="LotV_SoAMissionUIPanel/SoACommandPassiveTemplate">
+        <Width val="42"/>
+        <Height val="42"/>
+        <ClickSound val="@UI_GenericButton"/>
     </Frame>
 
     <Frame type="ProgressBar" name="TyradorEnergySegmentTemplate">
@@ -137,7 +125,8 @@
     <Frame type="CommandPanel" name="TyradorGlobalCommandPanelTemplate" template="AMT_TopBarTemplate/TopBarCommandPanelTemplate">
         <Width val="#TyradorTopBarWidth"/>
         <Height val="#TyradorTopBarHeight"/>
-        <Anchor relative="$parent"/>
+        <Anchor side="Top" relative="$parent" pos="Min" offset="0"/>
+        <Anchor side="Left" relative="$parent" pos="Min" offset="0"/>
         <HideUnusedButtons val="true"/>
         <DisplayCancelCommandCard val="false"/>
         <UseGridHotkeys val="false"/>
@@ -175,22 +164,26 @@
             <HotkeyUse val="CommanderAbility3"/>
         </Frame>
 
-        <Frame type="CommandButton" name="CommandButton04" template="Tyrador_TopBar/TyradorPassiveButtonTemplate">
-            <Anchor side="Top" relative="$parent" pos="Min" offset="44"/>
-            <Anchor side="Left" relative="$parent" pos="Mid" offset="-397"/>
-            <Width val="36"/>
-            <Height val="34"/>
+        <Frame type="CommandButton" name="CommandButton04" template="Tyrador_TopBar/TyradorPassiveLeftButtonTemplate">
+            <!-- Center on the shell's painted cavity, not the full 114px
+                 texture bounds. The cavity center resolves to Y=61. -->
+            <Anchor side="Top" relative="$parent" pos="Min" offset="40"/>
+            <!-- The shell is authored at 1024px and rendered at 900px. Its
+                 passive-socket center resolves to 36.5px from this edge. -->
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="-434"/>
+            <Width val="42"/>
+            <Height val="42"/>
             <TooltipFrame val="TyradorCommandTooltip"/>
             <!-- AMT's SoA panel explicitly exposes passive controls so catalog
                  requirement changes can paint them after the panel is hooked. -->
             <Visible val="true"/>
         </Frame>
 
-        <Frame type="CommandButton" name="CommandButton05" template="Tyrador_TopBar/TyradorPassiveButtonTemplate">
+        <Frame type="CommandButton" name="CommandButton05" template="Tyrador_TopBar/TyradorPassiveRightButtonTemplate">
             <Anchor side="Top" relative="$parent/CommandButton04" pos="Min" offset="0"/>
-            <Anchor side="Left" relative="$parent" pos="Mid" offset="361"/>
-            <Width val="36"/>
-            <Height val="34"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="392"/>
+            <Width val="42"/>
+            <Height val="42"/>
             <TooltipFrame val="TyradorCommandTooltip"/>
             <Visible val="true"/>
         </Frame>
@@ -403,16 +396,32 @@
             <RenderPriority val="517"/>
         </Frame>
 
+        <Frame type="CommandPanel" name="TyradorGlobalCommandPanel" template="Tyrador_TopBar/TyradorGlobalCommandPanelTemplate"/>
+
+        <!-- KoE hides Blizzard's SoA panel visually, but its original orb
+             tooltip frame remains mouse-active underneath this top bar. -->
+        <Frame type="Frame" name="LegacySoATooltipBlocker">
+            <Anchor side="Top" relative="$parent" pos="Min" offset="8"/>
+            <Anchor side="Left" relative="$parent" pos="Mid" offset="-42"/>
+            <Width val="84"/>
+            <Height val="84"/>
+            <AcceptsMouse val="true"/>
+            <AcceptsMouseTooltip val="false"/>
+            <RenderPriority val="520"/>
+        </Frame>
+
+        <!-- Keep this after the command panel so the number owns the mouse
+             hit test instead of the old SoA orb position underneath it. -->
         <Frame type="Frame" name="EnergyTooltipHitFrame">
-            <Anchor side="Top" relative="$parent" pos="Min" offset="35"/>
-            <Anchor side="Left" relative="$parent" pos="Mid" offset="-125"/>
-            <Width val="250"/>
-            <Height val="42"/>
+            <Anchor side="Top" relative="$parent/EnergyValueLabel" pos="Min" offset="0"/>
+            <Anchor side="Bottom" relative="$parent/EnergyValueLabel" pos="Max" offset="0"/>
+            <Anchor side="Left" relative="$parent/EnergyValueLabel" pos="Min" offset="0"/>
+            <Anchor side="Right" relative="$parent/EnergyValueLabel" pos="Max" offset="0"/>
+            <Tooltip val="Shows how much energy is available for Spear of Adun powers."/>
             <AcceptsMouse val="true"/>
             <AcceptsMouseTooltip val="true"/>
             <TooltipAnchorPosition val="TopToBottom | HCenterToCenter"/>
+            <RenderPriority val="521"/>
         </Frame>
-
-        <Frame type="CommandPanel" name="TyradorGlobalCommandPanel" template="Tyrador_TopBar/TyradorGlobalCommandPanelTemplate"/>
     </Frame>
 </Desc>
